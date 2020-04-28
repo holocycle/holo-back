@@ -1,0 +1,22 @@
+settings:
+  legacy:
+    force: false
+    interval: 0s
+schema:
+- name: holo-back
+  path: .
+  commands:
+    install:
+      status: true
+      method: go build main.go
+    run:
+      status: true
+      method: ./main
+  watcher:
+    extensions:
+    - go
+    paths:
+    - /
+    ignored_paths:
+    - .git
+    - .realize
