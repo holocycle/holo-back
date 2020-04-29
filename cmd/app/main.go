@@ -13,13 +13,8 @@ import (
 func main() {
 	e := echo.New()
 
-	dbConf := &db.DBConfig{
-		Host:     "db",
-		Port:     "5432",
-		User:     "holo",
-		Password: "password",
-	}
-	db, err := db.NewDB(dbConf)
+	dbURL := os.Getenv("DATABASE_URL")
+	db, err := db.NewDB(dbURL)
 	if err != nil {
 		fmt.Printf("cannnot access db %+v\n", err) // TODO: use logger
 		return
