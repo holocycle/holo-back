@@ -37,13 +37,14 @@ yarn migrate
 yarn stop   # コンテナの停止
 ```
 
-## リリース用ビルド
-
+## デプロイ手順
 ```bash
-yarn build
-docker image ls
+yarn build # 本番環境用docker image の build
 ```
 
+```bash
+yarn deploy # herokuへのデプロイ
+```
 
 ## 便利なエイリアス
 ### docker-compose
@@ -54,6 +55,6 @@ yarn docker logs # ログをみる例
 
 ### goose
 ```bash
-yarn goose         # goose の alias
-yarn docker status # DBの状態をみる
+yarn goose        # goose の alias
+yarn goose status # DBの状態をみる
 ```
