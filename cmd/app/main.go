@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/holocycle/holo-back/internal/controller"
 	"github.com/holocycle/holo-back/pkg/db"
@@ -33,5 +34,6 @@ func main() {
 	e.GET("/", controller.Index)
 	e.GET("/health", controller.Health)
 
-	e.Logger.Fatal(e.Start(":8080"))
+	port := os.Getenv("PORT")
+	e.Logger.Fatal(e.Start(":" + port))
 }
