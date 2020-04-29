@@ -3,17 +3,19 @@ services:
   app:
     container_name: "app"
     build:
-      context: .
+      context: ../../
+      dockerfile: ./scripts/app/Dockerfile
       target: "builder"
     ports:
       - "8080:8080"
     command: ["realize", "start"]
     volumes:
-      - ".:/work"
+      - "../../:/work"
     networks:
       - "app-net"
     depends_on:
       - "db"
+
   db:
     container_name: "db"
     image: "postgres:12.2-alpine"

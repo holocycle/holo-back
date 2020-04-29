@@ -1,0 +1,17 @@
+{
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "setup": "yarn setup:app && yarn setup:tool",
+    "setup:app": "docker-compose -f scripts/app/docker-compose.yaml build",
+    "setup:tool": "docker-compose -f scripts/tool/docker-compose.yaml build",
+    "docker": "docker-compose -f scripts/app/docker-compose.yaml",
+    "status": "yarn docker ps",
+    "start": "yarn docker up -d",
+    "stop": "yarn docker down",
+    "build": "docker build -f scripts/app/Dockerfile -t holo-app:$(git rev-parse --short HEAD) --target=app .",
+    "goose": "docker-compose -f scripts/tool/docker-compose.yaml run tool goose -dir sql postgres 'host=db port=5432 user=holo password=password sslmode=disable'",
+    "migrate": "yarn goose up"
+  },
+  "version": "0.0.0"
+}

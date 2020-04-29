@@ -4,29 +4,56 @@
 - go 1.14
 - docker 19.3
 - docker-copose 1.25
+- yarn 1.22
 
-## 使い方 (Local)
+## 概要
 
-依存ライブラリのダウンロード
+| name | host           | description                        |
+| ---- | -------------- | ---------------------------------- |
+| app  | localhost:8080 | golang, web server                 |
+| db   | localhost:5432 | postgres, user=holo, pass=password |
+
+## セットアップ
+
 ```bash
-go mod download
+yarn setup # dockerイメージのビルド
 ```
 
-ローカルビルド & 実行
-```bash
-go run main.go
-curl localhost:8080
-```
-
-## 使い方 (Docker)
-
-ビルド
-```bash
-docker-compose build
-```
-
+## 使い方
 起動
 ```bash
-docker-compose up -d
+yarn start  # コンテナの起動
+yarn status # コンテナのステータス確認
 curl localhost:8080
+```
+
+DBマイグレーション
+```bash
+yarn migrate
+```
+
+停止
+```bash
+yarn stop   # コンテナの停止
+```
+
+## リリース用ビルド
+
+```bash
+yarn build
+docker image ls
+```
+
+
+## 便利なエイリアス
+### docker-compose
+```bash
+yarn docker      # docker-compose の alias
+yarn docker logs # ログをみる例
+```
+
+### goose
+```bash
+yarn goose         # goose の alias
+yarn docker status # DBの状態をみる
 ```
