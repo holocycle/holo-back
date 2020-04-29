@@ -6,9 +6,6 @@ services:
       context: ../../
       dockerfile: ./scripts/app/Dockerfile
       target: "builder"
-    environment:
-      - PORT=8080
-      - DATABASE_URL=host=db port=5432 user=holo password=password sslmode=disable
     ports:
       - "8080:8080"
     command: ["realize", "start"]
