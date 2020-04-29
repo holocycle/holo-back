@@ -7,6 +7,24 @@ services:
       target: "builder"
     ports:
       - "8080:8080"
-    command: [ "realize", "start" ]
+    command: ["realize", "start"]
     volumes:
       - ".:/work"
+    networks:
+      - "app-net"
+    depends_on:
+      - "db"
+  db:
+    container_name: "db"
+    image: "postgres:12.2-alpine"
+    environment:
+      - POSTGRES_USER=holo
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+    networks:
+      - "app-net"
+
+networks:
+  app-net:
+    name: "app-net"
