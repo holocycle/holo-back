@@ -7,8 +7,10 @@ import (
 	"github.com/holocycle/holo-back/internal/app/config"
 	"github.com/holocycle/holo-back/internal/app/controller"
 	"github.com/holocycle/holo-back/pkg/db"
+	"github.com/holocycle/holo-back/pkg/logger"
 	"github.com/holocycle/holo-back/pkg/middleware"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
 
 func main() {
@@ -20,11 +22,20 @@ func main() {
 		os.Exit(1)
 	}
 
-	db, err := db.NewDB(config.DatabaseURL)
+	log, err := logger.NewLogger(&config.Logger)
 	if err != nil {
-		fmt.Printf("cannnot access db %+v\n", err) // TODO: use logger
-		return
+		fmt.Printf("Failed to create logger. err=%+v\n", err)
+		os.Exit(1)
 	}
+	defer log.Sync()
+	log.Info("Created logger")
+
+	db, err := db.NewDB(&config.DB)
+	if err != nil {
+		log.Fatal("cannnot access database", zap.Error(err))
+	}
+	defer db.Close()
+	log.Info("Connected database")
 
 	middlewares := []echo.MiddlewareFunc{
 		middleware.NewContextMiddleware(),

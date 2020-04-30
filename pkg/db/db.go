@@ -5,8 +5,12 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
-func NewDB(url string) (*gorm.DB, error) {
-	db, err := gorm.Open("postgres", url)
+type DBConfig struct {
+	URL string `required:"true" env:"DATABASE_URL"`
+}
+
+func NewDB(dbConfig *DBConfig) (*gorm.DB, error) {
+	db, err := gorm.Open("postgres", dbConfig.URL)
 
 	if err != nil {
 		return nil, err

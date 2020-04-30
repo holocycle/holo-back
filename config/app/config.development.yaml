@@ -1,2 +1,5 @@
 port: "8080"
-databaseurl: "host=db port=5432 user=holo password=password sslmode=disable"
+logger:
+  level: "debug"
+db:
+  url: "host=db port=5432 user=holo password=password sslmode=disable"

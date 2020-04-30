@@ -1,1 +1,2 @@
-# this file will be used if environment variable `APP_ENV` is `prodocution`
+logger:
+  level: "info"

@@ -1,6 +1,8 @@
 package config
 
 import (
+	"github.com/holocycle/holo-back/pkg/db"
+	"github.com/holocycle/holo-back/pkg/logger"
 	"github.com/jinzhu/configor"
 )
 
@@ -10,9 +12,10 @@ const (
 )
 
 type AppConfig struct {
-	AppName     string `required:"true"`
-	Port        string `required:"true" env:"PORT"`
-	DatabaseURL string `required:"true" env:"DATABASE_URL"`
+	AppName string `required:"true"`
+	Port    string `required:"true" env:"PORT"`
+	Logger  logger.LoggerConfig
+	DB      db.DBConfig
 }
 
 func NewConfig() (*AppConfig, error) {
