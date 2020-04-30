@@ -39,6 +39,9 @@ func main() {
 
 	middlewares := []echo.MiddlewareFunc{
 		middleware.NewContextMiddleware(),
+		middleware.NewLoggerMiddleware(log),
+		middleware.NewRequestLoggingMiddleware(),
+		middleware.NewResponseLoggingMiddleware(),
 		middleware.NewDBMiddleware(db),
 	}
 	e.Use(middlewares...)
