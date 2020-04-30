@@ -5,6 +5,7 @@
 - docker 19.3
 - docker-copose 1.25
 - yarn 1.22
+- heroku 7.39
 
 ## 概要
 

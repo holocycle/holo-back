@@ -12,12 +12,17 @@
     "build": "yarn build:image && yarn build:tag",
     "build:image": "docker build -f scripts/app/Dockerfile -t registry.heroku.com/holo-back/web:$(git rev-parse --short HEAD) --target=app .",
     "build:tag": "docker tag registry.heroku.com/holo-back/web:$(git rev-parse --short HEAD) registry.heroku.com/holo-back/web:latest",
-    "deploy": "yarn deploy:login && yarn deploy:push && yarn deploy:release",
+    "deploy": "yarn deploy:login && yarn deploy:push && yarn deploy:migrate && yarn deploy:release",
     "deploy:login": "heroku login -i && heroku container:login",
     "deploy:push": "docker push registry.heroku.com/holo-back/web:latest",
+    "deploy:migrate": "yarn goose:remote up",
     "deploy:release": "heroku container:release -a holo-back web",
-    "goose": "docker-compose -f scripts/tool/docker-compose.yaml run tool goose -dir sql postgres 'host=db port=5432 user=holo password=password sslmode=disable'",
+    "goose": "yarn goose:local",
+    "goose:base": "docker-compose -f scripts/tool/docker-compose.yaml run tool goose -dir migrate postgres",
+    "goose:local": "yarn goose:base \"$(yarn --silent goose:local-credential)\"",
+    "goose:remote": "yarn goose:base \"$(yarn --silent goose:remote-credential)\"",
+    "goose:local-credential": "echo host=db port=5432 user=holo password=password sslmode=disable",
+    "goose:remote-credential": "heroku pg:credentials:url -a holo-back | sed -n -e '3p' | sed -E 's/^\\s*\"(.*)\"\\s*$/\\1/g'",
     "migrate": "yarn goose up"
-  },
-  "version": "0.0.0"
+  }
 }
