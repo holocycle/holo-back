@@ -28,3 +28,9 @@ func Health(c echo.Context) error {
 	res := "Health:" + healthCheck.CreatedAt.String()
 	return ctx.String(http.StatusOK, res)
 }
+
+func RegisterController(e *echo.Echo) {
+	e.GET("/", Index)
+	e.GET("/health", Health)
+	RegisterLiverController(e)
+}

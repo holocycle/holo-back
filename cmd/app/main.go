@@ -46,8 +46,7 @@ func main() {
 	}
 	e.Use(middlewares...)
 
-	e.GET("/", controller.Index)
-	e.GET("/health", controller.Health)
+	controller.RegisterController(e)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", config.Port)))
 }
