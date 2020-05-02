@@ -22,7 +22,7 @@
     "goose:local": "yarn goose:base \"$(yarn --silent goose:local-credential)\"",
     "goose:remote": "yarn goose:base \"$(yarn --silent goose:remote-credential)\"",
     "goose:local-credential": "echo host=db port=5432 user=holo password=password sslmode=disable",
-    "goose:remote-credential": "heroku pg:credentials:url -a holo-back | sed -n -e '3p' | sed -E 's/^\\s*\"(.*)\"\\s*$/\\1/g'",
+    "goose:remote-credential": "heroku pg:credentials:url -a holo-back | sed -n -e '5p' | sed -E 's/^\\s*\"(.*)\"\\s*$/\\1/g'",
     "migrate": "yarn goose up"
   }
 }

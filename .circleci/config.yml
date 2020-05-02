@@ -1,0 +1,143 @@
+version: 2.1
+executors:
+  default:
+    working_directory: /work
+    docker:
+      - image: golang:1.14-stretch
+
+commands:
+  save_workspace:
+    steps:
+      - persist_to_workspace:
+          root: /
+          paths:
+            - work
+            - usr/local/bin
+            - usr/local/lib
+
+  load_workspace:
+    steps:
+      - attach_workspace:
+          at: /
+
+  install_docker:
+    steps:
+      - run:
+          name: docker install
+          command: |
+            VER=19.03.8; curl -L -o /tmp/docker.tgz https://download.docker.com/linux/static/stable/x86_64/docker-${VER}.tgz
+            tar -x -C /tmp -f /tmp/docker.tgz
+            mv /tmp/docker/* /usr/local/bin
+
+  install_heroku:
+    steps:
+      - run:
+          name: heroku install
+          command: curl https://cli-assets.heroku.com/install.sh | sh
+
+  install_goose:
+    steps:
+      - run:
+          name: goose install
+          command: |
+            GO111MODULE=on go get -x github.com/pressly/goose/cmd/goose@v2.6.0
+            cp /go/bin/goose /usr/local/bin
+
+jobs:
+  setup:
+    executor: default
+    steps:
+      - checkout
+      - install_docker
+      - install_heroku
+      - install_goose
+      - save_workspace
+
+  build:
+    executor: default
+    steps:
+      - load_workspace
+      - run: go mod download -x
+      - run: go build -x ./cmd/app/main.go
+
+  lint:
+    executor: default
+    steps:
+      - load_workspace
+      - run: echo lint
+
+  test:
+    executor: default
+    steps:
+      - load_workspace
+      - run: echo test
+
+  build_image:
+    executor: default
+    steps:
+      - load_workspace
+      - setup_remote_docker
+      - run: docker login -u ${DOCKER_HUB_USER} -p ${DOCKER_HUB_PASS}
+      - run: docker build -f ./scripts/app/Dockerfile -t ${DOCKER_HUB_REPO}:$(git rev-parse --short HEAD) --target=app .
+      - run: docker push ${DOCKER_HUB_REPO}:$(git rev-parse --short HEAD)
+
+  deploy:
+    executor: default
+    steps:
+      - load_workspace
+      - setup_remote_docker
+      - run: heroku container:login
+      - run: docker pull ${DOCKER_HUB_REPO}:$(git rev-parse --short HEAD)
+      - run: docker tag ${DOCKER_HUB_REPO}:$(git rev-parse --short HEAD) registry.heroku.com/${HEROKU_APP_NAME}/web
+      - run: docker push registry.heroku.com/${HEROKU_APP_NAME}/web
+      - run: heroku container:release -a ${HEROKU_APP_NAME} web
+
+  migrate:
+    executor: default
+    steps:
+      - load_workspace
+      - run:
+          name: goose up
+          command: |
+            URL=$(heroku pg:credentials:url -a ${HEROKU_APP_NAME} | sed -n -e '5p' | sed -E 's/^\\s*\"(.*)\"\\s*$/\\1/g')
+            goose -dir migrate postgres ${URL} up
+
+workflows:
+  version: 2
+  buid_and_deploy:
+    jobs:
+      - setup
+      - build:
+          context: holo-back
+          requires:
+            - setup
+      - lint:
+          context: holo-back
+          requires:
+            - setup
+      - test:
+          context: holo-back
+          requires:
+            - setup
+      - build_image:
+          context: holo-back
+          requires:
+            - setup
+      - hold:
+          type: approval
+          filters:
+            branches:
+              only: master
+          requires:
+            - build
+            - lint
+            - test
+            - build_image
+      - deploy:
+          context: holo-back
+          requires:
+            - hold
+      - migrate:
+          context: holo-back
+          requires:
+            - hold
