@@ -18,7 +18,6 @@ func NewLiverRepository(ctx context.Context) *LiverRepository {
 
 func (r *LiverRepository) FindAll(cond *model.Liver) ([]*model.Liver, error) {
 	res := make([]*model.Liver, 0)
-	r.Tx.LogMode(true)
 	if err := r.Tx.Where(cond).Find(&res).Error; err != nil {
 		return nil, err // FIXME
 	}
