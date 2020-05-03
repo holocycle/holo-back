@@ -12,10 +12,11 @@ const (
 )
 
 type AppConfig struct {
-	AppName string `required:"true"`
-	Port    string `required:"true" env:"PORT"`
-	Logger  logger.LoggerConfig
-	DB      db.DBConfig
+	AppName      string `required:"true"`
+	Port         string `required:"true" env:"PORT"`
+	Logger       logger.LoggerConfig
+	DB           db.DBConfig
+	GoogleOAuth2 GoogleOAuth2Config
 }
 
 func NewConfig() (*AppConfig, error) {
