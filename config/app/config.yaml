@@ -1,1 +1,9 @@
 appname: "holo-app"
+googleoauth2:
+  googleauthurl: "https://accounts.google.com/o/oauth2/auth"
+  googletokenurl: "https://accounts.google.com/o/oauth2/token"
+  googletokeninfourl: "https://oauth2.googleapis.com/tokeninfo"
+  clientid: "904632099489-q26eslsfdekjvuj0ghtt44g82b9sl431.apps.googleusercontent.com"
+  clientsecret: "" # env
+  clientredirecturl: "" # overlay
+  scope: "email profile openid"

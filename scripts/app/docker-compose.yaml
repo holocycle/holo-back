@@ -6,6 +6,7 @@ services:
       context: ../../
       dockerfile: ./scripts/app/Dockerfile
       target: "builder"
+    env_file: .env
     ports:
       - "8080:8080"
     command: ["realize", "start"]

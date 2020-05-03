@@ -1,2 +1,4 @@
 logger:
   level: "info"
+googleoauth2:
+  clientredirecturl: "https://holo-back.herokuapp.com/login/google-callback"
