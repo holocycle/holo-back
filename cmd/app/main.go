@@ -41,11 +41,13 @@ func main() {
 		middleware.NewContextMiddleware(),
 		middleware.NewLoggerMiddleware(log),
 		middleware.NewRequestLoggingMiddleware(),
+		middleware.NewErrorLoggingMiddleware(),
 		middleware.NewResponseLoggingMiddleware(),
 		middleware.NewDBMiddleware(db),
 	}
 	e.Use(middlewares...)
 
+	e.Static("/assets", "assets")
 	controller.RegisterController(e)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", config.Port)))
