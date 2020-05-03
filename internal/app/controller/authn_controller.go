@@ -4,10 +4,13 @@ import (
 	"errors"
 	"net/http"
 	net_url "net/url"
+	"time"
 
 	"github.com/holocycle/holo-back/internal/app/config"
 	"github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/http_client"
+	"github.com/holocycle/holo-back/pkg/model"
+	"github.com/holocycle/holo-back/pkg/repository"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -93,6 +96,35 @@ func LoginGoogleCallback(c echo.Context) error {
 	}
 	log.Info("success to retrieve email info", zap.String("email", email))
 
-	callbackURL.Fragment = "token=" + email
+	userRepo := repository.NewUserRepository(ctx)
+	user, err := userRepo.FindBy(&model.User{Email: email})
+	if err != nil && !repository.NotFoundError(err) {
+		return err
+	}
+
+	if repository.NotFoundError(err) {
+		log.Info("user not found", zap.String("email", email))
+		user = model.NewUser(email, email)
+		if err := userRepo.Create(user); err != nil {
+			return err
+		}
+		log.Info("success to create user", zap.Any("user", user))
+	}
+	log.Info("success to find user", zap.Any("user", user))
+
+	tokenDuration, err := time.ParseDuration("600s") // FIXME
+	if err != nil {
+		return err // FIXME
+	}
+	expireAt := time.Now().Add(tokenDuration)
+	session := model.NewSession(user.ID, &expireAt)
+
+	sessionRepo := repository.NewSessionRepository(ctx)
+	if err := sessionRepo.Create(session); err != nil {
+		return err
+	}
+	log.Info("success to craete session", zap.Any("session", session))
+
+	callbackURL.Fragment = "token=" + session.ID
 	return ctx.Redirect(http.StatusFound, callbackURL.String())
 }
