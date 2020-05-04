@@ -20,6 +20,11 @@
 yarn setup # dockerイメージのビルド
 ```
 
+以下のファイルにAPIキーを設定する
+```
+./scripts/app/secret.env
+```
+
 ## 使い方
 起動
 ```bash
