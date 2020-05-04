@@ -1,4 +1,10 @@
 appname: "holo-app"
+cors:
+  originwhitelist:
+    - "" # overlay
+  headerwhitelist:
+    - "*"
+    - "Authorization"
 googleoauth2:
   googleauthurl: "https://accounts.google.com/o/oauth2/auth"
   googletokenurl: "https://accounts.google.com/o/oauth2/token"

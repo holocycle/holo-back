@@ -1,4 +1,7 @@
 logger:
   level: "debug"
+cors:
+  originwhitelist:
+    - "http://localhost:3000"
 googleoauth2:
   clientredirecturl: "http://localhost:8080/login/google-callback"

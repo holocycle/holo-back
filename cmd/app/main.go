@@ -14,6 +14,7 @@ import (
 	"github.com/holocycle/holo-back/pkg/logger"
 	"github.com/holocycle/holo-back/pkg/middleware"
 	"github.com/holocycle/holo-back/pkg/validator"
+
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -45,6 +46,7 @@ func main() {
 	e.Validator = validator.NewValidator()
 
 	middlewares := []echo.MiddlewareFunc{
+		middleware.NewCORSMiddleware(&config.CORS),
 		middleware.NewContextMiddleware(),
 		middleware.NewContextHandleMiddleware(func(ctx context.Context) (context.Context, error) {
 			app_context.SetConfig(ctx, config)

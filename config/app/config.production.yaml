@@ -1,4 +1,7 @@
 logger:
   level: "info"
+cors:
+  originwhitelist:
+    - "https://holocycle.netlify.app"
 googleoauth2:
   clientredirecturl: "https://holo-back.herokuapp.com/login/google-callback"

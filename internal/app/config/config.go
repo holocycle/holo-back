@@ -4,6 +4,7 @@ import (
 	"github.com/holocycle/holo-back/pkg/db"
 	"github.com/holocycle/holo-back/pkg/logger"
 	"github.com/holocycle/holo-back/pkg/youtube_client"
+	"github.com/holocycle/holo-back/pkg/middleware"
 	"github.com/jinzhu/configor"
 )
 
@@ -17,6 +18,7 @@ type AppConfig struct {
 	Port          string `required:"true" env:"PORT"`
 	Logger        logger.LoggerConfig
 	DB            db.DBConfig
+	CORS          middleware.CORSConfig
 	GoogleOAuth2  GoogleOAuth2Config
 	YoutubeClient youtube_client.Config
 }
