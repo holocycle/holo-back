@@ -29,6 +29,31 @@ func BuildURL(url string, query map[string]string) (*net_url.URL, error) {
 	return u, nil
 }
 
+func GetRaw(url string, query map[string]string) ([]byte, error) {
+	u, err := net_url.Parse(url)
+	if err != nil {
+		return nil, err
+	}
+
+	q := u.Query()
+	for k, v := range query {
+		q.Add(k, v)
+	}
+	u.RawQuery = q.Encode()
+
+	resp, err := http.Get(u.String())
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	return body, err
+}
+
 func Get(url string, query map[string]string) (JSON, error) {
 	u, err := net_url.Parse(url)
 	if err != nil {

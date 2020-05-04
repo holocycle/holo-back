@@ -7,3 +7,7 @@ googleoauth2:
   clientsecret: "" # env
   clientredirecturl: "" # overlay
   scope: "email profile openid"
+youtubeclient:
+  apikey: "" # env
+  apiurl:
+    video: "https://www.googleapis.com/youtube/v3/videos"
