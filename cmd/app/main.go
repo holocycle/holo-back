@@ -10,6 +10,7 @@ import (
 	"github.com/holocycle/holo-back/pkg/db"
 	"github.com/holocycle/holo-back/pkg/logger"
 	"github.com/holocycle/holo-back/pkg/middleware"
+	"github.com/holocycle/holo-back/pkg/validator"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -37,6 +38,8 @@ func main() {
 	}
 	defer db.Close()
 	log.Info("Connected database")
+
+	e.Validator = validator.NewValidator()
 
 	middlewares := []echo.MiddlewareFunc{
 		middleware.NewContextMiddleware(),
