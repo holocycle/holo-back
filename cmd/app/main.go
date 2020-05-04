@@ -64,7 +64,7 @@ func main() {
 	e.Use(middlewares...)
 
 	e.Static("/assets", "assets")
-	controller.RegisterController(e)
+	controller.RegisterAllController(e)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", config.Port)))
 }

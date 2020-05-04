@@ -9,9 +9,16 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+func RegisterAppController(e *echo.Echo) {
+	e.GET("/", Index)
+	e.GET("/health", Health)
+}
+
 func Index(c echo.Context) error {
 	ctx := c.(context.Context)
-	return ctx.String(http.StatusOK, "Index")
+	return ctx.JSON(http.StatusOK, map[string]string{
+		"message": "Hello World",
+	})
 }
 
 func Health(c echo.Context) error {
@@ -25,14 +32,5 @@ func Health(c echo.Context) error {
 		return err
 	}
 
-	res := "Health:" + healthCheck.CreatedAt.String()
-	return ctx.String(http.StatusOK, res)
-}
-
-func RegisterController(e *echo.Echo) {
-	e.GET("/", Index)
-	e.GET("/health", Health)
-	RegisterLiverController(e)
-	RegisterAuthnController(e)
-	RegisterClipController(e)
+	return ctx.JSON(http.StatusOK, healthCheck)
 }
