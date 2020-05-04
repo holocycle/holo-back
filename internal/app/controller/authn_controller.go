@@ -6,7 +6,7 @@ import (
 	net_url "net/url"
 	"time"
 
-	"github.com/holocycle/holo-back/internal/app/config"
+	app_context "github.com/holocycle/holo-back/internal/app/context"
 	"github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/http_client"
 	"github.com/holocycle/holo-back/pkg/model"
@@ -22,7 +22,7 @@ func RegisterAuthnController(e *echo.Echo) {
 
 func LoginGoogle(c echo.Context) error {
 	ctx := c.(context.Context)
-	cfg := ctx.Get("config").(*config.AppConfig)
+	cfg := app_context.GetConfig(ctx)
 	log := ctx.GetLog()
 
 	callbackURL := ctx.FormValue("callback")
@@ -48,7 +48,7 @@ func LoginGoogle(c echo.Context) error {
 func LoginGoogleCallback(c echo.Context) error {
 	ctx := c.(context.Context)
 	log := ctx.GetLog()
-	cfg := ctx.Get("config").(*config.AppConfig)
+	cfg := app_context.GetConfig(ctx)
 
 	code := ctx.FormValue("code")
 	if code == "" {

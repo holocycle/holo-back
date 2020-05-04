@@ -3,7 +3,7 @@ package controller
 import (
 	"net/http"
 
-	"github.com/holocycle/holo-back/internal/app/config"
+	app_context "github.com/holocycle/holo-back/internal/app/context"
 	"github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/holocycle/holo-back/pkg/repository"
@@ -28,7 +28,7 @@ func ListClips(c echo.Context) error {
 func PostClip(c echo.Context) error {
 	ctx := c.(context.Context)
 	log := ctx.GetLog()
-	cfg := ctx.Get("config").(*config.AppConfig)
+	cfg := app_context.GetConfig(ctx)
 
 	type Form struct {
 		VideoID     string `json:"videoId"     validate:"required,max=64"`
@@ -82,9 +82,8 @@ func PostClip(c echo.Context) error {
 	}
 	log.Info("success to save video", zap.Any("video", video))
 
-	userID := "hoge" // FIXME
 	clip := model.NewClip(
-		userID,
+		app_context.GetUserID(ctx),
 		form.Title,
 		form.Description,
 		form.VideoID,
@@ -98,7 +97,9 @@ func PostClip(c echo.Context) error {
 	}
 	log.Info("success to create video", zap.Any("clip", clip))
 
-	return ctx.JSON(http.StatusCreated, clip)
+	return ctx.JSON(http.StatusCreated, map[string]string{
+		"clipId": clip.ID,
+	})
 }
 
 func GetClip(c echo.Context) error {
