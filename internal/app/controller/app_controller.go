@@ -34,4 +34,5 @@ func RegisterController(e *echo.Echo) {
 	e.GET("/health", Health)
 	RegisterLiverController(e)
 	RegisterAuthnController(e)
+	RegisterClipController(e)
 }
