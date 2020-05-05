@@ -39,7 +39,7 @@ func (c *Client) GetVideo(videoID string) (*model.Video, error) {
 		duration,
 		v.Snippet.Thumbnails.Default.URL,
 		v.Snippet.Thumbnails.Medium.URL,
-		v.Snippet.Thumbnails.Large.URL,
+		v.Snippet.Thumbnails.High.URL,
 		&v.Snippet.PublishedAt,
 	)
 

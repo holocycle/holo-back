@@ -26,7 +26,7 @@ type Video struct {
 				Width  int
 				Height int
 			}
-			Large struct {
+			High struct {
 				URL    string
 				Width  int
 				Height int
