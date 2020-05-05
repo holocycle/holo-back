@@ -6,6 +6,7 @@ import (
 	app_context "github.com/holocycle/holo-back/internal/app/context"
 	"github.com/holocycle/holo-back/pkg/api"
 	"github.com/holocycle/holo-back/pkg/context"
+	"github.com/holocycle/holo-back/pkg/converter"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/holocycle/holo-back/pkg/repository"
 	"github.com/holocycle/holo-back/pkg/youtube_client"
@@ -96,7 +97,39 @@ func PostClip(c echo.Context) error {
 }
 
 func GetClip(c echo.Context) error {
-	return nil
+	ctx := c.(context.Context)
+	log := ctx.GetLog()
+
+	clipId := ctx.Param("clip_id")
+	if clipId == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "please specify clip_id")
+	}
+	log.Info("success to retrieve path parameter", zap.String("clipId", clipId))
+
+	clipRepo := repository.NewClipRepository(ctx)
+	clip, err := clipRepo.FindBy(&model.Clip{ID: clipId})
+	if err != nil {
+		if repository.NotFoundError(err) {
+			return echo.NewHTTPError(http.StatusNotFound, "clip was not found")
+		}
+		return err
+	}
+	log.Info("success to retrieve clip", zap.Any("clip", clip))
+
+	videoRepo := repository.NewVideoRepository(ctx)
+	video, err := videoRepo.FindBy(&model.Video{ID: clip.VideoID})
+	if err != nil {
+		if repository.NotFoundError(err) {
+			log.Error("no video for clip", zap.Any("clip", clip))
+			return err
+		}
+		return err
+	}
+	log.Info("success to retrieve video", zap.Any("video", video))
+
+	return ctx.JSON(http.StatusOK, &api.GetClipResponse{
+		Clip: converter.ConvertToClip(clip, video),
+	})
 }
 
 func PutClip(c echo.Context) error {

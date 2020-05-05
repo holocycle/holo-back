@@ -7,7 +7,7 @@ type Clip struct {
 	VideoID     string `json:"videoId"`
 	BeginAt     int    `json:"beginAt"`
 	EndAt       int    `json:"endAt"`
-	Video       Video  `json:"video"`
+	Video       *Video `json:"video"`
 }
 
 type PostClipRequest struct {
@@ -22,10 +22,19 @@ type PostClipResponse struct {
 	ClipID string `json:"clipId"`
 }
 
+type GetClipRequest struct {
+}
+
+type GetClipResponse struct {
+	Clip *Clip `json:"clip"`
+}
+
 func ClipModels() []interface{} {
 	return []interface{}{
 		Clip{},
 		PostClipRequest{},
 		PostClipResponse{},
+		GetClipRequest{},
+		GetClipResponse{},
 	}
 }
