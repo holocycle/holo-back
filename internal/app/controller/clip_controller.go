@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	app_context "github.com/holocycle/holo-back/internal/app/context"
+	"github.com/holocycle/holo-back/pkg/api"
 	"github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/holocycle/holo-back/pkg/repository"
@@ -30,15 +31,7 @@ func PostClip(c echo.Context) error {
 	log := ctx.GetLog()
 	cfg := app_context.GetConfig(ctx)
 
-	type Form struct {
-		VideoID     string `json:"videoId"     validate:"required,max=64"`
-		Title       string `json:"title"       validate:"required,max=255"`
-		Description string `json:"description" validate:"required"`
-		BeginAt     int    `json:"beginAt"     validate:"gte=0"`
-		EndAt       int    `json:"endAt"       validate:"gtfield=BeginAt"`
-	}
-
-	form := &Form{}
+	form := &api.PostClipRequest{}
 	if err := ctx.Bind(form); err != nil {
 		return err
 	}
@@ -97,8 +90,8 @@ func PostClip(c echo.Context) error {
 	}
 	log.Info("success to create video", zap.Any("clip", clip))
 
-	return ctx.JSON(http.StatusCreated, map[string]string{
-		"clipId": clip.ID,
+	return ctx.JSON(http.StatusCreated, &api.PostClipResponse{
+		ClipID: clip.ID,
 	})
 }
 
