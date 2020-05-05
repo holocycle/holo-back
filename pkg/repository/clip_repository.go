@@ -10,15 +10,36 @@ type ClipRepository struct {
 	Tx *gorm.DB
 }
 
+type ClipOrder int
+
+const (
+	Any ClipOrder = iota
+	RecentlyCreated
+)
+
+type ClipCondition struct {
+	model.Clip
+	Limit   int
+	OrderBy ClipOrder
+}
+
 func NewClipRepository(ctx context.Context) *ClipRepository {
 	return &ClipRepository{
 		Tx: ctx.GetDB(),
 	}
 }
 
-func (r *ClipRepository) FindAll(cond *model.Clip) ([]*model.Clip, error) {
+func (r *ClipRepository) FindAll(cond *ClipCondition) ([]*model.Clip, error) {
+	tx := r.Tx
+	if cond.Limit > 0 {
+		tx = tx.Limit(cond.Limit)
+	}
+	if cond.OrderBy == RecentlyCreated {
+		tx = tx.Order("created_at desc")
+	}
+
 	res := make([]*model.Clip, 0)
-	if err := r.Tx.Where(cond).Find(&res).Error; err != nil {
+	if err := tx.Where(cond.Clip).Find(&res).Error; err != nil {
 		return nil, err // FIXME
 	}
 

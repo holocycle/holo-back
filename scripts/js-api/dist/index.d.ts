@@ -27,6 +27,13 @@ export declare class Clip {
     video: Video;
     static createFrom(source: any): Clip;
 }
+export declare class ListClipsRequest {
+    static createFrom(source: any): ListClipsRequest;
+}
+export declare class ListClipsResponse {
+    clips: Clip[];
+    static createFrom(source: any): ListClipsResponse;
+}
 export declare class PostClipRequest {
     videoId: string;
     title: string;

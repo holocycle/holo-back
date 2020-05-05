@@ -68,6 +68,26 @@ export class Clip {
   }
 
 }
+export class ListClipsRequest {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new ListClipsRequest();
+    return result;
+  }
+
+}
+export class ListClipsResponse {
+  clips: Clip[];
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new ListClipsResponse();
+    result.clips = source["clips"] ? source["clips"].map(function(element: any) { return Clip.createFrom(element); }) : null;
+    return result;
+  }
+
+}
 export class PostClipRequest {
   videoId: string;
   title: string;

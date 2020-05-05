@@ -11,6 +11,8 @@ type Clip struct {
 }
 
 type ListClipsRequest struct {
+	Limit   int    `form:"limit"   validate:"min=0,max=100"`
+	OrderBy string `form:"orderBy" validate:"oneof=any latest"`
 }
 
 type ListClipsResponse struct {
@@ -39,6 +41,8 @@ type GetClipResponse struct {
 func ClipModels() []interface{} {
 	return []interface{}{
 		Clip{},
+		ListClipsRequest{},
+		ListClipsResponse{},
 		PostClipRequest{},
 		PostClipResponse{},
 		GetClipRequest{},

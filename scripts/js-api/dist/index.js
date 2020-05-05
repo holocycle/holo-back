@@ -57,6 +57,31 @@ var Clip = /** @class */ (function () {
     return Clip;
 }());
 exports.Clip = Clip;
+var ListClipsRequest = /** @class */ (function () {
+    function ListClipsRequest() {
+    }
+    ListClipsRequest.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new ListClipsRequest();
+        return result;
+    };
+    return ListClipsRequest;
+}());
+exports.ListClipsRequest = ListClipsRequest;
+var ListClipsResponse = /** @class */ (function () {
+    function ListClipsResponse() {
+    }
+    ListClipsResponse.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new ListClipsResponse();
+        result.clips = source["clips"] ? source["clips"].map(function (element) { return Clip.createFrom(element); }) : null;
+        return result;
+    };
+    return ListClipsResponse;
+}());
+exports.ListClipsResponse = ListClipsResponse;
 var PostClipRequest = /** @class */ (function () {
     function PostClipRequest() {
     }

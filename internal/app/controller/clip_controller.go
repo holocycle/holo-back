@@ -28,8 +28,23 @@ func ListClips(c echo.Context) error {
 	ctx := c.(context.Context)
 	log := ctx.GetLog()
 
+	req := &api.ListClipsRequest{}
+	if err := ctx.Bind(req); err != nil {
+		return err
+	}
+	if err := ctx.Validate(req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	log.Info("success to validate", zap.Any("req", req))
+
+	cond := &repository.ClipCondition{}
+	cond.Limit = req.Limit
+	if req.OrderBy == "latest" {
+		cond.OrderBy = repository.RecentlyCreated
+	}
+
 	clipRepo := repository.NewClipRepository(ctx)
-	clips, err := clipRepo.FindAll(&model.Clip{})
+	clips, err := clipRepo.FindAll(cond)
 	if err != nil {
 		return err
 	}
