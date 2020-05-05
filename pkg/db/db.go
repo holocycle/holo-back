@@ -11,10 +11,11 @@ type DBConfig struct {
 
 func NewDB(dbConfig *DBConfig) (*gorm.DB, error) {
 	db, err := gorm.Open("postgres", dbConfig.URL)
-
 	if err != nil {
 		return nil, err
 	}
+
+	db.LogMode(true)
 
 	return db, nil
 }

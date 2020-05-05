@@ -15,4 +15,3 @@ CREATE UNIQUE INDEX user_email_index ON users(email);
 -- SQL in this section is executed when the migration is rolled back.
 
 DROP TABLE users;
-DROP INDEX user_email_index;

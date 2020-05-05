@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/holocycle/holo-back/pkg/context"
+	"go.uber.org/zap"
 
 	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo/v4"
@@ -38,6 +39,11 @@ func (m *DBMiddleware) Process(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 		}()
 
+		if ctx.GetLog() != nil {
+			log := ctx.GetLog()
+			tx.SetLogger(&loggerForGorm{log: log})
+		}
+
 		ctx.SetDB(tx)
 		err := next(ctx)
 		if err != nil {
@@ -50,4 +56,12 @@ func (m *DBMiddleware) Process(next echo.HandlerFunc) echo.HandlerFunc {
 
 		return tx.Commit().Error
 	}
+}
+
+type loggerForGorm struct {
+	log *zap.Logger
+}
+
+func (l *loggerForGorm) Print(v ...interface{}) {
+	l.log.Debug("gorm log", zap.Any("payload", v))
 }
