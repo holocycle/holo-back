@@ -10,6 +10,13 @@ type Clip struct {
 	Video       *Video `json:"video"`
 }
 
+type ListClipsRequest struct {
+}
+
+type ListClipsResponse struct {
+	Clips []*Clip `json:"clips"`
+}
+
 type PostClipRequest struct {
 	VideoID     string `json:"videoId"     validate:"required,max=64"`
 	Title       string `json:"title"       validate:"required,max=255"`

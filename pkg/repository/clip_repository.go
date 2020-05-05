@@ -16,6 +16,15 @@ func NewClipRepository(ctx context.Context) *ClipRepository {
 	}
 }
 
+func (r *ClipRepository) FindAll(cond *model.Clip) ([]*model.Clip, error) {
+	res := make([]*model.Clip, 0)
+	if err := r.Tx.Where(cond).Find(&res).Error; err != nil {
+		return nil, err // FIXME
+	}
+
+	return res, nil
+}
+
 func (r *ClipRepository) FindBy(cond *model.Clip) (*model.Clip, error) {
 	res := &model.Clip{}
 	if err := r.Tx.Where(cond).First(res).Error; err != nil {

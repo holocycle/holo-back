@@ -16,6 +16,15 @@ func NewVideoRepository(ctx context.Context) *VideoRepository {
 	}
 }
 
+func (r *VideoRepository) FindAll(cond *model.Video) ([]*model.Video, error) {
+	res := make([]*model.Video, 0)
+	if err := r.Tx.Where(cond).Find(&res).Error; err != nil {
+		return nil, err // FIXME
+	}
+
+	return res, nil
+}
+
 func (r *VideoRepository) FindBy(cond *model.Video) (*model.Video, error) {
 	res := &model.Video{}
 	if err := r.Tx.Where(cond).First(res).Error; err != nil {

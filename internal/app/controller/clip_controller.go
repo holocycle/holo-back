@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"net/http"
 
 	app_context "github.com/holocycle/holo-back/internal/app/context"
@@ -24,7 +25,41 @@ func RegisterClipController(e *echo.Echo) {
 }
 
 func ListClips(c echo.Context) error {
-	return nil
+	ctx := c.(context.Context)
+	log := ctx.GetLog()
+
+	clipRepo := repository.NewClipRepository(ctx)
+	clips, err := clipRepo.FindAll(&model.Clip{})
+	if err != nil {
+		return err
+	}
+	log.Info("success to retrieve clips")
+
+	videoRepo := repository.NewVideoRepository(ctx)
+	videos, err := videoRepo.FindAll(&model.Video{})
+	if err != nil {
+		return err
+	}
+	log.Info("success to retrieve videos")
+
+	videoMap := make(map[string]*model.Video)
+	for _, video := range videos {
+		videoMap[video.ID] = video
+	}
+
+	res := make([]*api.Clip, 0)
+	for _, clip := range clips {
+		video, ok := videoMap[clip.VideoID]
+		if !ok {
+			log.Error("found clip but video was not found", zap.String("videoID", clip.VideoID))
+			return errors.New("found clip but video was not found")
+		}
+		res = append(res, converter.ConvertToClip(clip, video))
+	}
+
+	return ctx.JSON(http.StatusOK, &api.ListClipsResponse{
+		Clips: res,
+	})
 }
 
 func PostClip(c echo.Context) error {
@@ -133,9 +168,9 @@ func GetClip(c echo.Context) error {
 }
 
 func PutClip(c echo.Context) error {
-	return nil
+	return echo.NewHTTPError(http.StatusNotImplemented)
 }
 
 func DeleteClip(c echo.Context) error {
-	return nil
+	return echo.NewHTTPError(http.StatusNotImplemented)
 }
