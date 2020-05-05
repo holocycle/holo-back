@@ -31,40 +31,40 @@ func PostClip(c echo.Context) error {
 	log := ctx.GetLog()
 	cfg := app_context.GetConfig(ctx)
 
-	form := &api.PostClipRequest{}
-	if err := ctx.Bind(form); err != nil {
+	req := &api.PostClipRequest{}
+	if err := ctx.Bind(req); err != nil {
 		return err
 	}
 
-	if err := ctx.Validate(form); err != nil {
+	if err := ctx.Validate(req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	log.Info("success to validate", zap.Any("form", form))
+	log.Info("success to validate", zap.Any("req", req))
 
 	youtubeCli := youtube_client.New(&cfg.YoutubeClient)
-	video, err := youtubeCli.GetVideo(form.VideoID)
+	video, err := youtubeCli.GetVideo(req.VideoID)
 	if err != nil {
 		return err // FIXME
 	}
 	log.Info("success to retireve video info from youtube", zap.Any("video", video))
 
-	if form.BeginAt > video.Duration {
+	if req.BeginAt > video.Duration {
 		log.Info("failed to validate duration",
-			zap.Int("form.BeginAt", form.BeginAt),
+			zap.Int("req.BeginAt", req.BeginAt),
 			zap.Int("video.Duration", video.Duration),
 		)
 		return echo.NewHTTPError(http.StatusBadRequest, "begint_at is out of range")
 	}
-	if form.EndAt > video.Duration {
+	if req.EndAt > video.Duration {
 		log.Info("failed to validate duration",
-			zap.Int("form.BeginAt", form.BeginAt),
+			zap.Int("req.BeginAt", req.BeginAt),
 			zap.Int("video.Duration", video.Duration),
 		)
 		return echo.NewHTTPError(http.StatusBadRequest, "end_at is out of range")
 	}
 	log.Info("success to validate duration",
-		zap.Int("form.BeginAt", form.BeginAt),
-		zap.Int("form.EndAt", form.BeginAt),
+		zap.Int("req.BeginAt", req.BeginAt),
+		zap.Int("req.EndAt", req.BeginAt),
 		zap.Int("video.Duration", video.Duration),
 	)
 
@@ -77,11 +77,11 @@ func PostClip(c echo.Context) error {
 
 	clip := model.NewClip(
 		app_context.GetUserID(ctx),
-		form.Title,
-		form.Description,
-		form.VideoID,
-		form.BeginAt,
-		form.EndAt,
+		req.Title,
+		req.Description,
+		req.VideoID,
+		req.BeginAt,
+		req.EndAt,
 	)
 	clipRepo := repository.NewClipRepository(ctx)
 	if err := clipRepo.Create(clip); err != nil {
