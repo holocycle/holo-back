@@ -13,6 +13,7 @@ import (
 	"github.com/holocycle/holo-back/pkg/db"
 	"github.com/holocycle/holo-back/pkg/logger"
 	"github.com/holocycle/holo-back/pkg/middleware"
+	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/holocycle/holo-back/pkg/validator"
 
 	"github.com/labstack/echo/v4"
@@ -55,6 +56,10 @@ func main() {
 			return ctx, nil
 		}),
 		middleware.NewLoggerMiddleware(log),
+		middleware.NewContextHandleMiddleware(func(ctx context.Context) (context.Context, error) {
+			ctx.SetLog(ctx.GetLog().With(zap.String("requestID", model.NewID())))
+			return ctx, nil
+		}),
 		middleware.NewRequestLoggingMiddleware(),
 		middleware.NewErrorLoggingMiddleware(),
 		middleware.NewResponseLoggingMiddleware(),
