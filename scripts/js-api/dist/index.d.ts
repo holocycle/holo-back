@@ -28,6 +28,8 @@ export declare class Clip {
     static createFrom(source: any): Clip;
 }
 export declare class ListClipsRequest {
+    limit: number;
+    orderBy: string;
     static createFrom(source: any): ListClipsRequest;
 }
 export declare class ListClipsResponse {
@@ -52,4 +54,34 @@ export declare class GetClipRequest {
 export declare class GetClipResponse {
     clip: Clip;
     static createFrom(source: any): GetClipResponse;
+}
+export declare class Tag {
+    type: string;
+    id: string;
+    name: string;
+    color: string;
+    static createFrom(source: any): Tag;
+}
+export declare class ListTagsRequest {
+    static createFrom(source: any): ListTagsRequest;
+}
+export declare class ListTagsResponse {
+    tags: Tag[];
+    static createFrom(source: any): ListTagsResponse;
+}
+export declare class GetTagRequest {
+    static createFrom(source: any): GetTagRequest;
+}
+export declare class GetTagResponse {
+    tag: Tag;
+    static createFrom(source: any): GetTagResponse;
+}
+export declare class PutTagRequest {
+    name: string;
+    color: string;
+    static createFrom(source: any): PutTagRequest;
+}
+export declare class PutTagResponse {
+    tagId: string;
+    static createFrom(source: any): PutTagResponse;
 }

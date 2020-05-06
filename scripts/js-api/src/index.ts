@@ -69,10 +69,14 @@ export class Clip {
 
 }
 export class ListClipsRequest {
+  limit: number;
+  orderBy: string;
 
   static createFrom(source: any) {
     if ('string' === typeof source) source = JSON.parse(source);
     const result = new ListClipsRequest();
+    result.limit = source["limit"];
+    result.orderBy = source["orderBy"];
     return result;
   }
 
@@ -134,6 +138,87 @@ export class GetClipResponse {
     if ('string' === typeof source) source = JSON.parse(source);
     const result = new GetClipResponse();
     result.clip = source["clip"] ? Clip.createFrom(source["clip"]) : null;
+    return result;
+  }
+
+}
+export class Tag {
+  type: string;
+  id: string;
+  name: string;
+  color: string;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new Tag();
+    result.type = source["type"];
+    result.id = source["id"];
+    result.name = source["name"];
+    result.color = source["color"];
+    return result;
+  }
+
+}
+export class ListTagsRequest {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new ListTagsRequest();
+    return result;
+  }
+
+}
+export class ListTagsResponse {
+  tags: Tag[];
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new ListTagsResponse();
+    result.tags = source["tags"] ? source["tags"].map(function(element: any) { return Tag.createFrom(element); }) : null;
+    return result;
+  }
+
+}
+export class GetTagRequest {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new GetTagRequest();
+    return result;
+  }
+
+}
+export class GetTagResponse {
+  tag: Tag;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new GetTagResponse();
+    result.tag = source["tag"] ? Tag.createFrom(source["tag"]) : null;
+    return result;
+  }
+
+}
+export class PutTagRequest {
+  name: string;
+  color: string;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new PutTagRequest();
+    result.name = source["name"];
+    result.color = source["color"];
+    return result;
+  }
+
+}
+export class PutTagResponse {
+  tagId: string;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new PutTagResponse();
+    result.tagId = source["tagId"];
     return result;
   }
 

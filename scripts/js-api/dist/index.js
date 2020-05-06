@@ -64,6 +64,8 @@ var ListClipsRequest = /** @class */ (function () {
         if ('string' === typeof source)
             source = JSON.parse(source);
         var result = new ListClipsRequest();
+        result.limit = source["limit"];
+        result.orderBy = source["orderBy"];
         return result;
     };
     return ListClipsRequest;
@@ -137,3 +139,96 @@ var GetClipResponse = /** @class */ (function () {
     return GetClipResponse;
 }());
 exports.GetClipResponse = GetClipResponse;
+var Tag = /** @class */ (function () {
+    function Tag() {
+    }
+    Tag.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new Tag();
+        result.type = source["type"];
+        result.id = source["id"];
+        result.name = source["name"];
+        result.color = source["color"];
+        return result;
+    };
+    return Tag;
+}());
+exports.Tag = Tag;
+var ListTagsRequest = /** @class */ (function () {
+    function ListTagsRequest() {
+    }
+    ListTagsRequest.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new ListTagsRequest();
+        return result;
+    };
+    return ListTagsRequest;
+}());
+exports.ListTagsRequest = ListTagsRequest;
+var ListTagsResponse = /** @class */ (function () {
+    function ListTagsResponse() {
+    }
+    ListTagsResponse.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new ListTagsResponse();
+        result.tags = source["tags"] ? source["tags"].map(function (element) { return Tag.createFrom(element); }) : null;
+        return result;
+    };
+    return ListTagsResponse;
+}());
+exports.ListTagsResponse = ListTagsResponse;
+var GetTagRequest = /** @class */ (function () {
+    function GetTagRequest() {
+    }
+    GetTagRequest.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new GetTagRequest();
+        return result;
+    };
+    return GetTagRequest;
+}());
+exports.GetTagRequest = GetTagRequest;
+var GetTagResponse = /** @class */ (function () {
+    function GetTagResponse() {
+    }
+    GetTagResponse.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new GetTagResponse();
+        result.tag = source["tag"] ? Tag.createFrom(source["tag"]) : null;
+        return result;
+    };
+    return GetTagResponse;
+}());
+exports.GetTagResponse = GetTagResponse;
+var PutTagRequest = /** @class */ (function () {
+    function PutTagRequest() {
+    }
+    PutTagRequest.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new PutTagRequest();
+        result.name = source["name"];
+        result.color = source["color"];
+        return result;
+    };
+    return PutTagRequest;
+}());
+exports.PutTagRequest = PutTagRequest;
+var PutTagResponse = /** @class */ (function () {
+    function PutTagResponse() {
+    }
+    PutTagResponse.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new PutTagResponse();
+        result.tagId = source["tagId"];
+        return result;
+    };
+    return PutTagResponse;
+}());
+exports.PutTagResponse = PutTagResponse;
