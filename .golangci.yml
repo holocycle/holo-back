@@ -1,0 +1,9 @@
+linters:
+  enable:
+    - whitespace
+    - gofmt
+    - goimports
+    - govet
+    - golint
+    - errcheck
+  disable-all: true
