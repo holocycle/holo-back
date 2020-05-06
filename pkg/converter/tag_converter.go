@@ -23,3 +23,11 @@ func ConvertToTags(tags []*model.Tag) []*api.Tag {
 	}
 	return res
 }
+
+func ConvertClipTagsToTags(clipTags []*model.ClipTag) []*api.Tag {
+	res := make([]*api.Tag, 0)
+	for _, clipTag := range clipTags {
+		res = append(res, ConvertToTag(clipTag.Tag))
+	}
+	return res
+}
