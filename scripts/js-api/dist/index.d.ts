@@ -85,3 +85,23 @@ export declare class PutTagResponse {
     tagId: string;
     static createFrom(source: any): PutTagResponse;
 }
+export declare class ListTagsOnClipRequest {
+    static createFrom(source: any): ListTagsOnClipRequest;
+}
+export declare class ListTagsOnClipResponse {
+    clipId: string;
+    tags: Tag[];
+    static createFrom(source: any): ListTagsOnClipResponse;
+}
+export declare class PutTagOnClipRequest {
+    static createFrom(source: any): PutTagOnClipRequest;
+}
+export declare class PutTagOnClipResponse {
+    static createFrom(source: any): PutTagOnClipResponse;
+}
+export declare class DeleteTagOnClipRequest {
+    static createFrom(source: any): DeleteTagOnClipRequest;
+}
+export declare class DeleteTagOnClipResponse {
+    static createFrom(source: any): DeleteTagOnClipResponse;
+}

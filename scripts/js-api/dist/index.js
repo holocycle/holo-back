@@ -232,3 +232,77 @@ var PutTagResponse = /** @class */ (function () {
     return PutTagResponse;
 }());
 exports.PutTagResponse = PutTagResponse;
+var ListTagsOnClipRequest = /** @class */ (function () {
+    function ListTagsOnClipRequest() {
+    }
+    ListTagsOnClipRequest.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new ListTagsOnClipRequest();
+        return result;
+    };
+    return ListTagsOnClipRequest;
+}());
+exports.ListTagsOnClipRequest = ListTagsOnClipRequest;
+var ListTagsOnClipResponse = /** @class */ (function () {
+    function ListTagsOnClipResponse() {
+    }
+    ListTagsOnClipResponse.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new ListTagsOnClipResponse();
+        result.clipId = source["clipId"];
+        result.tags = source["tags"] ? source["tags"].map(function (element) { return Tag.createFrom(element); }) : null;
+        return result;
+    };
+    return ListTagsOnClipResponse;
+}());
+exports.ListTagsOnClipResponse = ListTagsOnClipResponse;
+var PutTagOnClipRequest = /** @class */ (function () {
+    function PutTagOnClipRequest() {
+    }
+    PutTagOnClipRequest.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new PutTagOnClipRequest();
+        return result;
+    };
+    return PutTagOnClipRequest;
+}());
+exports.PutTagOnClipRequest = PutTagOnClipRequest;
+var PutTagOnClipResponse = /** @class */ (function () {
+    function PutTagOnClipResponse() {
+    }
+    PutTagOnClipResponse.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new PutTagOnClipResponse();
+        return result;
+    };
+    return PutTagOnClipResponse;
+}());
+exports.PutTagOnClipResponse = PutTagOnClipResponse;
+var DeleteTagOnClipRequest = /** @class */ (function () {
+    function DeleteTagOnClipRequest() {
+    }
+    DeleteTagOnClipRequest.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new DeleteTagOnClipRequest();
+        return result;
+    };
+    return DeleteTagOnClipRequest;
+}());
+exports.DeleteTagOnClipRequest = DeleteTagOnClipRequest;
+var DeleteTagOnClipResponse = /** @class */ (function () {
+    function DeleteTagOnClipResponse() {
+    }
+    DeleteTagOnClipResponse.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new DeleteTagOnClipResponse();
+        return result;
+    };
+    return DeleteTagOnClipResponse;
+}());
+exports.DeleteTagOnClipResponse = DeleteTagOnClipResponse;

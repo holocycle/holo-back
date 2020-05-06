@@ -223,3 +223,61 @@ export class PutTagResponse {
   }
 
 }
+export class ListTagsOnClipRequest {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new ListTagsOnClipRequest();
+    return result;
+  }
+
+}
+export class ListTagsOnClipResponse {
+  clipId: string;
+  tags: Tag[];
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new ListTagsOnClipResponse();
+    result.clipId = source["clipId"];
+    result.tags = source["tags"] ? source["tags"].map(function(element: any) { return Tag.createFrom(element); }) : null;
+    return result;
+  }
+
+}
+export class PutTagOnClipRequest {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new PutTagOnClipRequest();
+    return result;
+  }
+
+}
+export class PutTagOnClipResponse {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new PutTagOnClipResponse();
+    return result;
+  }
+
+}
+export class DeleteTagOnClipRequest {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new DeleteTagOnClipRequest();
+    return result;
+  }
+
+}
+export class DeleteTagOnClipResponse {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new DeleteTagOnClipResponse();
+    return result;
+  }
+
+}
