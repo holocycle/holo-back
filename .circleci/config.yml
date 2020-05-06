@@ -43,6 +43,14 @@ commands:
             GO111MODULE=on go get -x github.com/pressly/goose/cmd/goose@v2.6.0
             cp /go/bin/goose /usr/local/bin
 
+  install_golangci-lint:
+    steps:
+      - run:
+          name: golangci-lint install
+          command: |
+            GO111MODULE=on go get github.com/golangci/golangci-lint/cmd/golangci-lint@v1.26.0
+            cp /go/bin/golangci-lint /usr/local/bin
+
 jobs:
   setup:
     executor: default
@@ -51,6 +59,7 @@ jobs:
       - install_docker
       - install_heroku
       - install_goose
+      - install_golangci-lint
       - save_workspace
 
   build:
@@ -64,13 +73,13 @@ jobs:
     executor: default
     steps:
       - load_workspace
-      - run: echo lint
+      - run: golangci-lint run
 
   test:
     executor: default
     steps:
       - load_workspace
-      - run: echo test
+      - run: go test ./...
 
   build_image:
     executor: default
