@@ -127,7 +127,7 @@ func PostClip(c echo.Context) error {
 	log.Info("success to save video", zap.Any("video", video))
 
 	clip := model.NewClip(
-		app_context.GetUserID(ctx),
+		app_context.GetSession(ctx).UserID,
 		req.Title,
 		req.Description,
 		req.VideoID,

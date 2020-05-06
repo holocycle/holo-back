@@ -55,7 +55,7 @@ func (m *AuthnMiddleware) Process(next echo.HandlerFunc) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusUnauthorized, "`Authorization` token is expired")
 		}
 
-		app_context.SetUserID(ctx, session.UserID)
+		app_context.SetSession(ctx, session)
 		return next(ctx)
 	}
 }

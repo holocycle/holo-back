@@ -18,6 +18,7 @@ import (
 func RegisterAuthnController(e *echo.Echo) {
 	e.GET("/login/google", LoginGoogle)
 	e.GET("/login/google-callback", LoginGoogleCallback)
+	e.POST("/logout", Logout)
 }
 
 func LoginGoogle(c echo.Context) error {
@@ -127,4 +128,17 @@ func LoginGoogleCallback(c echo.Context) error {
 
 	callbackURL.Fragment = "token=" + session.ID
 	return ctx.Redirect(http.StatusFound, callbackURL.String())
+}
+
+func Logout(c echo.Context) error {
+	ctx := c.(context.Context)
+
+	session := app_context.GetSession(ctx)
+
+	sessionRepo := repository.NewSessionRepository(ctx)
+	if err := sessionRepo.Delete(session); err != nil {
+		return err
+	}
+
+	return ctx.NoContent(http.StatusOK)
 }

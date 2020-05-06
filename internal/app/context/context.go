@@ -2,12 +2,13 @@ package context
 
 import (
 	"github.com/holocycle/holo-back/internal/app/config"
+	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/labstack/echo/v4"
 )
 
 const (
-	appContextConfigKey = "APP_CONTEXT_CONFIG_KEY"
-	appContextUserIDKey = "APP_CONTEXT_USER_ID_KEY"
+	appContextConfigKey  = "APP_CONTEXT_CONFIG_KEY"
+	appContextSessionKey = "APP_CONTEXT_SESSION_KEY"
 )
 
 func SetConfig(ctx echo.Context, config *config.AppConfig) {
@@ -18,14 +19,14 @@ func GetConfig(ctx echo.Context) *config.AppConfig {
 	return ctx.Get(appContextConfigKey).(*config.AppConfig)
 }
 
-func SetUserID(ctx echo.Context, userID string) {
-	ctx.Set(appContextUserIDKey, userID)
+func SetSession(ctx echo.Context, session *model.Session) {
+	ctx.Set(appContextSessionKey, session)
 }
 
-func GetUserID(ctx echo.Context) string {
-	userID, ok := ctx.Get(appContextUserIDKey).(string)
-	if !ok || userID == "" {
-		panic("context.GetUserID: context has no userID but called")
+func GetSession(ctx echo.Context) *model.Session {
+	session, ok := ctx.Get(appContextSessionKey).(*model.Session)
+	if !ok || session == nil {
+		panic("context.GetSession: context has no session but called")
 	}
-	return userID
+	return session
 }

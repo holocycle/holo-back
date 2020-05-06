@@ -27,8 +27,15 @@ func (r *SessionRepository) FindBy(cond *model.Session) (*model.Session, error) 
 	return res, nil
 }
 
-func (r *SessionRepository) Create(user *model.Session) error {
-	if err := r.Tx.Create(user).Error; err != nil {
+func (r *SessionRepository) Create(session *model.Session) error {
+	if err := r.Tx.Create(session).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *SessionRepository) Delete(session *model.Session) error {
+	if err := r.Tx.Delete(session).Error; err != nil {
 		return err
 	}
 	return nil
