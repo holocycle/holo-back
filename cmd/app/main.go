@@ -35,7 +35,11 @@ func main() {
 		fmt.Printf("Failed to create logger. err=%+v\n", err)
 		os.Exit(1)
 	}
-	defer log.Sync()
+	defer func() {
+		if log.Sync() != nil {
+			log.Error("failed log sync", zap.Error(err))
+		}
+	}()
 	log.Info("Created logger")
 
 	db, err := db.NewDB(&config.DB)

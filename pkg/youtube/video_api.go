@@ -1,16 +1,16 @@
-package youtube_client
+package youtube
 
 import (
 	"encoding/json"
 	"errors"
 
-	"github.com/holocycle/holo-back/pkg/http_client"
+	"github.com/holocycle/holo-back/pkg/httpclient"
 	"github.com/holocycle/holo-back/pkg/model"
-	youtube_model "github.com/holocycle/holo-back/pkg/youtube_client/model"
+	youtube_model "github.com/holocycle/holo-back/pkg/youtube/model"
 )
 
 func (c *Client) GetVideo(videoID string) (*model.Video, error) {
-	bytes, err := http_client.GetRaw(c.APIURL.Video, map[string]string{
+	bytes, err := httpclient.GetRaw(c.APIURL.Video, map[string]string{
 		"key":  c.APIKey,
 		"id":   videoID,
 		"part": "snippet,contentDetails",

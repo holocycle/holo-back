@@ -1,4 +1,4 @@
-package youtube_client
+package youtube
 
 type APIURL struct {
 	Video string `required:"true"`

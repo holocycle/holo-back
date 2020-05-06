@@ -10,7 +10,7 @@ import (
 	"github.com/holocycle/holo-back/pkg/converter"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/holocycle/holo-back/pkg/repository"
-	"github.com/holocycle/holo-back/pkg/youtube_client"
+	"github.com/holocycle/holo-back/pkg/youtube"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -92,7 +92,7 @@ func PostClip(c echo.Context) error {
 	}
 	log.Info("success to validate", zap.Any("req", req))
 
-	youtubeCli := youtube_client.New(&cfg.YoutubeClient)
+	youtubeCli := youtube.New(&cfg.YoutubeClient)
 	video, err := youtubeCli.GetVideo(req.VideoID)
 	if err != nil {
 		return err // FIXME
@@ -150,14 +150,14 @@ func GetClip(c echo.Context) error {
 	ctx := c.(context.Context)
 	log := ctx.GetLog()
 
-	clipId := ctx.Param("clip_id")
-	if clipId == "" {
+	clipID := ctx.Param("clip_id")
+	if clipID == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "please specify clip_id")
 	}
-	log.Info("success to retrieve path parameter", zap.String("clipId", clipId))
+	log.Info("success to retrieve path parameter", zap.String("clipId", clipID))
 
 	clipRepo := repository.NewClipRepository(ctx)
-	clip, err := clipRepo.FindBy(&model.Clip{ID: clipId})
+	clip, err := clipRepo.FindBy(&model.Clip{ID: clipID})
 	if err != nil {
 		if repository.NotFoundError(err) {
 			return echo.NewHTTPError(http.StatusNotFound, "clip was not found")

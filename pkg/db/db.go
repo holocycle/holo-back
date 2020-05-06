@@ -2,14 +2,14 @@ package db
 
 import (
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
+	_ "github.com/jinzhu/gorm/dialects/postgres" // disable-lint
 )
 
-type DBConfig struct {
+type Config struct {
 	URL string `required:"true" env:"DATABASE_URL"`
 }
 
-func NewDB(dbConfig *DBConfig) (*gorm.DB, error) {
+func NewDB(dbConfig *Config) (*gorm.DB, error) {
 	db, err := gorm.Open("postgres", dbConfig.URL)
 	if err != nil {
 		return nil, err

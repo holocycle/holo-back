@@ -8,7 +8,7 @@ import (
 
 	app_context "github.com/holocycle/holo-back/internal/app/context"
 	"github.com/holocycle/holo-back/pkg/context"
-	"github.com/holocycle/holo-back/pkg/http_client"
+	"github.com/holocycle/holo-back/pkg/httpclient"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/holocycle/holo-back/pkg/repository"
 	"github.com/labstack/echo/v4"
@@ -32,7 +32,7 @@ func LoginGoogle(c echo.Context) error {
 	}
 	log.Info("paramater is OK", zap.String("callback", callbackURL))
 
-	url, err := http_client.BuildURL(cfg.GoogleOAuth2.GoogleAuthURL, map[string]string{
+	url, err := httpclient.BuildURL(cfg.GoogleOAuth2.GoogleAuthURL, map[string]string{
 		"client_id":     cfg.GoogleOAuth2.ClientID,
 		"redirect_uri":  cfg.GoogleOAuth2.ClientRedirectURL,
 		"response_type": "code",
@@ -65,7 +65,7 @@ func LoginGoogleCallback(c echo.Context) error {
 		zap.String("code", code),
 		zap.String("callbackURL", callbackURL.String()))
 
-	tokenJson, err := http_client.Post(cfg.GoogleOAuth2.GoogleTokenURL, map[string]string{
+	tokenJSON, err := httpclient.Post(cfg.GoogleOAuth2.GoogleTokenURL, map[string]string{
 		"code":          code,
 		"client_id":     cfg.GoogleOAuth2.ClientID,
 		"client_secret": cfg.GoogleOAuth2.ClientSecret,
@@ -76,23 +76,23 @@ func LoginGoogleCallback(c echo.Context) error {
 		return err
 	}
 
-	idToken, ok := tokenJson["id_token"].(string)
+	idToken, ok := tokenJSON["id_token"].(string)
 	if !ok {
-		log.Error("id_token not found", zap.Any("response", tokenJson))
+		log.Error("id_token not found", zap.Any("response", tokenJSON))
 		return errors.New("id token not found")
 	}
 	log.Info("success to retrieve token", zap.String("idToken", idToken))
 
-	tokenInfoJson, err := http_client.Get(cfg.GoogleOAuth2.GoogleTokenInfoURL, map[string]string{
+	tokenInfoJSON, err := httpclient.Get(cfg.GoogleOAuth2.GoogleTokenInfoURL, map[string]string{
 		"id_token": idToken,
 	})
 	if err != nil {
 		return err
 	}
 
-	email, ok := tokenInfoJson["email"].(string)
+	email, ok := tokenInfoJSON["email"].(string)
 	if !ok {
-		log.Error("email not found", zap.Any("response", tokenInfoJson))
+		log.Error("email not found", zap.Any("response", tokenInfoJSON))
 		return errors.New("email not found")
 	}
 	log.Info("success to retrieve email info", zap.String("email", email))

@@ -6,8 +6,8 @@ import (
 )
 
 type CORSConfig struct {
-	OriginWhitelist []string `required: "true"`
-	HeaderWhitelist []string `required: "true"`
+	OriginWhitelist []string `required:"true"`
+	HeaderWhitelist []string `required:"true"`
 }
 
 func NewCORSMiddleware(config *CORSConfig) echo.MiddlewareFunc {

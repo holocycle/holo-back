@@ -3,8 +3,8 @@ package config
 import (
 	"github.com/holocycle/holo-back/pkg/db"
 	"github.com/holocycle/holo-back/pkg/logger"
-	"github.com/holocycle/holo-back/pkg/youtube_client"
 	"github.com/holocycle/holo-back/pkg/middleware"
+	"github.com/holocycle/holo-back/pkg/youtube"
 	"github.com/jinzhu/configor"
 )
 
@@ -16,11 +16,11 @@ const (
 type AppConfig struct {
 	AppName       string `required:"true"`
 	Port          string `required:"true" env:"PORT"`
-	Logger        logger.LoggerConfig
-	DB            db.DBConfig
+	Logger        logger.Config
+	DB            db.Config
 	CORS          middleware.CORSConfig
 	GoogleOAuth2  GoogleOAuth2Config
-	YoutubeClient youtube_client.Config
+	YoutubeClient youtube.Config
 }
 
 func NewConfig() (*AppConfig, error) {

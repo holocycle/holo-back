@@ -7,7 +7,7 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-type LoggerConfig struct {
+type Config struct {
 	Level string `required:"true"`
 }
 
@@ -21,7 +21,7 @@ func parseLevel(level string) (*zap.AtomicLevel, error) {
 	return &atomicLevel, nil
 }
 
-func NewLogger(config *LoggerConfig) (*zap.Logger, error) {
+func NewLogger(config *Config) (*zap.Logger, error) {
 	atomicLevel, err := parseLevel(config.Level)
 	if err != nil {
 		return nil, err
