@@ -17,6 +17,7 @@
 ## セットアップ
 
 ```bash
+yarn install
 yarn setup # dockerイメージのビルド
 ```
 
