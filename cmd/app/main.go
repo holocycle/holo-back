@@ -76,6 +76,7 @@ func main() {
 
 	e.Static("/assets", "assets")
 	controller.RegisterAllController(e)
+	controller.NewTagController(config).Register(e)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", config.Port)))
 }
