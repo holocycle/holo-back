@@ -108,7 +108,7 @@ jobs:
       - run:
           name: goose up
           command: |
-            URL=$(heroku pg:credentials:url -a ${HEROKU_APP_NAME} | sed -n -e '5p' | sed -E 's/^\\s*\"(.*)\"\\s*$/\\1/g')
+            URL=$(heroku pg:credentials:url -a ${HEROKU_APP_NAME} | sed -n -e '5p')
             goose -dir migrate postgres ${URL} up
 
 workflows:
