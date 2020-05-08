@@ -6,6 +6,7 @@ import (
 	net_url "net/url"
 	"time"
 
+	"github.com/holocycle/holo-back/internal/app/config"
 	app_context "github.com/holocycle/holo-back/internal/app/context"
 	"github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/httpclient"
@@ -15,15 +16,27 @@ import (
 	"go.uber.org/zap"
 )
 
-func RegisterAuthnController(e *echo.Echo) {
-	e.GET("/login/google", LoginGoogle)
-	e.GET("/login/google-callback", LoginGoogleCallback)
-	e.POST("/logout", Logout)
+type AuthnController struct {
+	Config            *config.AppConfig
+	UserRepository    repository.UserRepository
+	SessionRepository repository.SessionRepository
 }
 
-func LoginGoogle(c echo.Context) error {
-	ctx := c.(context.Context)
-	cfg := app_context.GetConfig(ctx)
+func NewAuthnController(config *config.AppConfig) *AuthnController {
+	return &AuthnController{
+		Config:            config,
+		UserRepository:    repository.NewUserRepository(),
+		SessionRepository: repository.NewSessionRepository(),
+	}
+}
+
+func (c *AuthnController) Register(e *echo.Echo) {
+	get(e, "/login/google", c.LoginGoogle)
+	get(e, "/login/google-callback", c.LoginGoogleCallback)
+	post(e, "/logout", c.Logout)
+}
+
+func (c *AuthnController) LoginGoogle(ctx context.Context) error {
 	log := ctx.GetLog()
 
 	callbackURL := ctx.FormValue("callback")
@@ -32,11 +45,11 @@ func LoginGoogle(c echo.Context) error {
 	}
 	log.Info("paramater is OK", zap.String("callback", callbackURL))
 
-	url, err := httpclient.BuildURL(cfg.GoogleOAuth2.GoogleAuthURL, map[string]string{
-		"client_id":     cfg.GoogleOAuth2.ClientID,
-		"redirect_uri":  cfg.GoogleOAuth2.ClientRedirectURL,
+	url, err := httpclient.BuildURL(c.Config.GoogleOAuth2.GoogleAuthURL, map[string]string{
+		"client_id":     c.Config.GoogleOAuth2.ClientID,
+		"redirect_uri":  c.Config.GoogleOAuth2.ClientRedirectURL,
 		"response_type": "code",
-		"scope":         cfg.GoogleOAuth2.Scope,
+		"scope":         c.Config.GoogleOAuth2.Scope,
 		"state":         callbackURL,
 	})
 	if err != nil {
@@ -46,10 +59,8 @@ func LoginGoogle(c echo.Context) error {
 	return ctx.Redirect(http.StatusFound, url.String())
 }
 
-func LoginGoogleCallback(c echo.Context) error {
-	ctx := c.(context.Context)
+func (c *AuthnController) LoginGoogleCallback(ctx context.Context) error {
 	log := ctx.GetLog()
-	cfg := app_context.GetConfig(ctx)
 
 	code := ctx.FormValue("code")
 	if code == "" {
@@ -65,11 +76,11 @@ func LoginGoogleCallback(c echo.Context) error {
 		zap.String("code", code),
 		zap.String("callbackURL", callbackURL.String()))
 
-	tokenJSON, err := httpclient.Post(cfg.GoogleOAuth2.GoogleTokenURL, map[string]string{
+	tokenJSON, err := httpclient.Post(c.Config.GoogleOAuth2.GoogleTokenURL, map[string]string{
 		"code":          code,
-		"client_id":     cfg.GoogleOAuth2.ClientID,
-		"client_secret": cfg.GoogleOAuth2.ClientSecret,
-		"redirect_uri":  cfg.GoogleOAuth2.ClientRedirectURL,
+		"client_id":     c.Config.GoogleOAuth2.ClientID,
+		"client_secret": c.Config.GoogleOAuth2.ClientSecret,
+		"redirect_uri":  c.Config.GoogleOAuth2.ClientRedirectURL,
 		"grant_type":    "authorization_code",
 	})
 	if err != nil {
@@ -83,7 +94,7 @@ func LoginGoogleCallback(c echo.Context) error {
 	}
 	log.Info("success to retrieve token", zap.String("idToken", idToken))
 
-	tokenInfoJSON, err := httpclient.Get(cfg.GoogleOAuth2.GoogleTokenInfoURL, map[string]string{
+	tokenInfoJSON, err := httpclient.Get(c.Config.GoogleOAuth2.GoogleTokenInfoURL, map[string]string{
 		"id_token": idToken,
 	})
 	if err != nil {
@@ -97,8 +108,9 @@ func LoginGoogleCallback(c echo.Context) error {
 	}
 	log.Info("success to retrieve email info", zap.String("email", email))
 
-	userRepo := repository.NewUserRepository(ctx)
-	user, err := userRepo.FindBy(&model.User{Email: email})
+	tx := ctx.GetDB()
+	user, err := c.UserRepository.NewQuery(tx).
+		Where(&model.User{Email: email}).Find()
 	if err != nil && !repository.NotFoundError(err) {
 		return err
 	}
@@ -106,7 +118,7 @@ func LoginGoogleCallback(c echo.Context) error {
 	if repository.NotFoundError(err) {
 		log.Info("user not found", zap.String("email", email))
 		user = model.NewUser(email, email)
-		if err := userRepo.Create(user); err != nil {
+		if err := c.UserRepository.NewQuery(tx).Create(user); err != nil {
 			return err
 		}
 		log.Info("success to create user", zap.Any("user", user))
@@ -120,8 +132,7 @@ func LoginGoogleCallback(c echo.Context) error {
 	expireAt := time.Now().Add(tokenDuration)
 	session := model.NewSession(user.ID, &expireAt)
 
-	sessionRepo := repository.NewSessionRepository(ctx)
-	if err := sessionRepo.Create(session); err != nil {
+	if err := c.SessionRepository.NewQuery(tx).Create(session); err != nil {
 		return err
 	}
 	log.Info("success to craete session", zap.Any("session", session))
@@ -130,13 +141,13 @@ func LoginGoogleCallback(c echo.Context) error {
 	return ctx.Redirect(http.StatusFound, callbackURL.String())
 }
 
-func Logout(c echo.Context) error {
-	ctx := c.(context.Context)
-
+func (c *AuthnController) Logout(ctx context.Context) error {
 	session := app_context.GetSession(ctx)
 
-	sessionRepo := repository.NewSessionRepository(ctx)
-	if err := sessionRepo.Delete(session); err != nil {
+	tx := ctx.GetDB()
+	_, err := c.SessionRepository.NewQuery(tx).
+		Where(&model.Session{ID: session.ID}).Delete()
+	if err != nil {
 		return err
 	}
 

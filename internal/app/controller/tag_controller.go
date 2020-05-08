@@ -17,6 +17,7 @@ import (
 type TagController struct {
 	Config            *config.AppConfig
 	TagRepository     repository.TagRepository
+	ClipRepository    repository.ClipRepository
 	ClipTagRepository repository.ClipTagRepository
 }
 
@@ -24,6 +25,7 @@ func NewTagController(config *config.AppConfig) *TagController {
 	return &TagController{
 		Config:            config,
 		TagRepository:     repository.NewTagRepository(),
+		ClipRepository:    repository.NewClipRepository(),
 		ClipTagRepository: repository.NewClipTagRepository(),
 	}
 }
@@ -44,7 +46,7 @@ func (c *TagController) ListTags(ctx context.Context) error {
 	}
 
 	tx := ctx.GetDB()
-	tags, err := c.TagRepository.FindAll(tx, &repository.TagCondition{})
+	tags, err := c.TagRepository.NewQuery(tx).FindAll()
 	if err != nil {
 		return err
 	}
@@ -66,7 +68,7 @@ func (c *TagController) GetTag(ctx context.Context) error {
 	}
 
 	tx := ctx.GetDB()
-	tag, err := c.TagRepository.FindBy(tx, &repository.TagCondition{ID: tagID})
+	tag, err := c.TagRepository.NewQuery(tx).Where(&model.Tag{ID: tagID}).Find()
 	if err != nil {
 		if repository.NotFoundError(err) {
 			return echo.NewHTTPError(http.StatusNotFound, "tag is not found")
@@ -85,7 +87,7 @@ func (c *TagController) PutTag(ctx context.Context) error {
 	}
 
 	tx := ctx.GetDB()
-	tag, err := c.TagRepository.FindBy(tx, &repository.TagCondition{Name: req.Name})
+	tag, err := c.TagRepository.NewQuery(tx).Where(&model.Tag{Name: req.Name}).Find()
 	if err != nil && !repository.NotFoundError(err) {
 		return err
 	}
@@ -96,7 +98,7 @@ func (c *TagController) PutTag(ctx context.Context) error {
 	}
 
 	tag = model.NewTag(req.Name, req.Color)
-	if err := c.TagRepository.Save(tx, tag); err != nil {
+	if err := c.TagRepository.NewQuery(tx).Save(tag); err != nil {
 		return err
 	}
 
@@ -119,8 +121,8 @@ func (c *TagController) ListTagsOnClip(ctx context.Context) error {
 	}
 	log.Debug("success to validate", zap.String("clipID", clipID))
 
-	clipRepo := repository.NewClipRepository(ctx)
-	clip, err := clipRepo.FindBy(&model.Clip{ID: clipID})
+	tx := ctx.GetDB()
+	clip, err := c.ClipRepository.NewQuery(tx).Where(&model.Clip{ID: clipID}).Find()
 	if err != nil {
 		if repository.NotFoundError(err) {
 			return echo.NewHTTPError(http.StatusNotFound, "clip is not found")
@@ -129,7 +131,6 @@ func (c *TagController) ListTagsOnClip(ctx context.Context) error {
 	}
 	log.Debug("success to retieve Clip", zap.Any("clip", clip))
 
-	tx := ctx.GetDB()
 	clipTags, err := c.ClipTagRepository.NewQuery(tx).
 		JoinTag().Where(&model.ClipTag{ClipID: clipID}).FindAll()
 	if err != nil {
@@ -159,9 +160,12 @@ func (c *TagController) PutTagOnClip(ctx context.Context) error {
 	if tagID == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "please specify tag_id")
 	}
-	log.Debug("success to validate request", zap.String("clipID", clipID), zap.String("tagID", tagID))
+	log.Debug("success to validate request",
+		zap.String("clipID", clipID),
+		zap.String("tagID", tagID))
 
-	_, err := repository.NewClipRepository(ctx).FindBy(&model.Clip{ID: clipID})
+	tx := ctx.GetDB()
+	_, err := repository.NewClipRepository().NewQuery(tx).Where(&model.Clip{ID: clipID}).Find()
 	if err != nil {
 		if repository.NotFoundError(err) {
 			return echo.NewHTTPError(http.StatusNotFound, "clip was not found")
@@ -170,8 +174,7 @@ func (c *TagController) PutTagOnClip(ctx context.Context) error {
 	}
 	log.Debug("success to valipdate clipID", zap.String("clipID", clipID))
 
-	tx := ctx.GetDB()
-	_, err = c.TagRepository.FindBy(tx, &repository.TagCondition{ID: tagID})
+	_, err = c.TagRepository.NewQuery(tx).Where(&model.Tag{ID: tagID}).Find()
 	if err != nil {
 		if repository.NotFoundError(err) {
 			return echo.NewHTTPError(http.StatusNotFound, "tag was not found")
@@ -180,10 +183,11 @@ func (c *TagController) PutTagOnClip(ctx context.Context) error {
 	}
 	log.Debug("success to valipdate tagID", zap.String("tagID", tagID))
 
-	clipTag, err := c.ClipTagRepository.NewQuery(tx).Where(&model.ClipTag{
+	cond := &model.ClipTag{
 		ClipID: clipID,
 		TagID:  tagID,
-	}).Find()
+	}
+	clipTag, err := c.ClipTagRepository.NewQuery(tx).Where(cond).Find()
 	if err != nil && !repository.NotFoundError(err) {
 		return err
 	}
@@ -222,10 +226,11 @@ func (c *TagController) DeleteTagOnClip(ctx context.Context) error {
 	log.Debug("success to validate request", zap.String("clipID", clipID), zap.String("tagID", tagID))
 
 	tx := ctx.GetDB()
-	rows, err := c.ClipTagRepository.NewQuery(tx).Where(&model.ClipTag{
+	cond := &model.ClipTag{
 		ClipID: clipID,
 		TagID:  tagID,
-	}).Delete()
+	}
+	rows, err := c.ClipTagRepository.NewQuery(tx).Where(cond).Delete()
 	if err != nil {
 		return err
 	}

@@ -11,14 +11,16 @@ type ClipTagRepository interface {
 }
 
 type ClipTagQuery interface {
-	Where(*model.ClipTag) ClipTagQuery
+	Where(cond *model.ClipTag) ClipTagQuery
+
 	JoinUser() ClipTagQuery
 	JoinClip() ClipTagQuery
 	JoinTag() ClipTagQuery
 
-	Create(*model.ClipTag) error
+	Create(clipTag *model.ClipTag) error
 	Find() (*model.ClipTag, error)
 	FindAll() ([]*model.ClipTag, error)
+	Save(clipTag *model.ClipTag) error
 	Delete() (int, error)
 }
 
@@ -29,12 +31,12 @@ func NewClipTagRepository() ClipTagRepository {
 type ClipTagRepositoryImpl struct {
 }
 
-type ClipTagQueryImpl struct {
-	Tx *gorm.DB
-}
-
 func (r *ClipTagRepositoryImpl) NewQuery(tx *gorm.DB) ClipTagQuery {
 	return &ClipTagQueryImpl{Tx: tx}
+}
+
+type ClipTagQueryImpl struct {
+	Tx *gorm.DB
 }
 
 func (q *ClipTagQueryImpl) Where(cond *model.ClipTag) ClipTagQuery {
@@ -71,6 +73,10 @@ func (q *ClipTagQueryImpl) FindAll() ([]*model.ClipTag, error) {
 		return nil, err
 	}
 	return res, nil
+}
+
+func (q *ClipTagQueryImpl) Save(clipTag *model.ClipTag) error {
+	return q.Tx.Save(clipTag).Error
 }
 
 func (q *ClipTagQueryImpl) Delete() (int, error) {

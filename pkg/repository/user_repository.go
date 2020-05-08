@@ -1,35 +1,67 @@
 package repository
 
 import (
-	"github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/jinzhu/gorm"
 )
 
-type UserRepository struct {
+type UserRepository interface {
+	NewQuery(tx *gorm.DB) UserQuery
+}
+
+type UserQuery interface {
+	Where(cond *model.User) UserQuery
+
+	Create(user *model.User) error
+	Find() (*model.User, error)
+	FindAll() ([]*model.User, error)
+	Save(user *model.User) error
+	Delete() (int, error)
+}
+
+func NewUserRepository() UserRepository {
+	return &UserRepositoryImpl{}
+}
+
+type UserRepositoryImpl struct{}
+
+func (r *UserRepositoryImpl) NewQuery(tx *gorm.DB) UserQuery {
+	return &UserQueryImpl{Tx: tx}
+}
+
+type UserQueryImpl struct {
 	Tx *gorm.DB
 }
 
-func NewUserRepository(ctx context.Context) *UserRepository {
-	return &UserRepository{
-		Tx: ctx.GetDB(),
-	}
+func (q *UserQueryImpl) Where(cond *model.User) UserQuery {
+	return &UserQueryImpl{Tx: q.Tx.Where(cond)}
 }
 
-func (r *UserRepository) FindBy(cond *model.User) (*model.User, error) {
+func (q *UserQueryImpl) Create(user *model.User) error {
+	return q.Tx.Create(user).Error
+}
+
+func (q *UserQueryImpl) Find() (*model.User, error) {
 	res := &model.User{}
-	if err := r.Tx.Where(cond).First(res).Error; err != nil {
-		if gorm.IsRecordNotFoundError(err) {
-			return nil, err // FIXME
-		}
-		return nil, err // FIXME
+	if err := q.Tx.First(res).Error; err != nil {
+		return nil, err
 	}
 	return res, nil
 }
 
-func (r *UserRepository) Create(user *model.User) error {
-	if err := r.Tx.Create(user).Error; err != nil {
-		return err
+func (q *UserQueryImpl) FindAll() ([]*model.User, error) {
+	res := make([]*model.User, 0)
+	if err := q.Tx.Find(&res).Error; err != nil {
+		return nil, err
 	}
-	return nil
+	return res, nil
+}
+
+func (q *UserQueryImpl) Save(user *model.User) error {
+	return q.Tx.Save(user).Error
+}
+
+func (q *UserQueryImpl) Delete() (int, error) {
+	res := q.Tx.Delete(&model.User{})
+	return (int)(res.RowsAffected), res.Error
 }

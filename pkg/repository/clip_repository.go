@@ -1,65 +1,78 @@
 package repository
 
 import (
-	"github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/jinzhu/gorm"
 )
 
-type ClipRepository struct {
+type ClipRepository interface {
+	NewQuery(tx *gorm.DB) ClipQuery
+}
+
+type ClipQuery interface {
+	Where(cond *model.Clip) ClipQuery
+
+	Limit(limit int) ClipQuery
+	Latest() ClipQuery
+
+	Create(clip *model.Clip) error
+	Find() (*model.Clip, error)
+	FindAll() ([]*model.Clip, error)
+	Save(clip *model.Clip) error
+	Delete() (int, error)
+}
+
+func NewClipRepository() ClipRepository {
+	return &ClipRepositoryImpl{}
+}
+
+type ClipRepositoryImpl struct{}
+
+func (r *ClipRepositoryImpl) NewQuery(tx *gorm.DB) ClipQuery {
+	return &ClipQueryImpl{Tx: tx}
+}
+
+type ClipQueryImpl struct {
 	Tx *gorm.DB
 }
 
-type ClipOrder int
-
-const (
-	Any ClipOrder = iota
-	RecentlyCreated
-)
-
-type ClipCondition struct {
-	model.Clip
-	Limit   int
-	OrderBy ClipOrder
+func (q *ClipQueryImpl) Where(cond *model.Clip) ClipQuery {
+	return &ClipQueryImpl{Tx: q.Tx.Where(cond)}
 }
 
-func NewClipRepository(ctx context.Context) *ClipRepository {
-	return &ClipRepository{
-		Tx: ctx.GetDB(),
-	}
+func (q *ClipQueryImpl) Limit(limit int) ClipQuery {
+	return &ClipQueryImpl{Tx: q.Tx.Limit(limit)}
 }
 
-func (r *ClipRepository) FindAll(cond *ClipCondition) ([]*model.Clip, error) {
-	tx := r.Tx
-	if cond.Limit > 0 {
-		tx = tx.Limit(cond.Limit)
-	}
-	if cond.OrderBy == RecentlyCreated {
-		tx = tx.Order("created_at desc")
-	}
-
-	res := make([]*model.Clip, 0)
-	if err := tx.Where(cond.Clip).Find(&res).Error; err != nil {
-		return nil, err // FIXME
-	}
-
-	return res, nil
+func (q *ClipQueryImpl) Latest() ClipQuery {
+	return &ClipQueryImpl{Tx: q.Tx.Order("created_at desc")}
 }
 
-func (r *ClipRepository) FindBy(cond *model.Clip) (*model.Clip, error) {
+func (q *ClipQueryImpl) Create(clip *model.Clip) error {
+	return q.Tx.Create(clip).Error
+}
+
+func (q *ClipQueryImpl) Find() (*model.Clip, error) {
 	res := &model.Clip{}
-	if err := r.Tx.Where(cond).First(res).Error; err != nil {
-		if gorm.IsRecordNotFoundError(err) {
-			return nil, err // FIXME
-		}
-		return nil, err // FIXME
+	if err := q.Tx.First(res).Error; err != nil {
+		return nil, err
 	}
 	return res, nil
 }
 
-func (r *ClipRepository) Create(clip *model.Clip) error {
-	if err := r.Tx.Create(clip).Error; err != nil {
-		return err
+func (q *ClipQueryImpl) FindAll() ([]*model.Clip, error) {
+	res := make([]*model.Clip, 0)
+	if err := q.Tx.Find(&res).Error; err != nil {
+		return nil, err
 	}
-	return nil
+	return res, nil
+}
+
+func (q *ClipQueryImpl) Save(clip *model.Clip) error {
+	return q.Tx.Save(clip).Error
+}
+
+func (q *ClipQueryImpl) Delete() (int, error) {
+	res := q.Tx.Delete(&model.Clip{})
+	return (int)(res.RowsAffected), res.Error
 }

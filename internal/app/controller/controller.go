@@ -5,13 +5,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func RegisterAllController(e *echo.Echo) {
-	RegisterAppController(e)
-	RegisterLiverController(e)
-	RegisterAuthnController(e)
-	RegisterClipController(e)
-}
-
 type controller func(c context.Context) error
 
 func get(e *echo.Echo, path string, controller controller) {

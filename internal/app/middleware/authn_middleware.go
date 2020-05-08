@@ -41,8 +41,9 @@ func (m *AuthnMiddleware) Process(next echo.HandlerFunc) echo.HandlerFunc {
 			return err
 		}
 
-		sessionRepo := repository.NewSessionRepository(ctx)
-		session, err := sessionRepo.FindBy(&model.Session{ID: token})
+		tx := ctx.GetDB()
+		session, err := repository.NewSessionRepository().NewQuery(tx).
+			Where(&model.Session{ID: token}).Find()
 		if err != nil {
 			if repository.NotFoundError(err) {
 				return echo.NewHTTPError(http.StatusUnauthorized, "`Authorization` token is invalid")

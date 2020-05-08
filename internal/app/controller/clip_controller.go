@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/holocycle/holo-back/internal/app/config"
 	app_context "github.com/holocycle/holo-back/internal/app/context"
 	"github.com/holocycle/holo-back/pkg/api"
 	"github.com/holocycle/holo-back/pkg/context"
@@ -15,43 +16,54 @@ import (
 	"go.uber.org/zap"
 )
 
-func RegisterClipController(e *echo.Echo) {
-	e.GET("/clips", ListClips)
-	e.POST("/clips", PostClip)
-
-	e.GET("/clips/:clip_id", GetClip)
-	e.PUT("/clips/:clip_id", PutClip)
-	e.DELETE("/clips/:clip_id", DeleteClip)
+type ClipController struct {
+	Config          *config.AppConfig
+	ClipRepository  repository.ClipRepository
+	VideoRepository repository.VideoRepository
 }
 
-func ListClips(c echo.Context) error {
-	ctx := c.(context.Context)
+func NewClipController(config *config.AppConfig) *ClipController {
+	return &ClipController{
+		Config:          config,
+		ClipRepository:  repository.NewClipRepository(),
+		VideoRepository: repository.NewVideoRepository(),
+	}
+}
+
+func (c *ClipController) Register(e *echo.Echo) {
+	get(e, "/clips", c.ListClips)
+	post(e, "/clips", c.PostClip)
+
+	get(e, "/clips/:clip_id", c.GetClip)
+	put(e, "/clips/:clip_id", c.PutClip)
+	delete(e, "/clips/:clip_id", c.DeleteClip)
+}
+
+func (c *ClipController) ListClips(ctx context.Context) error {
 	log := ctx.GetLog()
 
 	req := &api.ListClipsRequest{}
-	if err := ctx.Bind(req); err != nil {
-		return err
-	}
-	if err := ctx.Validate(req); err != nil {
+	if err := inject(ctx, req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	log.Info("success to validate", zap.Any("req", req))
 
-	cond := &repository.ClipCondition{}
-	cond.Limit = req.Limit
-	if req.OrderBy == "latest" {
-		cond.OrderBy = repository.RecentlyCreated
+	tx := ctx.GetDB()
+	query := c.ClipRepository.NewQuery(tx)
+	if req.Limit > 0 {
+		query = query.Limit(req.Limit)
 	}
-
-	clipRepo := repository.NewClipRepository(ctx)
-	clips, err := clipRepo.FindAll(cond)
+	if req.OrderBy == "latest" {
+		query = query.Latest()
+	}
+	clips, err := query.FindAll()
 	if err != nil {
 		return err
 	}
 	log.Info("success to retrieve clips")
 
-	videoRepo := repository.NewVideoRepository(ctx)
-	videos, err := videoRepo.FindAll(&model.Video{})
+	// TODO JOIN
+	videos, err := c.VideoRepository.NewQuery(tx).FindAll()
 	if err != nil {
 		return err
 	}
@@ -77,22 +89,16 @@ func ListClips(c echo.Context) error {
 	})
 }
 
-func PostClip(c echo.Context) error {
-	ctx := c.(context.Context)
+func (c *ClipController) PostClip(ctx context.Context) error {
 	log := ctx.GetLog()
-	cfg := app_context.GetConfig(ctx)
 
 	req := &api.PostClipRequest{}
-	if err := ctx.Bind(req); err != nil {
-		return err
-	}
-
-	if err := ctx.Validate(req); err != nil {
+	if err := inject(ctx, req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	log.Info("success to validate", zap.Any("req", req))
 
-	youtubeCli := youtube.New(&cfg.YoutubeClient)
+	youtubeCli := youtube.New(&c.Config.YoutubeClient)
 	video, err := youtubeCli.GetVideo(req.VideoID)
 	if err != nil {
 		return err // FIXME
@@ -119,8 +125,8 @@ func PostClip(c echo.Context) error {
 		zap.Int("video.Duration", video.Duration),
 	)
 
-	videoRepo := repository.NewVideoRepository(ctx)
-	if err := videoRepo.Save(video); err != nil {
+	tx := ctx.GetDB()
+	if err := c.VideoRepository.NewQuery(tx).Save(video); err != nil {
 		log.Error("failed to save video", zap.Any("video", video))
 		return err
 	}
@@ -134,8 +140,7 @@ func PostClip(c echo.Context) error {
 		req.BeginAt,
 		req.EndAt,
 	)
-	clipRepo := repository.NewClipRepository(ctx)
-	if err := clipRepo.Create(clip); err != nil {
+	if err := c.ClipRepository.NewQuery(tx).Create(clip); err != nil {
 		log.Error("failed to create clip", zap.Any("clip", clip))
 		return err
 	}
@@ -146,8 +151,7 @@ func PostClip(c echo.Context) error {
 	})
 }
 
-func GetClip(c echo.Context) error {
-	ctx := c.(context.Context)
+func (c *ClipController) GetClip(ctx context.Context) error {
 	log := ctx.GetLog()
 
 	clipID := ctx.Param("clip_id")
@@ -156,8 +160,9 @@ func GetClip(c echo.Context) error {
 	}
 	log.Info("success to retrieve path parameter", zap.String("clipId", clipID))
 
-	clipRepo := repository.NewClipRepository(ctx)
-	clip, err := clipRepo.FindBy(&model.Clip{ID: clipID})
+	tx := ctx.GetDB()
+	clip, err := c.ClipRepository.NewQuery(tx).
+		Where(&model.Clip{ID: clipID}).Find()
 	if err != nil {
 		if repository.NotFoundError(err) {
 			return echo.NewHTTPError(http.StatusNotFound, "clip was not found")
@@ -166,8 +171,7 @@ func GetClip(c echo.Context) error {
 	}
 	log.Info("success to retrieve clip", zap.Any("clip", clip))
 
-	videoRepo := repository.NewVideoRepository(ctx)
-	video, err := videoRepo.FindBy(&model.Video{ID: clip.VideoID})
+	video, err := c.VideoRepository.NewQuery(tx).Where(&model.Video{ID: clip.VideoID}).Find()
 	if err != nil {
 		if repository.NotFoundError(err) {
 			log.Error("no video for clip", zap.Any("clip", clip))
@@ -182,10 +186,10 @@ func GetClip(c echo.Context) error {
 	})
 }
 
-func PutClip(c echo.Context) error {
+func (c *ClipController) PutClip(ctx context.Context) error {
 	return echo.NewHTTPError(http.StatusNotImplemented)
 }
 
-func DeleteClip(c echo.Context) error {
+func (c *ClipController) DeleteClip(ctx context.Context) error {
 	return echo.NewHTTPError(http.StatusNotImplemented)
 }

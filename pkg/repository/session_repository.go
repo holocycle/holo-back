@@ -1,42 +1,67 @@
 package repository
 
 import (
-	"github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/jinzhu/gorm"
 )
 
-type SessionRepository struct {
+type SessionRepository interface {
+	NewQuery(tx *gorm.DB) SessionQuery
+}
+
+type SessionQuery interface {
+	Where(cond *model.Session) SessionQuery
+
+	Create(session *model.Session) error
+	Find() (*model.Session, error)
+	FindAll() ([]*model.Session, error)
+	Save(session *model.Session) error
+	Delete() (int, error)
+}
+
+func NewSessionRepository() SessionRepository {
+	return &SessionRepositoryImpl{}
+}
+
+type SessionRepositoryImpl struct{}
+
+func (r *SessionRepositoryImpl) NewQuery(tx *gorm.DB) SessionQuery {
+	return &SessionQueryImpl{Tx: tx}
+}
+
+type SessionQueryImpl struct {
 	Tx *gorm.DB
 }
 
-func NewSessionRepository(ctx context.Context) *SessionRepository {
-	return &SessionRepository{
-		Tx: ctx.GetDB(),
-	}
+func (q *SessionQueryImpl) Where(cond *model.Session) SessionQuery {
+	return &SessionQueryImpl{Tx: q.Tx.Where(cond)}
 }
 
-func (r *SessionRepository) FindBy(cond *model.Session) (*model.Session, error) {
+func (q *SessionQueryImpl) Create(session *model.Session) error {
+	return q.Tx.Create(session).Error
+}
+
+func (q *SessionQueryImpl) Find() (*model.Session, error) {
 	res := &model.Session{}
-	if err := r.Tx.Where(cond).First(res).Error; err != nil {
-		if gorm.IsRecordNotFoundError(err) {
-			return nil, err // FIXME
-		}
-		return nil, err // FIXME
+	if err := q.Tx.First(res).Error; err != nil {
+		return nil, err
 	}
 	return res, nil
 }
 
-func (r *SessionRepository) Create(session *model.Session) error {
-	if err := r.Tx.Create(session).Error; err != nil {
-		return err
+func (q *SessionQueryImpl) FindAll() ([]*model.Session, error) {
+	res := make([]*model.Session, 0)
+	if err := q.Tx.Find(&res).Error; err != nil {
+		return nil, err
 	}
-	return nil
+	return res, nil
 }
 
-func (r *SessionRepository) Delete(session *model.Session) error {
-	if err := r.Tx.Delete(session).Error; err != nil {
-		return err
-	}
-	return nil
+func (q *SessionQueryImpl) Save(session *model.Session) error {
+	return q.Tx.Save(session).Error
+}
+
+func (q *SessionQueryImpl) Delete() (int, error) {
+	res := q.Tx.Delete(&model.Session{})
+	return (int)(res.RowsAffected), res.Error
 }

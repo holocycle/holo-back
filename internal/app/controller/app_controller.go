@@ -3,34 +3,43 @@ package controller
 import (
 	"net/http"
 
+	"github.com/holocycle/holo-back/internal/app/config"
 	"github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/model"
 
 	"github.com/labstack/echo/v4"
 )
 
-func RegisterAppController(e *echo.Echo) {
-	e.GET("/", Index)
-	e.GET("/health", Health)
+type AppController struct {
+	Config *config.AppConfig
 }
 
-func Index(c echo.Context) error {
-	ctx := c.(context.Context)
+func NewAppController(config *config.AppConfig) *AppController {
+	return &AppController{
+		Config: config,
+	}
+}
+
+func (c *AppController) Register(e *echo.Echo) {
+	get(e, "/", c.Index)
+	get(e, "/health", c.Health)
+}
+
+func (c *AppController) Index(ctx context.Context) error {
 	return ctx.JSON(http.StatusOK, map[string]string{
 		"message": "Hello World",
 	})
 }
 
-func Health(c echo.Context) error {
-	ctx := c.(context.Context)
-
-	db := ctx.GetDB()
+func (c *AppController) Health(ctx context.Context) error {
+	tx := ctx.GetDB()
 
 	healthCheck := model.NewHealthCheck()
-	err := db.Save(healthCheck).Error
-	if err != nil {
+	if err := tx.Save(healthCheck).Error; err != nil {
 		return err
 	}
 
-	return ctx.JSON(http.StatusOK, healthCheck)
+	return ctx.JSON(http.StatusOK, map[string]string{
+		"message": "OK",
+	})
 }

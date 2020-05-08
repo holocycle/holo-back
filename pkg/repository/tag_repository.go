@@ -7,14 +7,17 @@ import (
 )
 
 type TagRepository interface {
-	FindAll(tx *gorm.DB, cond *TagCondition) ([]*model.Tag, error)
-	FindBy(tx *gorm.DB, cond *TagCondition) (*model.Tag, error)
-	Save(tx *gorm.DB, tag *model.Tag) error
+	NewQuery(tx *gorm.DB) TagQuery
 }
 
-type TagCondition struct {
-	ID   string
-	Name string
+type TagQuery interface {
+	Where(cond *model.Tag) TagQuery
+
+	Create(tag *model.Tag) error
+	Find() (*model.Tag, error)
+	FindAll() ([]*model.Tag, error)
+	Save(tag *model.Tag) error
+	Delete() (int, error)
 }
 
 func NewTagRepository() TagRepository {
@@ -24,35 +27,43 @@ func NewTagRepository() TagRepository {
 type TagRepositoryImpl struct {
 }
 
-func (r *TagRepositoryImpl) FindAll(tx *gorm.DB, cond *TagCondition) ([]*model.Tag, error) {
-	res := make([]*model.Tag, 0)
-
-	tx = tx.Where(&model.Tag{
-		ID:   cond.ID,
-		Name: cond.Name,
-	})
-	if err := tx.Where(cond).Find(&res).Error; err != nil {
-		return nil, err
-	}
-	return res, nil
+func (r *TagRepositoryImpl) NewQuery(tx *gorm.DB) TagQuery {
+	return &TagQueryImpl{Tx: tx}
 }
 
-func (r *TagRepositoryImpl) FindBy(tx *gorm.DB, cond *TagCondition) (*model.Tag, error) {
+type TagQueryImpl struct {
+	Tx *gorm.DB
+}
+
+func (q *TagQueryImpl) Where(cond *model.Tag) TagQuery {
+	return &TagQueryImpl{Tx: q.Tx.Where(cond)}
+}
+
+func (q *TagQueryImpl) Create(tag *model.Tag) error {
+	return q.Tx.Create(tag).Error
+}
+
+func (q *TagQueryImpl) Find() (*model.Tag, error) {
 	res := &model.Tag{}
-
-	tx = tx.Where(&model.Tag{
-		ID:   cond.ID,
-		Name: cond.Name,
-	})
-	if err := tx.First(res).Error; err != nil {
+	if err := q.Tx.First(res).Error; err != nil {
 		return nil, err
 	}
 	return res, nil
 }
 
-func (r *TagRepositoryImpl) Save(tx *gorm.DB, tag *model.Tag) error {
-	if err := tx.Save(tag).Error; err != nil {
-		return err
+func (q *TagQueryImpl) FindAll() ([]*model.Tag, error) {
+	res := make([]*model.Tag, 0)
+	if err := q.Tx.Find(&res).Error; err != nil {
+		return nil, err
 	}
-	return nil
+	return res, nil
+}
+
+func (q *TagQueryImpl) Save(tag *model.Tag) error {
+	return q.Tx.Save(tag).Error
+}
+
+func (q *TagQueryImpl) Delete() (int, error) {
+	res := q.Tx.Delete(&model.Tag{})
+	return (int)(res.RowsAffected), res.Error
 }

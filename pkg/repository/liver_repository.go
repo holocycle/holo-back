@@ -1,37 +1,67 @@
 package repository
 
 import (
-	"github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/jinzhu/gorm"
 )
 
-type LiverRepository struct {
+type LiverRepository interface {
+	NewQuery(tx *gorm.DB) LiverQuery
+}
+
+type LiverQuery interface {
+	Where(cond *model.Liver) LiverQuery
+
+	Create(liver *model.Liver) error
+	Find() (*model.Liver, error)
+	FindAll() ([]*model.Liver, error)
+	Save(liver *model.Liver) error
+	Delete() (int, error)
+}
+
+func NewLiverRepository() LiverRepository {
+	return &LiverRepositoryImpl{}
+}
+
+type LiverRepositoryImpl struct{}
+
+func (r *LiverRepositoryImpl) NewQuery(tx *gorm.DB) LiverQuery {
+	return &LiverQueryImpl{Tx: tx}
+}
+
+type LiverQueryImpl struct {
 	Tx *gorm.DB
 }
 
-func NewLiverRepository(ctx context.Context) *LiverRepository {
-	return &LiverRepository{
-		Tx: ctx.GetDB(),
-	}
+func (q *LiverQueryImpl) Where(cond *model.Liver) LiverQuery {
+	return &LiverQueryImpl{Tx: q.Tx.Where(cond)}
 }
 
-func (r *LiverRepository) FindAll(cond *model.Liver) ([]*model.Liver, error) {
-	res := make([]*model.Liver, 0)
-	if err := r.Tx.Where(cond).Find(&res).Error; err != nil {
-		return nil, err // FIXME
-	}
-
-	return res, nil
+func (q *LiverQueryImpl) Create(liver *model.Liver) error {
+	return q.Tx.Create(liver).Error
 }
 
-func (r *LiverRepository) FindBy(cond *model.Liver) (*model.Liver, error) {
+func (q *LiverQueryImpl) Find() (*model.Liver, error) {
 	res := &model.Liver{}
-	if err := r.Tx.Where(cond).First(res).Error; err != nil {
-		if gorm.IsRecordNotFoundError(err) {
-			return nil, err // FIXME
-		}
-		return nil, err // FIXME
+	if err := q.Tx.First(res).Error; err != nil {
+		return nil, err
 	}
 	return res, nil
+}
+
+func (q *LiverQueryImpl) FindAll() ([]*model.Liver, error) {
+	res := make([]*model.Liver, 0)
+	if err := q.Tx.Find(&res).Error; err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+func (q *LiverQueryImpl) Save(liver *model.Liver) error {
+	return q.Tx.Save(liver).Error
+}
+
+func (q *LiverQueryImpl) Delete() (int, error) {
+	res := q.Tx.Delete(&model.Liver{})
+	return (int)(res.RowsAffected), res.Error
 }

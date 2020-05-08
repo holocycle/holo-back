@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/holocycle/holo-back/internal/app/config"
-	app_context "github.com/holocycle/holo-back/internal/app/context"
 	"github.com/holocycle/holo-back/internal/app/controller"
 	app_middleware "github.com/holocycle/holo-back/internal/app/middleware"
 	"github.com/holocycle/holo-back/pkg/context"
@@ -55,10 +54,6 @@ func main() {
 		echo_middleware.Recover(),
 		middleware.NewCORSMiddleware(&config.CORS),
 		middleware.NewContextMiddleware(),
-		middleware.NewContextHandleMiddleware(func(ctx context.Context) (context.Context, error) {
-			app_context.SetConfig(ctx, config)
-			return ctx, nil
-		}),
 		middleware.NewLoggerMiddleware(log),
 		middleware.NewContextHandleMiddleware(func(ctx context.Context) (context.Context, error) {
 			ctx.SetLog(ctx.GetLog().With(zap.String("requestID", model.NewID())))
@@ -75,7 +70,9 @@ func main() {
 	e.Use(middlewares...)
 
 	e.Static("/assets", "assets")
-	controller.RegisterAllController(e)
+	controller.NewAppController(config).Register(e)
+	controller.NewAuthnController(config).Register(e)
+	controller.NewClipController(config).Register(e)
 	controller.NewTagController(config).Register(e)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", config.Port)))
