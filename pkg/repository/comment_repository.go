@@ -42,10 +42,6 @@ func (q *CommentQueryImpl) Where(cond *model.Comment) CommentQuery {
 	return &CommentQueryImpl{Tx: q.Tx.Where(cond)}
 }
 
-func (q *CommentQueryImpl) JoinClip() CommentQuery {
-	return &CommentQueryImpl{Tx: q.Tx.Preload("Clip")}
-}
-
 func (q *CommentQueryImpl) JoinUser() CommentQuery {
 	return &CommentQueryImpl{Tx: q.Tx.Preload("User")}
 }

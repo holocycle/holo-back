@@ -43,5 +43,11 @@ func CommentModels() []interface{} {
 		Comment{},
 		ListCommentsRequest{},
 		ListCommentsResponse{},
+		GetCommentRequest{},
+		GetCommentResponse{},
+		PostCommentRequest{},
+		PostCommentResponse{},
+		DeleteCommentRequest{},
+		DeleteCommentResponse{},
 	}
 }

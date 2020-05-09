@@ -98,6 +98,9 @@ func (c *CommentController) GetComment(ctx context.Context) error {
 		JoinUser().
 		Find()
 	if err != nil {
+		if repository.NotFoundError(err) {
+			return echo.NewHTTPError(http.StatusNotFound, "comment was not found")
+		}
 		return err
 	}
 
@@ -119,6 +122,8 @@ func (c *CommentController) PostComment(ctx context.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "please specify clip_id")
 	}
 	log.Debug("success to validate request", zap.String("clipID", clipID))
+
+	// TODO: clipIDが実在することのバリデーション処理
 
 	tx := ctx.GetDB()
 	comment := model.NewComment(
