@@ -15,6 +15,74 @@ var ModelBase = /** @class */ (function () {
     return ModelBase;
 }());
 exports.ModelBase = ModelBase;
+var Liver = /** @class */ (function () {
+    function Liver() {
+    }
+    Liver.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new Liver();
+        result.type = source["type"];
+        result.id = source["id"];
+        result.name = source["name"];
+        result.channelId = source["channelId"];
+        result.mainColor = source["mainColor"];
+        result.subColor = source["subColor"];
+        return result;
+    };
+    return Liver;
+}());
+exports.Liver = Liver;
+var ListLiversRequest = /** @class */ (function () {
+    function ListLiversRequest() {
+    }
+    ListLiversRequest.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new ListLiversRequest();
+        return result;
+    };
+    return ListLiversRequest;
+}());
+exports.ListLiversRequest = ListLiversRequest;
+var ListLiversResponse = /** @class */ (function () {
+    function ListLiversResponse() {
+    }
+    ListLiversResponse.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new ListLiversResponse();
+        result.livers = source["livers"] ? source["livers"].map(function (element) { return Liver.createFrom(element); }) : null;
+        return result;
+    };
+    return ListLiversResponse;
+}());
+exports.ListLiversResponse = ListLiversResponse;
+var GetLiverRequest = /** @class */ (function () {
+    function GetLiverRequest() {
+    }
+    GetLiverRequest.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new GetLiverRequest();
+        return result;
+    };
+    return GetLiverRequest;
+}());
+exports.GetLiverRequest = GetLiverRequest;
+var GetLiverResponse = /** @class */ (function () {
+    function GetLiverResponse() {
+    }
+    GetLiverResponse.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new GetLiverResponse();
+        result.liver = source["liver"] ? Liver.createFrom(source["liver"]) : null;
+        return result;
+    };
+    return GetLiverResponse;
+}());
+exports.GetLiverResponse = GetLiverResponse;
 var Video = /** @class */ (function () {
     function Video() {
     }

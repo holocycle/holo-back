@@ -3,6 +3,29 @@ export declare class ModelBase {
     id: string;
     static createFrom(source: any): ModelBase;
 }
+export declare class Liver {
+    type: string;
+    id: string;
+    name: string;
+    channelId: string;
+    mainColor: string;
+    subColor: string;
+    static createFrom(source: any): Liver;
+}
+export declare class ListLiversRequest {
+    static createFrom(source: any): ListLiversRequest;
+}
+export declare class ListLiversResponse {
+    livers: Liver[];
+    static createFrom(source: any): ListLiversResponse;
+}
+export declare class GetLiverRequest {
+    static createFrom(source: any): GetLiverRequest;
+}
+export declare class GetLiverResponse {
+    liver: Liver;
+    static createFrom(source: any): GetLiverResponse;
+}
 export declare class Video {
     type: string;
     id: string;

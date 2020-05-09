@@ -14,6 +14,67 @@ export class ModelBase {
   }
 
 }
+export class Liver {
+  type: string;
+  id: string;
+  name: string;
+  channelId: string;
+  mainColor: string;
+  subColor: string;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new Liver();
+    result.type = source["type"];
+    result.id = source["id"];
+    result.name = source["name"];
+    result.channelId = source["channelId"];
+    result.mainColor = source["mainColor"];
+    result.subColor = source["subColor"];
+    return result;
+  }
+
+}
+export class ListLiversRequest {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new ListLiversRequest();
+    return result;
+  }
+
+}
+export class ListLiversResponse {
+  livers: Liver[];
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new ListLiversResponse();
+    result.livers = source["livers"] ? source["livers"].map(function(element: any) { return Liver.createFrom(element); }) : null;
+    return result;
+  }
+
+}
+export class GetLiverRequest {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new GetLiverRequest();
+    return result;
+  }
+
+}
+export class GetLiverResponse {
+  liver: Liver;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new GetLiverResponse();
+    result.liver = source["liver"] ? Liver.createFrom(source["liver"]) : null;
+    return result;
+  }
+
+}
 export class Video {
   type: string;
   id: string;
