@@ -65,3 +65,10 @@ yarn docker logs # ログをみる例
 yarn goose        # goose の alias
 yarn goose status # DBの状態をみる
 ```
+
+### publish js-api
+```bash
+cd scripts/js-api
+yarn build
+yarn publish --access public
+```
