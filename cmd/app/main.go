@@ -73,6 +73,7 @@ func main() {
 	controller.NewAppController(config).Register(e)
 	controller.NewAuthnController(config).Register(e)
 	controller.NewClipController(config).Register(e)
+	controller.NewCommentController(config).Register(e)
 	controller.NewTagController(config).Register(e)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", config.Port)))
