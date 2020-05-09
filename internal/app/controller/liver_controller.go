@@ -4,7 +4,9 @@ import (
 	"net/http"
 
 	"github.com/holocycle/holo-back/internal/app/config"
+	"github.com/holocycle/holo-back/pkg/api"
 	"github.com/holocycle/holo-back/pkg/context"
+	"github.com/holocycle/holo-back/pkg/converter"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/holocycle/holo-back/pkg/repository"
 	"github.com/labstack/echo/v4"
@@ -34,7 +36,9 @@ func (c *LiverController) ListLivers(ctx context.Context) error {
 		return err
 	}
 
-	return ctx.JSON(http.StatusOK, livers)
+	return ctx.JSON(http.StatusOK, &api.ListLiversResponse{
+		Livers: converter.ConvertToLivers(livers),
+	})
 }
 
 func (c *LiverController) GetLiver(ctx context.Context) error {
@@ -48,5 +52,7 @@ func (c *LiverController) GetLiver(ctx context.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, "liver was not found")
 	}
-	return ctx.JSON(http.StatusOK, liver)
+	return ctx.JSON(http.StatusOK, &api.GetLiverResponse{
+		Liver: converter.ConvertToLiver(liver),
+	})
 }

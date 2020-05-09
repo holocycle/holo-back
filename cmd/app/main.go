@@ -72,6 +72,7 @@ func main() {
 	e.Static("/assets", "assets")
 	controller.NewAppController(config).Register(e)
 	controller.NewAuthnController(config).Register(e)
+	controller.NewLiverController(config).Register(e)
 	controller.NewClipController(config).Register(e)
 	controller.NewCommentController(config).Register(e)
 	controller.NewTagController(config).Register(e)

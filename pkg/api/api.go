@@ -9,6 +9,7 @@ func Models() []interface{} {
 	models := []interface{}{
 		ModelBase{},
 	}
+	models = append(models, LiverModels()...)
 	models = append(models, ClipModels()...)
 	models = append(models, CommentModels()...)
 	models = append(models, TagModels()...)
