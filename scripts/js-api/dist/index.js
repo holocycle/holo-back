@@ -139,6 +139,143 @@ var GetClipResponse = /** @class */ (function () {
     return GetClipResponse;
 }());
 exports.GetClipResponse = GetClipResponse;
+var User = /** @class */ (function () {
+    function User() {
+    }
+    User.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new User();
+        result.type = source["type"];
+        result.id = source["id"];
+        result.name = source["name"];
+        result.email = source["email"];
+        result.iconUrl = source["iconUrl"];
+        return result;
+    };
+    return User;
+}());
+exports.User = User;
+var Comment = /** @class */ (function () {
+    function Comment() {
+    }
+    Comment.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new Comment();
+        result.type = source["type"];
+        result.id = source["id"];
+        result.userId = source["userId"];
+        result.clipId = source["clipId"];
+        result.content = source["content"];
+        result.user = source["user"] ? User.createFrom(source["user"]) : null;
+        return result;
+    };
+    return Comment;
+}());
+exports.Comment = Comment;
+var ListCommentsRequest = /** @class */ (function () {
+    function ListCommentsRequest() {
+    }
+    ListCommentsRequest.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new ListCommentsRequest();
+        result.limit = source["limit"];
+        result.orderBy = source["orderBy"];
+        return result;
+    };
+    return ListCommentsRequest;
+}());
+exports.ListCommentsRequest = ListCommentsRequest;
+var ListCommentsResponse = /** @class */ (function () {
+    function ListCommentsResponse() {
+    }
+    ListCommentsResponse.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new ListCommentsResponse();
+        result.comments = source["comments"] ? source["comments"].map(function (element) { return Comment.createFrom(element); }) : null;
+        return result;
+    };
+    return ListCommentsResponse;
+}());
+exports.ListCommentsResponse = ListCommentsResponse;
+var GetCommentRequest = /** @class */ (function () {
+    function GetCommentRequest() {
+    }
+    GetCommentRequest.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new GetCommentRequest();
+        return result;
+    };
+    return GetCommentRequest;
+}());
+exports.GetCommentRequest = GetCommentRequest;
+var GetCommentResponse = /** @class */ (function () {
+    function GetCommentResponse() {
+    }
+    GetCommentResponse.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new GetCommentResponse();
+        result.comment = source["comment"] ? Comment.createFrom(source["comment"]) : null;
+        return result;
+    };
+    return GetCommentResponse;
+}());
+exports.GetCommentResponse = GetCommentResponse;
+var PostCommentRequest = /** @class */ (function () {
+    function PostCommentRequest() {
+    }
+    PostCommentRequest.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new PostCommentRequest();
+        result.content = source["content"];
+        return result;
+    };
+    return PostCommentRequest;
+}());
+exports.PostCommentRequest = PostCommentRequest;
+var PostCommentResponse = /** @class */ (function () {
+    function PostCommentResponse() {
+    }
+    PostCommentResponse.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new PostCommentResponse();
+        result.commentId = source["commentId"];
+        return result;
+    };
+    return PostCommentResponse;
+}());
+exports.PostCommentResponse = PostCommentResponse;
+var DeleteCommentRequest = /** @class */ (function () {
+    function DeleteCommentRequest() {
+    }
+    DeleteCommentRequest.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new DeleteCommentRequest();
+        return result;
+    };
+    return DeleteCommentRequest;
+}());
+exports.DeleteCommentRequest = DeleteCommentRequest;
+var DeleteCommentResponse = /** @class */ (function () {
+    function DeleteCommentResponse() {
+    }
+    DeleteCommentResponse.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new DeleteCommentResponse();
+        return result;
+    };
+    return DeleteCommentResponse;
+}());
+exports.DeleteCommentResponse = DeleteCommentResponse;
 var Tag = /** @class */ (function () {
     function Tag() {
     }

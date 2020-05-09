@@ -55,6 +55,53 @@ export declare class GetClipResponse {
     clip: Clip;
     static createFrom(source: any): GetClipResponse;
 }
+export declare class User {
+    type: string;
+    id: string;
+    name: string;
+    email: string;
+    iconUrl: string;
+    static createFrom(source: any): User;
+}
+export declare class Comment {
+    type: string;
+    id: string;
+    userId: string;
+    clipId: string;
+    content: string;
+    user: User;
+    static createFrom(source: any): Comment;
+}
+export declare class ListCommentsRequest {
+    limit: number;
+    orderBy: string;
+    static createFrom(source: any): ListCommentsRequest;
+}
+export declare class ListCommentsResponse {
+    comments: Comment[];
+    static createFrom(source: any): ListCommentsResponse;
+}
+export declare class GetCommentRequest {
+    static createFrom(source: any): GetCommentRequest;
+}
+export declare class GetCommentResponse {
+    comment: Comment;
+    static createFrom(source: any): GetCommentResponse;
+}
+export declare class PostCommentRequest {
+    content: string;
+    static createFrom(source: any): PostCommentRequest;
+}
+export declare class PostCommentResponse {
+    commentId: string;
+    static createFrom(source: any): PostCommentResponse;
+}
+export declare class DeleteCommentRequest {
+    static createFrom(source: any): DeleteCommentRequest;
+}
+export declare class DeleteCommentResponse {
+    static createFrom(source: any): DeleteCommentResponse;
+}
 export declare class Tag {
     type: string;
     id: string;

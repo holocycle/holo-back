@@ -142,6 +142,130 @@ export class GetClipResponse {
   }
 
 }
+export class User {
+  type: string;
+  id: string;
+  name: string;
+  email: string;
+  iconUrl: string;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new User();
+    result.type = source["type"];
+    result.id = source["id"];
+    result.name = source["name"];
+    result.email = source["email"];
+    result.iconUrl = source["iconUrl"];
+    return result;
+  }
+
+}
+export class Comment {
+  type: string;
+  id: string;
+  userId: string;
+  clipId: string;
+  content: string;
+  user: User;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new Comment();
+    result.type = source["type"];
+    result.id = source["id"];
+    result.userId = source["userId"];
+    result.clipId = source["clipId"];
+    result.content = source["content"];
+    result.user = source["user"] ? User.createFrom(source["user"]) : null;
+    return result;
+  }
+
+}
+export class ListCommentsRequest {
+  limit: number;
+  orderBy: string;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new ListCommentsRequest();
+    result.limit = source["limit"];
+    result.orderBy = source["orderBy"];
+    return result;
+  }
+
+}
+export class ListCommentsResponse {
+  comments: Comment[];
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new ListCommentsResponse();
+    result.comments = source["comments"] ? source["comments"].map(function(element: any) { return Comment.createFrom(element); }) : null;
+    return result;
+  }
+
+}
+export class GetCommentRequest {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new GetCommentRequest();
+    return result;
+  }
+
+}
+export class GetCommentResponse {
+  comment: Comment;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new GetCommentResponse();
+    result.comment = source["comment"] ? Comment.createFrom(source["comment"]) : null;
+    return result;
+  }
+
+}
+export class PostCommentRequest {
+  content: string;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new PostCommentRequest();
+    result.content = source["content"];
+    return result;
+  }
+
+}
+export class PostCommentResponse {
+  commentId: string;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new PostCommentResponse();
+    result.commentId = source["commentId"];
+    return result;
+  }
+
+}
+export class DeleteCommentRequest {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new DeleteCommentRequest();
+    return result;
+  }
+
+}
+export class DeleteCommentResponse {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new DeleteCommentResponse();
+    return result;
+  }
+
+}
 export class Tag {
   type: string;
   id: string;
@@ -281,3 +405,4 @@ export class DeleteTagOnClipResponse {
   }
 
 }
+
