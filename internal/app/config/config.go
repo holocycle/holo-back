@@ -26,8 +26,9 @@ type AppConfig struct {
 func NewConfig() (*AppConfig, error) {
 	c := configor.New(&configor.Config{
 		ENVPrefix:            envPrefix,
-		Verbose:              true,
+		Debug:                true,
 		ErrorOnUnmatchedKeys: true,
+		// Verbose: true,
 	})
 
 	config := &AppConfig{}
