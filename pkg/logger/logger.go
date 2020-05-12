@@ -28,13 +28,14 @@ func NewLogger(config *Config) (*zap.Logger, error) {
 	}
 
 	encoderConfig := zap.NewProductionEncoderConfig()
-	encoderConfig.EncodeTime = zapcore.RFC3339NanoTimeEncoder
+	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 
 	zapConfig := &zap.Config{
-		Level:         *atomicLevel,
-		OutputPaths:   []string{"stdout"},
-		Encoding:      "json",
-		EncoderConfig: encoderConfig,
+		Level:             *atomicLevel,
+		DisableStacktrace: true,
+		OutputPaths:       []string{"stdout"},
+		Encoding:          "json",
+		EncoderConfig:     encoderConfig,
 	}
 
 	logger, err := zapConfig.Build()
