@@ -38,13 +38,14 @@ func (q *LiverQueryImpl) Where(cond *model.Liver) LiverQuery {
 }
 
 func (q *LiverQueryImpl) Create(liver *model.Liver) error {
-	return q.Tx.Create(liver).Error
+	err := q.Tx.Create(liver).Error
+	return newErr(err)
 }
 
 func (q *LiverQueryImpl) Find() (*model.Liver, error) {
 	res := &model.Liver{}
 	if err := q.Tx.First(res).Error; err != nil {
-		return nil, err
+		return nil, newErr(err)
 	}
 	return res, nil
 }
@@ -52,16 +53,17 @@ func (q *LiverQueryImpl) Find() (*model.Liver, error) {
 func (q *LiverQueryImpl) FindAll() ([]*model.Liver, error) {
 	res := make([]*model.Liver, 0)
 	if err := q.Tx.Find(&res).Error; err != nil {
-		return nil, err
+		return nil, newErr(err)
 	}
 	return res, nil
 }
 
 func (q *LiverQueryImpl) Save(liver *model.Liver) error {
-	return q.Tx.Save(liver).Error
+	err := q.Tx.Save(liver).Error
+	return newErr(err)
 }
 
 func (q *LiverQueryImpl) Delete() (int, error) {
 	res := q.Tx.Delete(&model.Liver{})
-	return (int)(res.RowsAffected), res.Error
+	return (int)(res.RowsAffected), newErr(res.Error)
 }

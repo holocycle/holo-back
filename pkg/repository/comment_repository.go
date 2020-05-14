@@ -55,13 +55,14 @@ func (q *CommentQueryImpl) Latest() CommentQuery {
 }
 
 func (q *CommentQueryImpl) Create(Comment *model.Comment) error {
-	return q.Tx.Create(Comment).Error
+	err := q.Tx.Create(Comment).Error
+	return newErr(err)
 }
 
 func (q *CommentQueryImpl) Find() (*model.Comment, error) {
 	res := &model.Comment{}
 	if err := q.Tx.First(res).Error; err != nil {
-		return nil, err
+		return nil, newErr(err)
 	}
 	return res, nil
 }
@@ -69,16 +70,17 @@ func (q *CommentQueryImpl) Find() (*model.Comment, error) {
 func (q *CommentQueryImpl) FindAll() ([]*model.Comment, error) {
 	res := make([]*model.Comment, 0)
 	if err := q.Tx.Find(&res).Error; err != nil {
-		return nil, err
+		return nil, newErr(err)
 	}
 	return res, nil
 }
 
 func (q *CommentQueryImpl) Save(Comment *model.Comment) error {
-	return q.Tx.Save(Comment).Error
+	err := q.Tx.Save(Comment).Error
+	return newErr(err)
 }
 
 func (q *CommentQueryImpl) Delete() (int, error) {
 	res := q.Tx.Delete(&model.Comment{})
-	return (int)(res.RowsAffected), res.Error
+	return (int)(res.RowsAffected), newErr(res.Error)
 }

@@ -56,13 +56,14 @@ func (q *ClipTagQueryImpl) JoinTag() ClipTagQuery {
 }
 
 func (q *ClipTagQueryImpl) Create(clipTag *model.ClipTag) error {
-	return q.Tx.Create(clipTag).Error
+	err := q.Tx.Create(clipTag).Error
+	return newErr(err)
 }
 
 func (q *ClipTagQueryImpl) Find() (*model.ClipTag, error) {
 	res := &model.ClipTag{}
 	if err := q.Tx.First(res).Error; err != nil {
-		return nil, err
+		return nil, newErr(err)
 	}
 	return res, nil
 }
@@ -70,16 +71,17 @@ func (q *ClipTagQueryImpl) Find() (*model.ClipTag, error) {
 func (q *ClipTagQueryImpl) FindAll() ([]*model.ClipTag, error) {
 	res := make([]*model.ClipTag, 0)
 	if err := q.Tx.Find(&res).Error; err != nil {
-		return nil, err
+		return nil, newErr(err)
 	}
 	return res, nil
 }
 
 func (q *ClipTagQueryImpl) Save(clipTag *model.ClipTag) error {
-	return q.Tx.Save(clipTag).Error
+	err := q.Tx.Save(clipTag).Error
+	return newErr(err)
 }
 
 func (q *ClipTagQueryImpl) Delete() (int, error) {
 	res := q.Tx.Delete(&model.ClipTag{})
-	return int(res.RowsAffected), res.Error
+	return int(res.RowsAffected), newErr(res.Error)
 }

@@ -38,13 +38,14 @@ func (q *UserQueryImpl) Where(cond *model.User) UserQuery {
 }
 
 func (q *UserQueryImpl) Create(user *model.User) error {
-	return q.Tx.Create(user).Error
+	err := q.Tx.Create(user).Error
+	return newErr(err)
 }
 
 func (q *UserQueryImpl) Find() (*model.User, error) {
 	res := &model.User{}
 	if err := q.Tx.First(res).Error; err != nil {
-		return nil, err
+		return nil, newErr(err)
 	}
 	return res, nil
 }
@@ -52,16 +53,17 @@ func (q *UserQueryImpl) Find() (*model.User, error) {
 func (q *UserQueryImpl) FindAll() ([]*model.User, error) {
 	res := make([]*model.User, 0)
 	if err := q.Tx.Find(&res).Error; err != nil {
-		return nil, err
+		return nil, newErr(err)
 	}
 	return res, nil
 }
 
 func (q *UserQueryImpl) Save(user *model.User) error {
-	return q.Tx.Save(user).Error
+	err := q.Tx.Save(user).Error
+	return newErr(err)
 }
 
 func (q *UserQueryImpl) Delete() (int, error) {
 	res := q.Tx.Delete(&model.User{})
-	return (int)(res.RowsAffected), res.Error
+	return (int)(res.RowsAffected), newErr(res.Error)
 }

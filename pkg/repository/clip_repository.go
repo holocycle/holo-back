@@ -49,13 +49,14 @@ func (q *ClipQueryImpl) Latest() ClipQuery {
 }
 
 func (q *ClipQueryImpl) Create(clip *model.Clip) error {
-	return q.Tx.Create(clip).Error
+	err := q.Tx.Create(clip).Error
+	return newErr(err)
 }
 
 func (q *ClipQueryImpl) Find() (*model.Clip, error) {
 	res := &model.Clip{}
 	if err := q.Tx.First(res).Error; err != nil {
-		return nil, err
+		return nil, newErr(err)
 	}
 	return res, nil
 }
@@ -63,16 +64,17 @@ func (q *ClipQueryImpl) Find() (*model.Clip, error) {
 func (q *ClipQueryImpl) FindAll() ([]*model.Clip, error) {
 	res := make([]*model.Clip, 0)
 	if err := q.Tx.Find(&res).Error; err != nil {
-		return nil, err
+		return nil, newErr(err)
 	}
 	return res, nil
 }
 
 func (q *ClipQueryImpl) Save(clip *model.Clip) error {
-	return q.Tx.Save(clip).Error
+	err := q.Tx.Save(clip).Error
+	return newErr(err)
 }
 
 func (q *ClipQueryImpl) Delete() (int, error) {
 	res := q.Tx.Delete(&model.Clip{})
-	return (int)(res.RowsAffected), res.Error
+	return (int)(res.RowsAffected), newErr(res.Error)
 }

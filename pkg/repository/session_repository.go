@@ -38,13 +38,14 @@ func (q *SessionQueryImpl) Where(cond *model.Session) SessionQuery {
 }
 
 func (q *SessionQueryImpl) Create(session *model.Session) error {
-	return q.Tx.Create(session).Error
+	err := q.Tx.Create(session).Error
+	return newErr(err)
 }
 
 func (q *SessionQueryImpl) Find() (*model.Session, error) {
 	res := &model.Session{}
 	if err := q.Tx.First(res).Error; err != nil {
-		return nil, err
+		return nil, newErr(err)
 	}
 	return res, nil
 }
@@ -52,16 +53,17 @@ func (q *SessionQueryImpl) Find() (*model.Session, error) {
 func (q *SessionQueryImpl) FindAll() ([]*model.Session, error) {
 	res := make([]*model.Session, 0)
 	if err := q.Tx.Find(&res).Error; err != nil {
-		return nil, err
+		return nil, newErr(err)
 	}
 	return res, nil
 }
 
 func (q *SessionQueryImpl) Save(session *model.Session) error {
-	return q.Tx.Save(session).Error
+	err := q.Tx.Save(session).Error
+	return newErr(err)
 }
 
 func (q *SessionQueryImpl) Delete() (int, error) {
 	res := q.Tx.Delete(&model.Session{})
-	return (int)(res.RowsAffected), res.Error
+	return (int)(res.RowsAffected), newErr(res.Error)
 }

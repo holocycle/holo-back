@@ -38,13 +38,14 @@ func (q *VideoQueryImpl) Where(cond *model.Video) VideoQuery {
 }
 
 func (q *VideoQueryImpl) Create(video *model.Video) error {
-	return q.Tx.Create(video).Error
+	err := q.Tx.Create(video).Error
+	return newErr(err)
 }
 
 func (q *VideoQueryImpl) Find() (*model.Video, error) {
 	res := &model.Video{}
 	if err := q.Tx.First(&res).Error; err != nil {
-		return nil, err
+		return nil, newErr(err)
 	}
 	return res, nil
 }
@@ -52,16 +53,17 @@ func (q *VideoQueryImpl) Find() (*model.Video, error) {
 func (q *VideoQueryImpl) FindAll() ([]*model.Video, error) {
 	res := make([]*model.Video, 0)
 	if err := q.Tx.Find(&res).Error; err != nil {
-		return nil, err
+		return nil, newErr(err)
 	}
 	return res, nil
 }
 
 func (q *VideoQueryImpl) Save(video *model.Video) error {
-	return q.Tx.Save(video).Error
+	err := q.Tx.Save(video).Error
+	return newErr(err)
 }
 
 func (q *VideoQueryImpl) Delete() (int, error) {
 	res := q.Tx.Delete(&model.Video{})
-	return (int)(res.RowsAffected), res.Error
+	return (int)(res.RowsAffected), newErr(res.Error)
 }

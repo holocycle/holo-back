@@ -6,6 +6,7 @@ import (
 	"github.com/holocycle/holo-back/internal/app/config"
 	"github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/model"
+	"github.com/pkg/errors"
 
 	"github.com/labstack/echo/v4"
 )
@@ -36,7 +37,7 @@ func (c *AppController) Health(ctx context.Context) error {
 
 	healthCheck := model.NewHealthCheck()
 	if err := tx.Save(healthCheck).Error; err != nil {
-		return err
+		return errors.WithStack(err)
 	}
 
 	return ctx.JSON(http.StatusOK, map[string]string{
