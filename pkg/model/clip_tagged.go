@@ -2,11 +2,10 @@ package model
 
 import "time"
 
-type ClipTag struct {
-	ID        string
-	UserID    string
+type ClipTagged struct {
 	ClipID    string
 	TagID     string
+	UserID    string
 	CreatedAt *time.Time
 	UpdatedAt *time.Time
 
@@ -15,12 +14,15 @@ type ClipTag struct {
 	Tag  *Tag
 }
 
-func NewClipTag(userID, clipID, tagID string) *ClipTag {
-	return &ClipTag{
-		ID:        NewID(),
-		UserID:    userID,
+func (ClipTagged) TableName() string {
+	return "clip_tagged"
+}
+
+func NewClipTagged(clipID, tagID, userID string) *ClipTagged {
+	return &ClipTagged{
 		ClipID:    clipID,
 		TagID:     tagID,
+		UserID:    userID,
 		CreatedAt: nil,
 		UpdatedAt: nil,
 	}

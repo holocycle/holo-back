@@ -15,5 +15,6 @@ func Models() []interface{} {
 	models = append(models, TagModels()...)
 	models = append(models, UserModels()...)
 	models = append(models, VideoModels()...)
+	models = append(models, FavoriteModels()...)
 	return models
 }
