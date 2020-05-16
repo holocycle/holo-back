@@ -10,8 +10,6 @@ CREATE TABLE clip_tagged (
   CONSTRAINT clip_tagged_pk PRIMARY KEY (clip_id, tag_id)
 );
 
-CREATE INDEX clip_tagged_clip_id_index ON clip_tagged(clip_id);
-
 -- +goose Down
 -- SQL in this section is executed when the migration is rolled back.
 
