@@ -1,5 +1,7 @@
 package model
 
+import "time"
+
 type Channel struct {
 	Kind    string
 	ETag    string
@@ -7,7 +9,7 @@ type Channel struct {
 	Snippet struct {
 		Title       string
 		Description string
-		PublishedAt string
+		PublishedAt time.Time
 		Thumbnails  struct {
 			Default struct {
 				URL    string
@@ -37,11 +39,11 @@ type Channel struct {
 		}
 	}
 	Statistics struct {
-		ViewCount             int64
-		CommentCount          int64
-		SubscriberCount       int64
+		ViewCount             JSONInt64
+		CommentCount          JSONInt64
+		SubscriberCount       JSONInt64
 		HiddenSubscriberCount bool
-		VideoCount            int64
+		VideoCount            JSONInt64
 	}
 	BrandingSettings struct {
 		Channel struct {
@@ -97,4 +99,16 @@ type LocalizedImageURL struct {
 		Value    string
 		Language string
 	}
+}
+
+type ChannelListResponse struct {
+	Kind          string
+	ETag          string
+	NextPageToken string
+	PrevPageToken string
+	PageInfo      struct {
+		TotalResults   int
+		ResultsPerPage int
+	}
+	Items []Channel
 }

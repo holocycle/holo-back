@@ -1,22 +1,22 @@
 package youtube
 
-type APIURL struct {
-	Video string `required:"true"`
-}
+import "github.com/holocycle/holo-back/pkg/model"
 
 type Config struct {
 	APIKey string `required:"true" env:"YOUTUBE_CLIENT_API_KEY"`
-	APIURL APIURL
-}
-
-type Client struct {
-	APIKey string
-	APIURL APIURL
-}
-
-func New(config *Config) *Client {
-	return &Client{
-		APIKey: config.APIKey,
-		APIURL: config.APIURL,
+	APIURL struct {
+		Video string `required:"true"`
 	}
+}
+
+type Client interface {
+	GetVideo(videoID string) (*model.Video, error)
+}
+
+type ClientImpl struct {
+	Config
+}
+
+func New(config *Config) Client {
+	return &ClientImpl{*config}
 }
