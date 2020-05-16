@@ -17,3 +17,4 @@ youtubeclient:
   apikey: "" # env
   apiurl:
     video: "https://www.googleapis.com/youtube/v3/videos"
+    channel: "https://www.googleapis.com/youtube/v3/channels"

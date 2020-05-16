@@ -9,23 +9,23 @@ import (
 	youtube_model "github.com/holocycle/holo-back/pkg/youtube/model"
 )
 
-func (c *Client) GetVideo(videoID string) (*model.Video, error) {
+func (c *ClientImpl) GetVideo(videoID string) (*model.Video, error) {
 	bytes, err := httpclient.GetRaw(c.APIURL.Video, map[string]string{
 		"key":  c.APIKey,
 		"id":   videoID,
 		"part": "snippet,contentDetails",
 	})
 	if err != nil {
-		return nil, err
+		return nil, newErr(err)
 	}
 
 	resp := &youtube_model.VideoListResponse{}
 	if err := json.Unmarshal(bytes, resp); err != nil {
-		return nil, err
+		return nil, newErr(err)
 	}
 
 	if len(resp.Items) == 0 {
-		return nil, errors.New("Video is not found")
+		return nil, newErr(errors.New("Video is not found"))
 	}
 
 	v := resp.Items[0]

@@ -5,13 +5,15 @@ import (
 )
 
 type Liver struct {
-	ID        string     `json:"id"`
-	Name      string     `json:"name"`
-	ChannelID string     `json:"channelId"`
-	MainColor string     `json:"mainColor"`
-	SubColor  string     `json:"subColor"`
-	CreatedAt *time.Time `json:"-"`
-	UpdatedAt *time.Time `json:"-"`
+	ID        string
+	Name      string
+	ChannelID string
+	MainColor string
+	SubColor  string
+	CreatedAt *time.Time
+	UpdatedAt *time.Time
+
+	Channel *Channel
 }
 
 func NewLiver(id, name, channelID, mainColor, subColor string) *Liver {
