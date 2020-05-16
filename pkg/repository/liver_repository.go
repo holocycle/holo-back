@@ -11,6 +11,7 @@ type LiverRepository interface {
 
 type LiverQuery interface {
 	Where(cond *model.Liver) LiverQuery
+	JoinChannel() LiverQuery
 
 	Create(liver *model.Liver) error
 	Find() (*model.Liver, error)
@@ -35,6 +36,10 @@ type LiverQueryImpl struct {
 
 func (q *LiverQueryImpl) Where(cond *model.Liver) LiverQuery {
 	return &LiverQueryImpl{Tx: q.Tx.Where(cond)}
+}
+
+func (q *LiverQueryImpl) JoinChannel() LiverQuery {
+	return &LiverQueryImpl{Tx: q.Tx.Preload("Channel")}
 }
 
 func (q *LiverQueryImpl) Create(liver *model.Liver) error {
