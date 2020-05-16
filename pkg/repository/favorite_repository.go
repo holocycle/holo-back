@@ -11,7 +11,6 @@ type FavoriteRepository interface {
 
 type FavoriteQuery interface {
 	Where(cond *model.Favorite) FavoriteQuery
-	JoinChannel() FavoriteQuery
 
 	Create(Favorite *model.Favorite) error
 	Find() (*model.Favorite, error)
@@ -36,10 +35,6 @@ type FavoriteQueryImpl struct {
 
 func (q *FavoriteQueryImpl) Where(cond *model.Favorite) FavoriteQuery {
 	return &FavoriteQueryImpl{Tx: q.Tx.Where(cond)}
-}
-
-func (q *FavoriteQueryImpl) JoinChannel() FavoriteQuery {
-	return &FavoriteQueryImpl{Tx: q.Tx.Preload("Channel")}
 }
 
 func (q *FavoriteQueryImpl) Create(Favorite *model.Favorite) error {

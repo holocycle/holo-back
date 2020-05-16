@@ -11,7 +11,6 @@ type CliplistContainRepository interface {
 
 type CliplistContainQuery interface {
 	Where(cond *model.CliplistContain) CliplistContainQuery
-	JoinChannel() CliplistContainQuery
 
 	Create(CliplistContain *model.CliplistContain) error
 	Find() (*model.CliplistContain, error)
@@ -36,10 +35,6 @@ type CliplistContainQueryImpl struct {
 
 func (q *CliplistContainQueryImpl) Where(cond *model.CliplistContain) CliplistContainQuery {
 	return &CliplistContainQueryImpl{Tx: q.Tx.Where(cond)}
-}
-
-func (q *CliplistContainQueryImpl) JoinChannel() CliplistContainQuery {
-	return &CliplistContainQueryImpl{Tx: q.Tx.Preload("Channel")}
 }
 
 func (q *CliplistContainQueryImpl) Create(CliplistContain *model.CliplistContain) error {

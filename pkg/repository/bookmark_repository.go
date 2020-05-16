@@ -11,7 +11,6 @@ type BookmarkRepository interface {
 
 type BookmarkQuery interface {
 	Where(cond *model.Bookmark) BookmarkQuery
-	JoinChannel() BookmarkQuery
 
 	Create(Bookmark *model.Bookmark) error
 	Find() (*model.Bookmark, error)
@@ -36,10 +35,6 @@ type BookmarkQueryImpl struct {
 
 func (q *BookmarkQueryImpl) Where(cond *model.Bookmark) BookmarkQuery {
 	return &BookmarkQueryImpl{Tx: q.Tx.Where(cond)}
-}
-
-func (q *BookmarkQueryImpl) JoinChannel() BookmarkQuery {
-	return &BookmarkQueryImpl{Tx: q.Tx.Preload("Channel")}
 }
 
 func (q *BookmarkQueryImpl) Create(Bookmark *model.Bookmark) error {
