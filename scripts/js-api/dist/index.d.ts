@@ -3,13 +3,34 @@ export declare class ModelBase {
     id: string;
     static createFrom(source: any): ModelBase;
 }
+export declare class Time {
+    static createFrom(source: any): Time;
+}
+export declare class Channel {
+    type: string;
+    id: string;
+    title: string;
+    description: string;
+    smallThumbnailUrl: string;
+    mediumThumbnailUrl: string;
+    largeThumbnailUrl: string;
+    smallBannerUrl: string;
+    mediumBannerUrl: string;
+    largeBannerUrl: string;
+    viewCount: number;
+    commentCount: number;
+    subscriberCount: number;
+    videoCount: number;
+    publishedAt: Time;
+    static createFrom(source: any): Channel;
+}
 export declare class Liver {
     type: string;
     id: string;
     name: string;
-    channelId: string;
     mainColor: string;
     subColor: string;
+    channel: Channel;
     static createFrom(source: any): Liver;
 }
 export declare class ListLiversRequest {
@@ -174,4 +195,23 @@ export declare class DeleteTagOnClipRequest {
 }
 export declare class DeleteTagOnClipResponse {
     static createFrom(source: any): DeleteTagOnClipResponse;
+}
+export declare class Favorite {
+    type: string;
+    id: string;
+    clipId: string;
+    userId: string;
+    static createFrom(source: any): Favorite;
+}
+export declare class PutFavoriteRequest {
+    static createFrom(source: any): PutFavoriteRequest;
+}
+export declare class PutFavoriteResponse {
+    static createFrom(source: any): PutFavoriteResponse;
+}
+export declare class DeleteFavoriteRequest {
+    static createFrom(source: any): DeleteFavoriteRequest;
+}
+export declare class DeleteFavoriteResponse {
+    static createFrom(source: any): DeleteFavoriteResponse;
 }

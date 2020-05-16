@@ -15,6 +15,45 @@ var ModelBase = /** @class */ (function () {
     return ModelBase;
 }());
 exports.ModelBase = ModelBase;
+var Time = /** @class */ (function () {
+    function Time() {
+    }
+    Time.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new Time();
+        return result;
+    };
+    return Time;
+}());
+exports.Time = Time;
+var Channel = /** @class */ (function () {
+    function Channel() {
+    }
+    Channel.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new Channel();
+        result.type = source["type"];
+        result.id = source["id"];
+        result.title = source["title"];
+        result.description = source["description"];
+        result.smallThumbnailUrl = source["smallThumbnailUrl"];
+        result.mediumThumbnailUrl = source["mediumThumbnailUrl"];
+        result.largeThumbnailUrl = source["largeThumbnailUrl"];
+        result.smallBannerUrl = source["smallBannerUrl"];
+        result.mediumBannerUrl = source["mediumBannerUrl"];
+        result.largeBannerUrl = source["largeBannerUrl"];
+        result.viewCount = source["viewCount"];
+        result.commentCount = source["commentCount"];
+        result.subscriberCount = source["subscriberCount"];
+        result.videoCount = source["videoCount"];
+        result.publishedAt = source["publishedAt"] ? Time.createFrom(source["publishedAt"]) : null;
+        return result;
+    };
+    return Channel;
+}());
+exports.Channel = Channel;
 var Liver = /** @class */ (function () {
     function Liver() {
     }
@@ -25,9 +64,9 @@ var Liver = /** @class */ (function () {
         result.type = source["type"];
         result.id = source["id"];
         result.name = source["name"];
-        result.channelId = source["channelId"];
         result.mainColor = source["mainColor"];
         result.subColor = source["subColor"];
+        result.channel = source["channel"] ? Channel.createFrom(source["channel"]) : null;
         return result;
     };
     return Liver;
@@ -511,3 +550,67 @@ var DeleteTagOnClipResponse = /** @class */ (function () {
     return DeleteTagOnClipResponse;
 }());
 exports.DeleteTagOnClipResponse = DeleteTagOnClipResponse;
+var Favorite = /** @class */ (function () {
+    function Favorite() {
+    }
+    Favorite.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new Favorite();
+        result.type = source["type"];
+        result.id = source["id"];
+        result.clipId = source["clipId"];
+        result.userId = source["userId"];
+        return result;
+    };
+    return Favorite;
+}());
+exports.Favorite = Favorite;
+var PutFavoriteRequest = /** @class */ (function () {
+    function PutFavoriteRequest() {
+    }
+    PutFavoriteRequest.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new PutFavoriteRequest();
+        return result;
+    };
+    return PutFavoriteRequest;
+}());
+exports.PutFavoriteRequest = PutFavoriteRequest;
+var PutFavoriteResponse = /** @class */ (function () {
+    function PutFavoriteResponse() {
+    }
+    PutFavoriteResponse.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new PutFavoriteResponse();
+        return result;
+    };
+    return PutFavoriteResponse;
+}());
+exports.PutFavoriteResponse = PutFavoriteResponse;
+var DeleteFavoriteRequest = /** @class */ (function () {
+    function DeleteFavoriteRequest() {
+    }
+    DeleteFavoriteRequest.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new DeleteFavoriteRequest();
+        return result;
+    };
+    return DeleteFavoriteRequest;
+}());
+exports.DeleteFavoriteRequest = DeleteFavoriteRequest;
+var DeleteFavoriteResponse = /** @class */ (function () {
+    function DeleteFavoriteResponse() {
+    }
+    DeleteFavoriteResponse.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new DeleteFavoriteResponse();
+        return result;
+    };
+    return DeleteFavoriteResponse;
+}());
+exports.DeleteFavoriteResponse = DeleteFavoriteResponse;

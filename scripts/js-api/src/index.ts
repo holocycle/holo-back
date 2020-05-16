@@ -14,13 +14,61 @@ export class ModelBase {
   }
 
 }
+export class Time {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new Time();
+    return result;
+  }
+
+}
+export class Channel {
+  type: string;
+  id: string;
+  title: string;
+  description: string;
+  smallThumbnailUrl: string;
+  mediumThumbnailUrl: string;
+  largeThumbnailUrl: string;
+  smallBannerUrl: string;
+  mediumBannerUrl: string;
+  largeBannerUrl: string;
+  viewCount: number;
+  commentCount: number;
+  subscriberCount: number;
+  videoCount: number;
+  publishedAt: Time;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new Channel();
+    result.type = source["type"];
+    result.id = source["id"];
+    result.title = source["title"];
+    result.description = source["description"];
+    result.smallThumbnailUrl = source["smallThumbnailUrl"];
+    result.mediumThumbnailUrl = source["mediumThumbnailUrl"];
+    result.largeThumbnailUrl = source["largeThumbnailUrl"];
+    result.smallBannerUrl = source["smallBannerUrl"];
+    result.mediumBannerUrl = source["mediumBannerUrl"];
+    result.largeBannerUrl = source["largeBannerUrl"];
+    result.viewCount = source["viewCount"];
+    result.commentCount = source["commentCount"];
+    result.subscriberCount = source["subscriberCount"];
+    result.videoCount = source["videoCount"];
+    result.publishedAt = source["publishedAt"] ? Time.createFrom(source["publishedAt"]) : null;
+    return result;
+  }
+
+}
 export class Liver {
   type: string;
   id: string;
   name: string;
-  channelId: string;
   mainColor: string;
   subColor: string;
+  channel: Channel;
 
   static createFrom(source: any) {
     if ('string' === typeof source) source = JSON.parse(source);
@@ -28,13 +76,14 @@ export class Liver {
     result.type = source["type"];
     result.id = source["id"];
     result.name = source["name"];
-    result.channelId = source["channelId"];
     result.mainColor = source["mainColor"];
     result.subColor = source["subColor"];
+    result.channel = source["channel"] ? Channel.createFrom(source["channel"]) : null;
     return result;
   }
 
 }
+
 export class ListLiversRequest {
 
   static createFrom(source: any) {
@@ -467,3 +516,57 @@ export class DeleteTagOnClipResponse {
 
 }
 
+
+export class Favorite {
+  type: string;
+  id: string;
+  clipId: string;
+  userId: string;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new Favorite();
+    result.type = source["type"];
+    result.id = source["id"];
+    result.clipId = source["clipId"];
+    result.userId = source["userId"];
+    return result;
+  }
+
+}
+export class PutFavoriteRequest {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new PutFavoriteRequest();
+    return result;
+  }
+
+}
+export class PutFavoriteResponse {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new PutFavoriteResponse();
+    return result;
+  }
+
+}
+export class DeleteFavoriteRequest {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new DeleteFavoriteRequest();
+    return result;
+  }
+
+}
+export class DeleteFavoriteResponse {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new DeleteFavoriteResponse();
+    return result;
+  }
+
+}
