@@ -40,25 +40,29 @@ func (c *LiverController) ListLivers(ctx context.Context) error {
 		return err
 	}
 
-	// TODO: extract as batch
-	youtubeCli := youtube.New(&c.Config.YoutubeClient)
-
 	curTime := time.Now()
 	cacheDuration := 300 * time.Second
+	expiredChannelIDs := make([]string, 0)
 	for _, liver := range livers {
-		if liver.Channel != nil &&
-			curTime.Before(liver.Channel.UpdatedAt.Add(cacheDuration)) {
-			continue
+		if liver.Channel == nil || curTime.After(liver.Channel.UpdatedAt.Add(cacheDuration)) {
+			expiredChannelIDs = append(expiredChannelIDs, liver.ChannelID)
 		}
+	}
 
-		// there is no cache or cache is expired.
-		channel, err := youtubeCli.GetChannel(liver.ChannelID)
+	if len(expiredChannelIDs) > 0 {
+		youtubeCli := youtube.New(&c.Config.YoutubeClient)
+		channels, err := youtubeCli.ListChannels(expiredChannelIDs)
 		if err != nil {
 			return err
 		}
-		liver.Channel = channel
 
-		err = c.ChannelRepository.NewQuery(ctx.GetDB()).Save(channel)
+		for _, channel := range channels {
+			if err := c.ChannelRepository.NewQuery(ctx.GetDB()).Save(channel); err != nil {
+				return err
+			}
+		}
+
+		livers, err = c.LiverRepository.NewQuery(tx).JoinChannel().FindAll()
 		if err != nil {
 			return err
 		}

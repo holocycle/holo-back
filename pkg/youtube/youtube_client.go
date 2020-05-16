@@ -13,6 +13,7 @@ type Config struct {
 type Client interface {
 	GetVideo(videoID string) (*model.Video, error)
 	GetChannel(channelID string) (*model.Channel, error)
+	ListChannels(channelIDs []string) ([]*model.Channel, error)
 }
 
 type ClientImpl struct {
