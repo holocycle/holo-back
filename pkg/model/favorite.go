@@ -3,8 +3,8 @@ package model
 import "time"
 
 type Favorite struct {
-	ClipID    string
-	UserID    string
+	ClipID    string `gorm:"primary_key"`
+	UserID    string `gorm:"primary_key"`
 	CreatedAt *time.Time
 	UpdatedAt *time.Time
 }
