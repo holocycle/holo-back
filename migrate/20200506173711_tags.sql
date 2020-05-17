@@ -9,8 +9,6 @@ CREATE TABLE tags (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE UNIQUE INDEX tag_name_index ON tags(name);
-
 -- +goose Down
 -- SQL in this section is executed when the migration is rolled back.
 

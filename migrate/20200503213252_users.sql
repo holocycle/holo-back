@@ -9,8 +9,6 @@ CREATE TABLE users (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE UNIQUE INDEX user_email_index ON users(email);
-
 -- +goose Down
 -- SQL in this section is executed when the migration is rolled back.
 
