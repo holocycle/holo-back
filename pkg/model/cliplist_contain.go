@@ -3,8 +3,8 @@ package model
 import "time"
 
 type CliplistContain struct {
-	CliplistID string
-	Index      int
+	CliplistID string `gorm:"primary_key"`
+	Index      int    `gorm:"primary_key"`
 	ClipID     string
 	CreatedAt  *time.Time
 	UpdatedAt  *time.Time

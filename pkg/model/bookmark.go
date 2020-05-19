@@ -3,8 +3,8 @@ package model
 import "time"
 
 type Bookmark struct {
-	CliplistID string
-	UserID     string
+	CliplistID string `gorm:"primary_key"`
+	UserID     string `gorm:"primary_key"`
 	CreatedAt  *time.Time
 	UpdatedAt  *time.Time
 }
