@@ -7,6 +7,8 @@ type Favorite struct {
 	UserID    string
 	CreatedAt *time.Time
 	UpdatedAt *time.Time
+
+	Clip *Clip
 }
 
 func NewFavorite(

@@ -8,12 +8,27 @@ import (
 func ConvertToUser(user *model.User) *api.User {
 	return &api.User{
 		ModelBase: api.ModelBase{
-			Type: "User",
+			Type: "LoginUser",
 			ID:   user.ID,
 		},
-		Name:  user.Name,
-		Email: user.Email,
-		// FIXME iconURLはDBに格納されている情報を取得してくる必要がある
-		IconURL: "https://yt3.ggpht.com/a/AATXAJwHPp_TkvcWJyblt9XVYDjNSjrj6KdpQSCQNQ=s288-c-k-c0xffffffff-no-rj-mo",
+		Name:    user.Name,
+		IconURL: user.IconURL,
 	}
+}
+
+func ConvertToLoginUser(user *model.User) *api.LoginUser {
+	convertedUser := ConvertToUser(user)
+	return &api.LoginUser{
+		User:  *convertedUser,
+		Email: user.Email,
+	}
+}
+
+func ConvertToFavoriteClips(favorites []*model.Favorite) []*api.Clip {
+	res := make([]*api.Clip, 0)
+	for _, favorite := range favorites {
+		clip := favorite.Clip
+		res = append(res, ConvertToClip(clip, nil))
+	}
+	return res
 }

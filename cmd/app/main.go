@@ -76,6 +76,7 @@ func main() {
 	controller.NewClipController(config).Register(e)
 	controller.NewCommentController(config).Register(e)
 	controller.NewTagController(config).Register(e)
+	controller.NewUserController(config).Register(e)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", config.Port)))
 }

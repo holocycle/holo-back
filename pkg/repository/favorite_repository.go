@@ -11,6 +11,7 @@ type FavoriteRepository interface {
 
 type FavoriteQuery interface {
 	Where(cond *model.Favorite) FavoriteQuery
+	JoinClip() FavoriteQuery
 
 	Create(Favorite *model.Favorite) error
 	Find() (*model.Favorite, error)
@@ -35,6 +36,10 @@ type FavoriteQueryImpl struct {
 
 func (q *FavoriteQueryImpl) Where(cond *model.Favorite) FavoriteQuery {
 	return &FavoriteQueryImpl{Tx: q.Tx.Where(cond)}
+}
+
+func (q *FavoriteQueryImpl) JoinClip() FavoriteQuery {
+	return &FavoriteQueryImpl{Tx: q.Tx.Preload("clip")}
 }
 
 func (q *FavoriteQueryImpl) Create(Favorite *model.Favorite) error {

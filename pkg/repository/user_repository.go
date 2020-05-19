@@ -12,6 +12,9 @@ type UserRepository interface {
 type UserQuery interface {
 	Where(cond *model.User) UserQuery
 
+	Limit(limit int) UserQuery
+	Latest() UserQuery
+
 	Create(user *model.User) error
 	Find() (*model.User, error)
 	FindAll() ([]*model.User, error)
@@ -35,6 +38,14 @@ type UserQueryImpl struct {
 
 func (q *UserQueryImpl) Where(cond *model.User) UserQuery {
 	return &UserQueryImpl{Tx: q.Tx.Where(cond)}
+}
+
+func (q *UserQueryImpl) Limit(limit int) UserQuery {
+	return &UserQueryImpl{Tx: q.Tx.Limit(limit)}
+}
+
+func (q *UserQueryImpl) Latest() UserQuery {
+	return &UserQueryImpl{Tx: q.Tx.Order("created_at desc")}
 }
 
 func (q *UserQueryImpl) Create(user *model.User) error {
