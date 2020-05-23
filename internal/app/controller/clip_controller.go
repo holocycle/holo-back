@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/holocycle/holo-back/internal/app/config"
@@ -17,16 +16,18 @@ import (
 )
 
 type ClipController struct {
-	Config          *config.AppConfig
-	ClipRepository  repository.ClipRepository
-	VideoRepository repository.VideoRepository
+	Config             *config.AppConfig
+	ClipRepository     repository.ClipRepository
+	VideoRepository    repository.VideoRepository
+	FavoriteRepository repository.FavoriteRepository
 }
 
 func NewClipController(config *config.AppConfig) *ClipController {
 	return &ClipController{
-		Config:          config,
-		ClipRepository:  repository.NewClipRepository(),
-		VideoRepository: repository.NewVideoRepository(),
+		Config:             config,
+		ClipRepository:     repository.NewClipRepository(),
+		VideoRepository:    repository.NewVideoRepository(),
+		FavoriteRepository: repository.NewFavoriteRepository(),
 	}
 }
 
@@ -46,10 +47,11 @@ func (c *ClipController) ListClips(ctx context.Context) error {
 	if err := inject(ctx, req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	log.Info("success to validate", zap.Any("req", req))
+	log.Debug("success to validate", zap.Any("req", req))
 
-	tx := ctx.GetDB()
-	query := c.ClipRepository.NewQuery(tx)
+	query := c.ClipRepository.NewQuery(ctx.GetDB()).
+		JoinVideo().
+		JoinFavorite()
 	if req.Limit > 0 {
 		query = query.Limit(req.Limit)
 	}
@@ -60,32 +62,10 @@ func (c *ClipController) ListClips(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	log.Info("success to retrieve clips")
-
-	// TODO JOIN
-	videos, err := c.VideoRepository.NewQuery(tx).FindAll()
-	if err != nil {
-		return err
-	}
-	log.Info("success to retrieve videos")
-
-	videoMap := make(map[string]*model.Video)
-	for _, video := range videos {
-		videoMap[video.ID] = video
-	}
-
-	res := make([]*api.Clip, 0)
-	for _, clip := range clips {
-		video, ok := videoMap[clip.VideoID]
-		if !ok {
-			log.Error("found clip but video was not found", zap.String("videoID", clip.VideoID))
-			return errors.New("found clip but video was not found")
-		}
-		res = append(res, converter.ConvertToClip(clip, video))
-	}
+	log.Debug("success to retrieve clips")
 
 	return ctx.JSON(http.StatusOK, &api.ListClipsResponse{
-		Clips: res,
+		Clips: converter.ConvertToClips(clips),
 	})
 }
 
@@ -96,14 +76,14 @@ func (c *ClipController) PostClip(ctx context.Context) error {
 	if err := inject(ctx, req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	log.Info("success to validate", zap.Any("req", req))
+	log.Debug("success to validate", zap.Any("req", req))
 
 	youtubeCli := youtube.New(&c.Config.YoutubeClient)
 	video, err := youtubeCli.GetVideo(req.VideoID)
 	if err != nil {
 		return err // FIXME
 	}
-	log.Info("success to retireve video info from youtube", zap.Any("video", video))
+	log.Debug("success to retireve video info from youtube", zap.Any("video", video))
 
 	if req.BeginAt > video.Duration {
 		log.Info("failed to validate duration",
@@ -119,7 +99,7 @@ func (c *ClipController) PostClip(ctx context.Context) error {
 		)
 		return echo.NewHTTPError(http.StatusBadRequest, "end_at is out of range")
 	}
-	log.Info("success to validate duration",
+	log.Debug("success to validate duration",
 		zap.Int("req.BeginAt", req.BeginAt),
 		zap.Int("req.EndAt", req.BeginAt),
 		zap.Int("video.Duration", video.Duration),
@@ -130,7 +110,7 @@ func (c *ClipController) PostClip(ctx context.Context) error {
 		log.Error("failed to save video", zap.Any("video", video))
 		return err
 	}
-	log.Info("success to save video", zap.Any("video", video))
+	log.Debug("success to save video", zap.Any("video", video))
 
 	clip := model.NewClip(
 		app_context.GetSession(ctx).UserID,
@@ -144,7 +124,7 @@ func (c *ClipController) PostClip(ctx context.Context) error {
 		log.Error("failed to create clip", zap.Any("clip", clip))
 		return err
 	}
-	log.Info("success to create video", zap.Any("clip", clip))
+	log.Debug("success to create video", zap.Any("clip", clip))
 
 	return ctx.JSON(http.StatusCreated, &api.PostClipResponse{
 		ClipID: clip.ID,
@@ -158,10 +138,11 @@ func (c *ClipController) GetClip(ctx context.Context) error {
 	if clipID == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "please specify clip_id")
 	}
-	log.Info("success to retrieve path parameter", zap.String("clipId", clipID))
+	log.Debug("success to retrieve path parameter", zap.String("clipId", clipID))
 
-	tx := ctx.GetDB()
-	clip, err := c.ClipRepository.NewQuery(tx).
+	clip, err := c.ClipRepository.NewQuery(ctx.GetDB()).
+		JoinVideo().
+		JoinFavorite().
 		Where(&model.Clip{ID: clipID}).Find()
 	if err != nil {
 		if repository.NotFoundError(err) {
@@ -169,20 +150,10 @@ func (c *ClipController) GetClip(ctx context.Context) error {
 		}
 		return err
 	}
-	log.Info("success to retrieve clip", zap.Any("clip", clip))
-
-	video, err := c.VideoRepository.NewQuery(tx).Where(&model.Video{ID: clip.VideoID}).Find()
-	if err != nil {
-		if repository.NotFoundError(err) {
-			log.Error("no video for clip", zap.Any("clip", clip))
-			return err
-		}
-		return err
-	}
-	log.Info("success to retrieve video", zap.Any("video", video))
+	log.Debug("success to retrieve clip", zap.Any("clip", clip))
 
 	return ctx.JSON(http.StatusOK, &api.GetClipResponse{
-		Clip: converter.ConvertToClip(clip, video),
+		Clip: converter.ConvertToClip(clip, clip.Video, clip.Favorites),
 	})
 }
 
