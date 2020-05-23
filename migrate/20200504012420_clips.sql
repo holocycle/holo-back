@@ -13,6 +13,8 @@ CREATE TABLE clips (
   updated_at  TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE INDEX clip_created_at_index ON clips(created_at);
+
 -- +goose Down
 -- SQL in this section is executed when the migration is rolled back.
 

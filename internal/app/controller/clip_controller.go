@@ -55,8 +55,11 @@ func (c *ClipController) ListClips(ctx context.Context) error {
 	if req.Limit > 0 {
 		query = query.Limit(req.Limit)
 	}
+
 	if req.OrderBy == "latest" {
 		query = query.Latest()
+	} else if req.OrderBy == "toprated" {
+		query = query.TopRated()
 	}
 	clips, err := query.FindAll()
 	if err != nil {

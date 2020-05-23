@@ -12,7 +12,7 @@ type Clip struct {
 
 type ListClipsRequest struct {
 	Limit   int    `json:"limit"   validate:"min=0,max=100"`
-	OrderBy string `json:"orderBy" validate:"oneof=any latest"`
+	OrderBy string `json:"orderBy" validate:"oneof=any latest toprated"`
 }
 
 type ListClipsResponse struct {
