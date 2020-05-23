@@ -155,9 +155,9 @@ var Clip = /** @class */ (function () {
         result.id = source["id"];
         result.title = source["title"];
         result.description = source["description"];
-        result.videoId = source["videoId"];
         result.beginAt = source["beginAt"];
         result.endAt = source["endAt"];
+        result.favoriteCount = source["favoriteCount"];
         result.video = source["video"] ? Video.createFrom(source["video"]) : null;
         return result;
     };
@@ -550,22 +550,6 @@ var DeleteTagOnClipResponse = /** @class */ (function () {
     return DeleteTagOnClipResponse;
 }());
 exports.DeleteTagOnClipResponse = DeleteTagOnClipResponse;
-var Favorite = /** @class */ (function () {
-    function Favorite() {
-    }
-    Favorite.createFrom = function (source) {
-        if ('string' === typeof source)
-            source = JSON.parse(source);
-        var result = new Favorite();
-        result.type = source["type"];
-        result.id = source["id"];
-        result.clipId = source["clipId"];
-        result.userId = source["userId"];
-        return result;
-    };
-    return Favorite;
-}());
-exports.Favorite = Favorite;
 var PutFavoriteRequest = /** @class */ (function () {
     function PutFavoriteRequest() {
     }

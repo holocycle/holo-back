@@ -65,9 +65,9 @@ export declare class Clip {
     id: string;
     title: string;
     description: string;
-    videoId: string;
     beginAt: number;
     endAt: number;
+    favoriteCount: number;
     video: Video;
     static createFrom(source: any): Clip;
 }
@@ -195,13 +195,6 @@ export declare class DeleteTagOnClipRequest {
 }
 export declare class DeleteTagOnClipResponse {
     static createFrom(source: any): DeleteTagOnClipResponse;
-}
-export declare class Favorite {
-    type: string;
-    id: string;
-    clipId: string;
-    userId: string;
-    static createFrom(source: any): Favorite;
 }
 export declare class PutFavoriteRequest {
     static createFrom(source: any): PutFavoriteRequest;
