@@ -1,6 +1,8 @@
 package model
 
-import "time"
+import (
+	"time"
+)
 
 type Clip struct {
 	ID          string
@@ -12,6 +14,8 @@ type Clip struct {
 	EndAt       int
 	CreatedAt   *time.Time
 	UpdatedAt   *time.Time
+
+	Video *Video
 }
 
 func NewClip(

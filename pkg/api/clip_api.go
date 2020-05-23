@@ -2,12 +2,12 @@ package api
 
 type Clip struct {
 	ModelBase
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	VideoID     string `json:"videoId"`
-	BeginAt     int    `json:"beginAt"`
-	EndAt       int    `json:"endAt"`
-	Video       *Video `json:"video"`
+	Title         string `json:"title"`
+	Description   string `json:"description"`
+	BeginAt       int    `json:"beginAt"`
+	EndAt         int    `json:"endAt"`
+	FavoriteCount int    `json:"favoriteCount"`
+	Video         *Video `json:"video"`
 }
 
 type ListClipsRequest struct {
