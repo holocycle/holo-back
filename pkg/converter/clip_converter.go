@@ -5,7 +5,7 @@ import (
 	"github.com/holocycle/holo-back/pkg/model"
 )
 
-func ConvertToClip(clip *model.Clip, video *model.Video) *api.Clip {
+func ConvertToClip(clip *model.Clip, video *model.Video, favorites []*model.Favorite) *api.Clip {
 	return &api.Clip{
 		ModelBase: api.ModelBase{
 			Type: "Clip",
@@ -15,7 +15,7 @@ func ConvertToClip(clip *model.Clip, video *model.Video) *api.Clip {
 		Description:   clip.Description,
 		BeginAt:       clip.BeginAt,
 		EndAt:         clip.EndAt,
-		FavoriteCount: 0,
+		FavoriteCount: len(favorites),
 		Video:         ConvertToVideo(video),
 	}
 }
@@ -26,7 +26,7 @@ func ConvertToClips(clips []*model.Clip) []*api.Clip {
 		if clip.Video == nil {
 			panic("no video")
 		}
-		res = append(res, ConvertToClip(clip, clip.Video))
+		res = append(res, ConvertToClip(clip, clip.Video, clip.Favorites))
 	}
 	return res
 }

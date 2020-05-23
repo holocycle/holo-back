@@ -15,6 +15,7 @@ type ClipQuery interface {
 	Limit(limit int) ClipQuery
 	Latest() ClipQuery
 	JoinVideo() ClipQuery
+	JoinFavorite() ClipQuery
 
 	Create(clip *model.Clip) error
 	Find() (*model.Clip, error)
@@ -51,6 +52,10 @@ func (q *ClipQueryImpl) Latest() ClipQuery {
 
 func (q *ClipQueryImpl) JoinVideo() ClipQuery {
 	return &ClipQueryImpl{Tx: q.Tx.Preload("Video")}
+}
+
+func (q *ClipQueryImpl) JoinFavorite() ClipQuery {
+	return &ClipQueryImpl{Tx: q.Tx.Preload("Favorites")}
 }
 
 func (q *ClipQueryImpl) Create(clip *model.Clip) error {

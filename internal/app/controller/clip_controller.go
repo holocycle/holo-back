@@ -16,16 +16,18 @@ import (
 )
 
 type ClipController struct {
-	Config          *config.AppConfig
-	ClipRepository  repository.ClipRepository
-	VideoRepository repository.VideoRepository
+	Config             *config.AppConfig
+	ClipRepository     repository.ClipRepository
+	VideoRepository    repository.VideoRepository
+	FavoriteRepository repository.FavoriteRepository
 }
 
 func NewClipController(config *config.AppConfig) *ClipController {
 	return &ClipController{
-		Config:          config,
-		ClipRepository:  repository.NewClipRepository(),
-		VideoRepository: repository.NewVideoRepository(),
+		Config:             config,
+		ClipRepository:     repository.NewClipRepository(),
+		VideoRepository:    repository.NewVideoRepository(),
+		FavoriteRepository: repository.NewFavoriteRepository(),
 	}
 }
 
@@ -47,7 +49,9 @@ func (c *ClipController) ListClips(ctx context.Context) error {
 	}
 	log.Debug("success to validate", zap.Any("req", req))
 
-	query := c.ClipRepository.NewQuery(ctx.GetDB()).JoinVideo()
+	query := c.ClipRepository.NewQuery(ctx.GetDB()).
+		JoinVideo().
+		JoinFavorite()
 	if req.Limit > 0 {
 		query = query.Limit(req.Limit)
 	}
@@ -136,7 +140,9 @@ func (c *ClipController) GetClip(ctx context.Context) error {
 	}
 	log.Debug("success to retrieve path parameter", zap.String("clipId", clipID))
 
-	clip, err := c.ClipRepository.NewQuery(ctx.GetDB()).JoinVideo().
+	clip, err := c.ClipRepository.NewQuery(ctx.GetDB()).
+		JoinVideo().
+		JoinFavorite().
 		Where(&model.Clip{ID: clipID}).Find()
 	if err != nil {
 		if repository.NotFoundError(err) {
@@ -147,7 +153,7 @@ func (c *ClipController) GetClip(ctx context.Context) error {
 	log.Debug("success to retrieve clip", zap.Any("clip", clip))
 
 	return ctx.JSON(http.StatusOK, &api.GetClipResponse{
-		Clip: converter.ConvertToClip(clip, clip.Video),
+		Clip: converter.ConvertToClip(clip, clip.Video, clip.Favorites),
 	})
 }
 
