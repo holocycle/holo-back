@@ -21,3 +21,7 @@ func GetSession(ctx echo.Context) *model.Session {
 	}
 	return session
 }
+
+func GetUserID(ctx echo.Context) string {
+	return GetSession(ctx).UserID
+}
