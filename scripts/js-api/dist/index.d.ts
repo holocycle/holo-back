@@ -99,6 +99,23 @@ export declare class GetClipResponse {
     clip: Clip;
     static createFrom(source: any): GetClipResponse;
 }
+export declare class PutClipRequest {
+    title: string;
+    description: string;
+    beginAt: number;
+    endAt: number;
+    static createFrom(source: any): PutClipRequest;
+}
+export declare class PutClipResponse {
+    clipId: string;
+    static createFrom(source: any): PutClipResponse;
+}
+export declare class DeleteClipRequest {
+    static createFrom(source: any): DeleteClipRequest;
+}
+export declare class DeleteClipResponse {
+    static createFrom(source: any): DeleteClipResponse;
+}
 export declare class User {
     type: string;
     id: string;

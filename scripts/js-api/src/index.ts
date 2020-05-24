@@ -252,6 +252,52 @@ export class GetClipResponse {
   }
 
 }
+export class PutClipRequest {
+  title: string;
+  description: string;
+  beginAt: number;
+  endAt: number;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new PutClipRequest();
+    result.title = source["title"];
+    result.description = source["description"];
+    result.beginAt = source["beginAt"];
+    result.endAt = source["endAt"];
+    return result;
+  }
+
+}
+export class PutClipResponse {
+  clipId: string;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new PutClipResponse();
+    result.clipId = source["clipId"];
+    return result;
+  }
+
+}
+export class DeleteClipRequest {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new DeleteClipRequest();
+    return result;
+  }
+
+}
+export class DeleteClipResponse {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new DeleteClipResponse();
+    return result;
+  }
+
+}
 export class User {
   type: string;
   id: string;
