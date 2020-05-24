@@ -122,7 +122,9 @@ func (c *TagController) ListTagsOnClip(ctx context.Context) error {
 	log.Debug("success to validate", zap.String("clipID", clipID))
 
 	tx := ctx.GetDB()
-	clip, err := c.ClipRepository.NewQuery(tx).Where(&model.Clip{ID: clipID}).Find()
+	clip, err := c.ClipRepository.NewQuery(tx).
+		Where(&model.Clip{ID: clipID, Status: model.CLIP_PUBLIC}).
+		Find()
 	if err != nil {
 		if repository.NotFoundError(err) {
 			return echo.NewHTTPError(http.StatusNotFound, "clip is not found")
@@ -165,7 +167,9 @@ func (c *TagController) PutTagOnClip(ctx context.Context) error {
 		zap.String("tagID", tagID))
 
 	tx := ctx.GetDB()
-	_, err := repository.NewClipRepository().NewQuery(tx).Where(&model.Clip{ID: clipID}).Find()
+	_, err := repository.NewClipRepository().NewQuery(tx).
+		Where(&model.Clip{ID: clipID, Status: model.CLIP_PUBLIC}).
+		Find()
 	if err != nil {
 		if repository.NotFoundError(err) {
 			return echo.NewHTTPError(http.StatusNotFound, "clip was not found")
@@ -223,9 +227,19 @@ func (c *TagController) DeleteTagOnClip(ctx context.Context) error {
 	if tagID == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "please specify tag_id")
 	}
-	log.Debug("success to validate request", zap.String("clipID", clipID), zap.String("tagID", tagID))
 
 	tx := ctx.GetDB()
+	_, err := repository.NewClipRepository().NewQuery(tx).
+		Where(&model.Clip{ID: clipID, Status: model.CLIP_PUBLIC}).
+		Find()
+	if err != nil {
+		if repository.NotFoundError(err) {
+			return echo.NewHTTPError(http.StatusNotFound, "clip was not found")
+		}
+		return err
+	}
+	log.Debug("success to validate request", zap.String("clipID", clipID), zap.String("tagID", tagID))
+
 	cond := &model.ClipTagged{
 		ClipID: clipID,
 		TagID:  tagID,
