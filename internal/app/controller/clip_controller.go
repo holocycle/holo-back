@@ -50,7 +50,7 @@ func (c *ClipController) ListClips(ctx context.Context) error {
 	log.Debug("success to validate", zap.Any("req", req))
 
 	query := c.ClipRepository.NewQuery(ctx.GetDB()).
-		Where(&model.Clip{Status: model.CLIP_PUBLIC}).
+		Where(&model.Clip{Status: model.ClipStatusPublic}).
 		JoinVideo().
 		JoinFavorite()
 	if req.Limit > 0 {
@@ -123,7 +123,7 @@ func (c *ClipController) PostClip(ctx context.Context) error {
 		req.VideoID,
 		req.BeginAt,
 		req.EndAt,
-		model.CLIP_PUBLIC,
+		model.ClipStatusPublic,
 	)
 	if err := c.ClipRepository.NewQuery(tx).Create(clip); err != nil {
 		log.Error("failed to create clip", zap.Any("clip", clip))
@@ -148,7 +148,7 @@ func (c *ClipController) GetClip(ctx context.Context) error {
 	clip, err := c.ClipRepository.NewQuery(ctx.GetDB()).
 		JoinVideo().
 		JoinFavorite().
-		Where(&model.Clip{ID: clipID, Status: model.CLIP_PUBLIC}).
+		Where(&model.Clip{ID: clipID, Status: model.ClipStatusPublic}).
 		Find()
 	if err != nil {
 		if repository.NotFoundError(err) {
@@ -177,7 +177,7 @@ func (c *ClipController) PutClip(ctx context.Context) error {
 	}
 
 	clip, err := c.ClipRepository.NewQuery(ctx.GetDB()).
-		Where(&model.Clip{ID: clipID, Status: model.CLIP_PUBLIC}).
+		Where(&model.Clip{ID: clipID, Status: model.ClipStatusPublic}).
 		Find()
 	if err != nil {
 		if repository.NotFoundError(err) {
@@ -213,7 +213,7 @@ func (c *ClipController) DeleteClip(ctx context.Context) error {
 	}
 
 	clip, err := c.ClipRepository.NewQuery(ctx.GetDB()).
-		Where(&model.Clip{ID: clipID, Status: model.CLIP_PUBLIC}).
+		Where(&model.Clip{ID: clipID, Status: model.ClipStatusPublic}).
 		Find()
 	if err != nil {
 		if repository.NotFoundError(err) {
@@ -227,7 +227,7 @@ func (c *ClipController) DeleteClip(ctx context.Context) error {
 	}
 	log.Debug("success to validate parameters")
 
-	clip.Status = model.CLIP_DELETED
+	clip.Status = model.ClipStatusDeleted
 	if err := c.ClipRepository.NewQuery(ctx.GetDB()).Save(clip); err != nil {
 		return err
 	}

@@ -7,8 +7,8 @@ import (
 type ClipStatus string
 
 const (
-	CLIP_PUBLIC  ClipStatus = "PUBLIC"
-	CLIP_DELETED ClipStatus = "DELETED"
+	ClipStatusPublic  ClipStatus = "PUBLIC"
+	ClipStatusDeleted ClipStatus = "DELETED"
 )
 
 type Clip struct {

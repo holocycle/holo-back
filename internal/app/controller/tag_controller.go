@@ -123,7 +123,7 @@ func (c *TagController) ListTagsOnClip(ctx context.Context) error {
 
 	tx := ctx.GetDB()
 	clip, err := c.ClipRepository.NewQuery(tx).
-		Where(&model.Clip{ID: clipID, Status: model.CLIP_PUBLIC}).
+		Where(&model.Clip{ID: clipID, Status: model.ClipStatusPublic}).
 		Find()
 	if err != nil {
 		if repository.NotFoundError(err) {
@@ -168,7 +168,7 @@ func (c *TagController) PutTagOnClip(ctx context.Context) error {
 
 	tx := ctx.GetDB()
 	_, err := repository.NewClipRepository().NewQuery(tx).
-		Where(&model.Clip{ID: clipID, Status: model.CLIP_PUBLIC}).
+		Where(&model.Clip{ID: clipID, Status: model.ClipStatusPublic}).
 		Find()
 	if err != nil {
 		if repository.NotFoundError(err) {
@@ -230,7 +230,7 @@ func (c *TagController) DeleteTagOnClip(ctx context.Context) error {
 
 	tx := ctx.GetDB()
 	_, err := repository.NewClipRepository().NewQuery(tx).
-		Where(&model.Clip{ID: clipID, Status: model.CLIP_PUBLIC}).
+		Where(&model.Clip{ID: clipID, Status: model.ClipStatusPublic}).
 		Find()
 	if err != nil {
 		if repository.NotFoundError(err) {
