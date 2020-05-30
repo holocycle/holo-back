@@ -3,8 +3,8 @@ package model
 import "time"
 
 type ClipTagged struct {
-	ClipID    string
-	TagID     string
+	ClipID    string `gorm:"primary_key"`
+	TagID     string `gorm:"primary_key"`
 	UserID    string
 	CreatedAt *time.Time
 	UpdatedAt *time.Time

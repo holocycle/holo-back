@@ -1,6 +1,15 @@
 package model
 
-import "time"
+import (
+	"time"
+)
+
+type ClipStatus string
+
+const (
+	ClipStatusPublic  ClipStatus = "PUBLIC"
+	ClipStatusDeleted ClipStatus = "DELETED"
+)
 
 type Clip struct {
 	ID          string
@@ -10,8 +19,12 @@ type Clip struct {
 	VideoID     string
 	BeginAt     int
 	EndAt       int
+	Status      ClipStatus
 	CreatedAt   *time.Time
 	UpdatedAt   *time.Time
+
+	Video     *Video
+	Favorites []*Favorite
 }
 
 func NewClip(
@@ -21,6 +34,7 @@ func NewClip(
 	videoID string,
 	beginAt,
 	EndAt int,
+	status ClipStatus,
 ) *Clip {
 	return &Clip{
 		ID:          NewID(),
@@ -30,6 +44,7 @@ func NewClip(
 		VideoID:     videoID,
 		BeginAt:     beginAt,
 		EndAt:       EndAt,
+		Status:      status,
 		CreatedAt:   nil,
 		UpdatedAt:   nil,
 	}

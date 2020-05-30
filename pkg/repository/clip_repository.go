@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"strings"
+
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/jinzhu/gorm"
 )
@@ -14,6 +16,9 @@ type ClipQuery interface {
 
 	Limit(limit int) ClipQuery
 	Latest() ClipQuery
+	TopRated() ClipQuery
+	JoinVideo() ClipQuery
+	JoinFavorite() ClipQuery
 
 	Create(clip *model.Clip) error
 	Find() (*model.Clip, error)
@@ -46,6 +51,26 @@ func (q *ClipQueryImpl) Limit(limit int) ClipQuery {
 
 func (q *ClipQueryImpl) Latest() ClipQuery {
 	return &ClipQueryImpl{Tx: q.Tx.Order("created_at desc")}
+}
+
+func (q *ClipQueryImpl) TopRated() ClipQuery {
+	tx := q.Tx.Table("clips").
+		Select(strings.Join([]string{
+			"clips.*",
+			"COUNT(favorites.clip_id) as favorite_count",
+		}, ",")).
+		Joins("LEFT JOIN favorites ON clips.id = favorites.clip_id").
+		Group("clips.id").
+		Order("favorite_count desc")
+	return &ClipQueryImpl{Tx: tx}
+}
+
+func (q *ClipQueryImpl) JoinVideo() ClipQuery {
+	return &ClipQueryImpl{Tx: q.Tx.Preload("Video")}
+}
+
+func (q *ClipQueryImpl) JoinFavorite() ClipQuery {
+	return &ClipQueryImpl{Tx: q.Tx.Preload("Favorites")}
 }
 
 func (q *ClipQueryImpl) Create(clip *model.Clip) error {

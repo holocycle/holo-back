@@ -158,9 +158,9 @@ export class Clip {
   id: string;
   title: string;
   description: string;
-  videoId: string;
   beginAt: number;
   endAt: number;
+  favoriteCount: number;
   video: Video;
 
   static createFrom(source: any) {
@@ -170,9 +170,9 @@ export class Clip {
     result.id = source["id"];
     result.title = source["title"];
     result.description = source["description"];
-    result.videoId = source["videoId"];
     result.beginAt = source["beginAt"];
     result.endAt = source["endAt"];
+    result.favoriteCount = source["favoriteCount"];
     result.video = source["video"] ? Video.createFrom(source["video"]) : null;
     return result;
   }
@@ -248,6 +248,52 @@ export class GetClipResponse {
     if ('string' === typeof source) source = JSON.parse(source);
     const result = new GetClipResponse();
     result.clip = source["clip"] ? Clip.createFrom(source["clip"]) : null;
+    return result;
+  }
+
+}
+export class PutClipRequest {
+  title: string;
+  description: string;
+  beginAt: number;
+  endAt: number;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new PutClipRequest();
+    result.title = source["title"];
+    result.description = source["description"];
+    result.beginAt = source["beginAt"];
+    result.endAt = source["endAt"];
+    return result;
+  }
+
+}
+export class PutClipResponse {
+  clipId: string;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new PutClipResponse();
+    result.clipId = source["clipId"];
+    return result;
+  }
+
+}
+export class DeleteClipRequest {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new DeleteClipRequest();
+    return result;
+  }
+
+}
+export class DeleteClipResponse {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new DeleteClipResponse();
     return result;
   }
 
@@ -517,23 +563,6 @@ export class DeleteTagOnClipResponse {
 }
 
 
-export class Favorite {
-  type: string;
-  id: string;
-  clipId: string;
-  userId: string;
-
-  static createFrom(source: any) {
-    if ('string' === typeof source) source = JSON.parse(source);
-    const result = new Favorite();
-    result.type = source["type"];
-    result.id = source["id"];
-    result.clipId = source["clipId"];
-    result.userId = source["userId"];
-    return result;
-  }
-
-}
 export class PutFavoriteRequest {
 
   static createFrom(source: any) {

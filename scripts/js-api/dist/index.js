@@ -155,9 +155,9 @@ var Clip = /** @class */ (function () {
         result.id = source["id"];
         result.title = source["title"];
         result.description = source["description"];
-        result.videoId = source["videoId"];
         result.beginAt = source["beginAt"];
         result.endAt = source["endAt"];
+        result.favoriteCount = source["favoriteCount"];
         result.video = source["video"] ? Video.createFrom(source["video"]) : null;
         return result;
     };
@@ -246,6 +246,59 @@ var GetClipResponse = /** @class */ (function () {
     return GetClipResponse;
 }());
 exports.GetClipResponse = GetClipResponse;
+var PutClipRequest = /** @class */ (function () {
+    function PutClipRequest() {
+    }
+    PutClipRequest.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new PutClipRequest();
+        result.title = source["title"];
+        result.description = source["description"];
+        result.beginAt = source["beginAt"];
+        result.endAt = source["endAt"];
+        return result;
+    };
+    return PutClipRequest;
+}());
+exports.PutClipRequest = PutClipRequest;
+var PutClipResponse = /** @class */ (function () {
+    function PutClipResponse() {
+    }
+    PutClipResponse.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new PutClipResponse();
+        result.clipId = source["clipId"];
+        return result;
+    };
+    return PutClipResponse;
+}());
+exports.PutClipResponse = PutClipResponse;
+var DeleteClipRequest = /** @class */ (function () {
+    function DeleteClipRequest() {
+    }
+    DeleteClipRequest.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new DeleteClipRequest();
+        return result;
+    };
+    return DeleteClipRequest;
+}());
+exports.DeleteClipRequest = DeleteClipRequest;
+var DeleteClipResponse = /** @class */ (function () {
+    function DeleteClipResponse() {
+    }
+    DeleteClipResponse.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new DeleteClipResponse();
+        return result;
+    };
+    return DeleteClipResponse;
+}());
+exports.DeleteClipResponse = DeleteClipResponse;
 var User = /** @class */ (function () {
     function User() {
     }
@@ -550,22 +603,6 @@ var DeleteTagOnClipResponse = /** @class */ (function () {
     return DeleteTagOnClipResponse;
 }());
 exports.DeleteTagOnClipResponse = DeleteTagOnClipResponse;
-var Favorite = /** @class */ (function () {
-    function Favorite() {
-    }
-    Favorite.createFrom = function (source) {
-        if ('string' === typeof source)
-            source = JSON.parse(source);
-        var result = new Favorite();
-        result.type = source["type"];
-        result.id = source["id"];
-        result.clipId = source["clipId"];
-        result.userId = source["userId"];
-        return result;
-    };
-    return Favorite;
-}());
-exports.Favorite = Favorite;
 var PutFavoriteRequest = /** @class */ (function () {
     function PutFavoriteRequest() {
     }

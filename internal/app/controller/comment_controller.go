@@ -48,6 +48,8 @@ func (c *CommentController) ListComments(ctx context.Context) error {
 	}
 	log.Info("success to validate", zap.Any("req", req))
 
+	// TODO: clipIDが実在することのバリデーション処理
+
 	tx := ctx.GetDB()
 	query := c.CommentRepository.NewQuery(tx)
 	if req.Limit > 0 {
@@ -87,6 +89,8 @@ func (c *CommentController) GetComment(ctx context.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	log.Info("success to validate", zap.Any("req", req))
+
+	// TODO: clipIDが実在することのバリデーション処理
 
 	tx := ctx.GetDB()
 	comment, err := c.CommentRepository.NewQuery(tx).
@@ -159,6 +163,8 @@ func (c *CommentController) DeleteComment(ctx context.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "please specify comment_id")
 	}
 	log.Debug("success to validate request", zap.String("clipID", clipID), zap.String("commentID", commentID))
+
+	// TODO: clipIDが実在することのバリデーション処理
 
 	tx := ctx.GetDB()
 	cond := &model.Comment{
