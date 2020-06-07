@@ -8,6 +8,8 @@ type CliplistContain struct {
 	ClipID     string
 	CreatedAt  *time.Time
 	UpdatedAt  *time.Time
+
+	Clip *Clip
 }
 
 func NewCliplistContain(
