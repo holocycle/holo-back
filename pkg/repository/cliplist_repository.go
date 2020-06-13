@@ -44,9 +44,9 @@ func (q *CliplistQueryImpl) JoinClip() CliplistQuery {
 			Preload("CliplistContains", func(tx *gorm.DB) *gorm.DB {
 				return tx.Order("cliplist_contains.index")
 			}).
-			Preload("CliplistContains.Clips").
-			Preload("CliplistContains.Clips.Video").
-			Preload("CliplistContains.Clips.Favorites"),
+			Preload("CliplistContains.Clip").
+			Preload("CliplistContains.Clip.Video").
+			Preload("CliplistContains.Clip.Favorites"),
 	}
 }
 
