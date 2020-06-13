@@ -1,0 +1,10 @@
+port: 8080
+db:
+  url: host=localhost port=5432 user=holo password=password sslmode=disable
+logger:
+  level: "debug"
+cors:
+  originwhitelist:
+    - "http://localhost:3000"
+googleoauth2:
+  clientredirecturl: "http://localhost:8080/login/google-callback"

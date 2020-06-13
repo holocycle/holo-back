@@ -14,6 +14,7 @@ require (
 	github.com/lib/pq v1.1.1
 	github.com/pkg/errors v0.9.1
 	github.com/senseyeio/duration v0.0.0-20180430131211-7c2a214ada46
+	github.com/stretchr/testify v1.4.0
 	go.uber.org/zap v1.15.0
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.31.0
