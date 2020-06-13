@@ -1,8 +1,10 @@
 FROM golang:1.14-alpine as builder
 WORKDIR /work
 
-RUN apk add git \
-  && go get -x github.com/oxequa/realize
+RUN apk add bash git g++ \
+  && go get -x github.com/oxequa/realize \
+  && go get -x github.com/pressly/goose/cmd/goose \
+  && GO111MODULE=on go get -x github.com/golangci/golangci-lint/cmd/golangci-lint@v1.26.0
 
 COPY go.mod go.sum ./
 RUN go mod download -x

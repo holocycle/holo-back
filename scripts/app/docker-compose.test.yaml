@@ -1,0 +1,54 @@
+version: "3.7"
+services:
+  test:
+    container_name: "test"
+    build:
+      context: ../../
+      dockerfile: ./scripts/app/Dockerfile
+      target: "builder"
+    environment:
+      - GOCACHE=/work/.go-cache
+    env_file:
+      - test.env
+      - secret.env
+    entrypoint: ["go", "test"]
+    command: ["./..."]
+    volumes:
+      - "../../:/work"
+    networks:
+      - "test-net"
+
+  goose:
+    container_name: "goose"
+    build:
+      context: ../../
+      dockerfile: ./scripts/app/Dockerfile
+      target: "builder"
+    environment:
+      - GOCACHE=/work/.go-cache
+      - GOOSE_DRIVER=postgres
+      - GOOSE_DBSTRING=postgresql://testdb:5432/holo?user=holo&password=password&sslmode=disable
+    env_file:
+      - test.env
+      - secret.env
+    entrypoint: ["goose", "-dir", "migrate"]
+    command: "up"
+    volumes:
+      - "../../:/work"
+    networks:
+      - "test-net"
+
+  testdb:
+    container_name: "testdb"
+    image: "postgres:12.2-alpine"
+    environment:
+      - POSTGRES_USER=holo
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5434:5432"
+    networks:
+      - "test-net"
+
+networks:
+  test-net:
+    name: "test-net"
