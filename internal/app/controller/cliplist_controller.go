@@ -8,9 +8,11 @@ import (
 	app_context "github.com/holocycle/holo-back/internal/app/context"
 	"github.com/holocycle/holo-back/pkg/api"
 	"github.com/holocycle/holo-back/pkg/context"
+	app_context2 "github.com/holocycle/holo-back/pkg/context2"
 	"github.com/holocycle/holo-back/pkg/converter"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/holocycle/holo-back/pkg/repository"
+	"github.com/holocycle/holo-back/pkg/service"
 	"github.com/labstack/echo/v4"
 )
 
@@ -19,6 +21,7 @@ type CliplistController struct {
 	ClipRepository            repository.ClipRepository
 	CliplistRepository        repository.CliplistRepository
 	CliplistContainRepository repository.CliplistContainRepository
+	ServiceContainer          *service.Container
 }
 
 func NewCliplistController(config *config.AppConfig) *CliplistController {
@@ -27,6 +30,7 @@ func NewCliplistController(config *config.AppConfig) *CliplistController {
 		ClipRepository:            repository.NewClipRepository(),
 		CliplistRepository:        repository.NewCliplistRepository(),
 		CliplistContainRepository: repository.NewCliplistContainRepository(),
+		ServiceContainer:          service.NewContainer(),
 	}
 }
 
@@ -44,28 +48,22 @@ func (c *CliplistController) Register(e *echo.Echo) {
 
 func (c *CliplistController) ListCliplists(ctx context.Context) error {
 	req := &api.ListCliplistsRequest{}
-	if err := inject(ctx, req); err != nil {
+	if err := ctx.Bind(req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	if err := ctx.Validate(req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	tx := ctx.GetDB()
-	if req.Limit > 0 {
-		tx = tx.Limit(req.Limit)
-	}
-
-	// TODO: OrderBy
-
-	cliplist, err := c.CliplistRepository.NewQuery(tx).
-		JoinClip().
-		Where(&model.Cliplist{Status: model.CliplistStatusPublic}).
-		FindAll()
+	res, err := c.ServiceContainer.CliplistService.ListCliplists(
+		app_context2.FromEchoContext(ctx),
+		req,
+	)
 	if err != nil {
 		return err
 	}
 
-	return ctx.JSON(http.StatusOK, &api.ListCliplistsResponse{
-		Cliplists: converter.ConvertToCliplists(cliplist),
-	})
+	return ctx.JSON(http.StatusOK, res)
 }
 
 func (c *CliplistController) GetCliplist(ctx context.Context) error {
