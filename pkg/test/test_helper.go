@@ -7,6 +7,7 @@ import (
 	app_context "github.com/holocycle/holo-back/pkg/context2"
 	"github.com/holocycle/holo-back/pkg/db"
 	"github.com/holocycle/holo-back/pkg/logger"
+	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -47,8 +48,12 @@ func InitTestHelper() (func(), error) {
 	return free, nil
 }
 
-func (h *TestHelper) NewContext() (context.Context, func()) {
+func (h *TestHelper) NewContext(userID string) (context.Context, func()) {
 	ctx := context.Background()
+
+	session := model.NewSession(userID, nil)
+	ctx = app_context.SetSession(ctx, session)
+
 	ctx = app_context.SetLog(ctx, h.Log)
 
 	tx := h.DB.Begin()
