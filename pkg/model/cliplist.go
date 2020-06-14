@@ -28,7 +28,7 @@ func NewCliplist(
 	status CliplistStatus,
 ) *Cliplist {
 	return &Cliplist{
-		ID:          NewID(),
+		ID:          GetIDGenerator().New(),
 		UserID:      userID,
 		Title:       title,
 		Description: description,
