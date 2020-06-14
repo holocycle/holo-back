@@ -8,9 +8,55 @@ type Cliplist struct {
 	FirstItem   *CliplistItem `json:"firstItem"`
 }
 
+func NewCliplist(
+	id,
+	title,
+	description string,
+	length int,
+	firstItem *CliplistItem,
+) *Cliplist {
+	return &Cliplist{
+		ModelBase: ModelBase{
+			Type: "Cliplist",
+			ID:   id,
+		},
+		Title:       title,
+		Description: description,
+		Length:      length,
+		FirstItem:   firstItem,
+	}
+}
+
 type CliplistItem struct {
 	Clip
 	Available bool `json:"available"`
+}
+
+func NewCliplistItem(
+	id,
+	title,
+	description string,
+	beginAt,
+	endAt,
+	favoriteCount int,
+	video *Video,
+	available bool,
+) *CliplistItem {
+	return &CliplistItem{
+		Clip: Clip{
+			ModelBase: ModelBase{
+				Type: "CliplistItem",
+				ID:   id,
+			},
+			Title:         title,
+			Description:   description,
+			BeginAt:       beginAt,
+			EndAt:         endAt,
+			FavoriteCount: favoriteCount,
+			Video:         video,
+		},
+		Available: available,
+	}
 }
 
 type ListCliplistsRequest struct {
