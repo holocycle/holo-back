@@ -30,7 +30,7 @@
     "goose:remote-credential": "heroku pg:credentials:url -a holo-back | sed -n -e '5p'",
     "migrate": "yarn goose up",
     "generate": "cd ./scripts/js-api; yarn build",
-    "init-data": "docker exec app go run data/main.go"
+    "init-data": "yarn docker run app -- go run ./cmd/initdata/main.go"
   },
   "devDependencies": {
     "npm-run-all": "^4.1.5"
