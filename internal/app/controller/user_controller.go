@@ -30,8 +30,8 @@ func NewUserController(config *config.AppConfig) *UserController {
 
 func (c *UserController) Register(e *echo.Echo) {
 	get(e, "/users", c.ListUsers)
-	get(e, "/users/me", c.GetUsersMe)
-	get(e, "/users/me/favorites", c.GetLoginUserFavorites)
+	getRequiredAuth(e, "/users/me", c.GetUsersMe)
+	getRequiredAuth(e, "/users/me/favorites", c.GetLoginUserFavorites)
 	get(e, "/users/:user_id", c.GetOneUser)
 	get(e, "/users/:user_id/favorites", c.GetOneUsersFavorites)
 }

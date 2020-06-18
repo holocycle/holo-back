@@ -309,7 +309,6 @@ var User = /** @class */ (function () {
         result.type = source["type"];
         result.id = source["id"];
         result.name = source["name"];
-        result.email = source["email"];
         result.iconUrl = source["iconUrl"];
         return result;
     };
@@ -603,6 +602,125 @@ var DeleteTagOnClipResponse = /** @class */ (function () {
     return DeleteTagOnClipResponse;
 }());
 exports.DeleteTagOnClipResponse = DeleteTagOnClipResponse;
+var LoginUser = /** @class */ (function () {
+    function LoginUser() {
+    }
+    LoginUser.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new LoginUser();
+        result.type = source["type"];
+        result.id = source["id"];
+        result.name = source["name"];
+        result.iconUrl = source["iconUrl"];
+        result.email = source["email"];
+        return result;
+    };
+    return LoginUser;
+}());
+exports.LoginUser = LoginUser;
+var ListUserRequest = /** @class */ (function () {
+    function ListUserRequest() {
+    }
+    ListUserRequest.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new ListUserRequest();
+        result.limit = source["limit"];
+        result.orderBy = source["orderBy"];
+        return result;
+    };
+    return ListUserRequest;
+}());
+exports.ListUserRequest = ListUserRequest;
+var ListUserResponse = /** @class */ (function () {
+    function ListUserResponse() {
+    }
+    ListUserResponse.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new ListUserResponse();
+        result.users = source["users"] ? source["users"].map(function (element) { return User.createFrom(element); }) : null;
+        return result;
+    };
+    return ListUserResponse;
+}());
+exports.ListUserResponse = ListUserResponse;
+var GetUserRequest = /** @class */ (function () {
+    function GetUserRequest() {
+    }
+    GetUserRequest.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new GetUserRequest();
+        return result;
+    };
+    return GetUserRequest;
+}());
+exports.GetUserRequest = GetUserRequest;
+var GetUserResponse = /** @class */ (function () {
+    function GetUserResponse() {
+    }
+    GetUserResponse.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new GetUserResponse();
+        result.user = source["user"] ? User.createFrom(source["user"]) : null;
+        return result;
+    };
+    return GetUserResponse;
+}());
+exports.GetUserResponse = GetUserResponse;
+var GetLoginUserRequest = /** @class */ (function () {
+    function GetLoginUserRequest() {
+    }
+    GetLoginUserRequest.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new GetLoginUserRequest();
+        return result;
+    };
+    return GetLoginUserRequest;
+}());
+exports.GetLoginUserRequest = GetLoginUserRequest;
+var GetLoginUserResponse = /** @class */ (function () {
+    function GetLoginUserResponse() {
+    }
+    GetLoginUserResponse.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new GetLoginUserResponse();
+        result.loginUser = source["loginUser"] ? LoginUser.createFrom(source["loginUser"]) : null;
+        return result;
+    };
+    return GetLoginUserResponse;
+}());
+exports.GetLoginUserResponse = GetLoginUserResponse;
+var GetUserFavoritesRequest = /** @class */ (function () {
+    function GetUserFavoritesRequest() {
+    }
+    GetUserFavoritesRequest.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new GetUserFavoritesRequest();
+        return result;
+    };
+    return GetUserFavoritesRequest;
+}());
+exports.GetUserFavoritesRequest = GetUserFavoritesRequest;
+var GetUserFavoritesResponse = /** @class */ (function () {
+    function GetUserFavoritesResponse() {
+    }
+    GetUserFavoritesResponse.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new GetUserFavoritesResponse();
+        result.favoriteClips = source["favoriteClips"] ? source["favoriteClips"].map(function (element) { return Clip.createFrom(element); }) : null;
+        return result;
+    };
+    return GetUserFavoritesResponse;
+}());
+exports.GetUserFavoritesResponse = GetUserFavoritesResponse;
 var PutFavoriteRequest = /** @class */ (function () {
     function PutFavoriteRequest() {
     }
