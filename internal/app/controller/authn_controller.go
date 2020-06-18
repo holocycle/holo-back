@@ -117,7 +117,8 @@ func (c *AuthnController) LoginGoogleCallback(ctx context.Context) error {
 
 	if repository.NotFoundError(err) {
 		log.Info("user not found", zap.String("email", email))
-		user = model.NewUser(email, email)
+		//TODO: imageURLの取得処理
+		user = model.NewUser(email, email, "https://yt3.ggpht.com/a/AATXAJwHPp_TkvcWJyblt9XVYDjNSjrj6KdpQSCQNQ=s288-c-k-c0xffffffff-no-rj-mo")
 		if err := c.UserRepository.NewQuery(tx).Create(user); err != nil {
 			return err
 		}

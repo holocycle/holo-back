@@ -2,12 +2,10 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 
 	"github.com/holocycle/holo-back/internal/app/config"
 	"github.com/holocycle/holo-back/internal/app/controller"
-	app_middleware "github.com/holocycle/holo-back/internal/app/middleware"
 	"github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/db"
 	"github.com/holocycle/holo-back/pkg/logger"
@@ -63,9 +61,6 @@ func main() {
 		middleware.NewErrorLoggingMiddleware(),
 		middleware.NewResponseLoggingMiddleware(),
 		middleware.NewDBMiddleware(db),
-		app_middleware.NewAuthnMiddleware(func(ctx echo.Context) bool {
-			return ctx.Request().Method == http.MethodGet
-		}),
 	}
 	e.Use(middlewares...)
 
@@ -76,6 +71,7 @@ func main() {
 	controller.NewClipController(config).Register(e)
 	controller.NewCommentController(config).Register(e)
 	controller.NewTagController(config).Register(e)
+	controller.NewUserController(config).Register(e)
 	controller.NewFavoriteController(config).Register(e)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", config.Port)))
