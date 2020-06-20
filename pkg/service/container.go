@@ -1,11 +1,13 @@
 package service
 
 type Container struct {
-	CliplistService CliplistService
+	CliplistService     CliplistService
+	CliplistItemService CliplistItemService
 }
 
 func NewContainer() *Container {
 	return &Container{
-		CliplistService: NewCliplistService(),
+		CliplistService:     NewCliplistService(),
+		CliplistItemService: NewCliplistItemService(),
 	}
 }
