@@ -81,7 +81,7 @@ func (q *CliplistContainQueryImpl) Delete() (int, error) {
 	return (int)(res.RowsAffected), newErr(res.Error)
 }
 
-func (q *CliplistContainRepositoryImpl) InsertToList(tx *gorm.DB, cliplistContain *model.CliplistContain) error {
+func (r *CliplistContainRepositoryImpl) InsertToList(tx *gorm.DB, cliplistContain *model.CliplistContain) error {
 	err := tx.Model(&model.CliplistContain{}).
 		Where(&model.CliplistContain{CliplistID: cliplistContain.CliplistID}).
 		Where("index >= ?", cliplistContain.Index).
@@ -98,7 +98,7 @@ func (q *CliplistContainRepositoryImpl) InsertToList(tx *gorm.DB, cliplistContai
 	return nil
 }
 
-func (q *CliplistContainRepositoryImpl) DeleteFromList(tx *gorm.DB, cliplistContain *model.CliplistContain) error {
+func (r *CliplistContainRepositoryImpl) DeleteFromList(tx *gorm.DB, cliplistContain *model.CliplistContain) error {
 	err := tx.Delete(cliplistContain).Error
 	if err != nil {
 		return newErr(err)

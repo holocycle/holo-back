@@ -9,10 +9,12 @@ import (
 	"go.uber.org/zap"
 )
 
+type appContextKey string
+
 const (
-	keyOfDB      = "DATABASE_CONNECTION"
-	keyOfLogger  = "LOGGER"
-	keyOfSession = "SESSION"
+	keyOfDB      appContextKey = "DATABASE_CONNECTION"
+	keyOfLogger  appContextKey = "LOGGER"
+	keyOfSession appContextKey = "SESSION"
 )
 
 func SetDB(ctx context.Context, db *gorm.DB) context.Context {

@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-type TestHelper struct {
+type Helper struct {
 	Config *config.AppConfig
 	Log    *zap.Logger
 	DB     *gorm.DB
@@ -36,11 +36,13 @@ func InitTestHelper() (func(), error) {
 	}
 
 	free := func() {
-		log.Sync()
+		if log.Sync() != nil {
+			log.Error("failed log sync", zap.Error(err))
+		}
 		db.Close()
 	}
 
-	testHelper = &TestHelper{
+	testHelper = &Helper{
 		Config: conf,
 		Log:    log,
 		DB:     db,
@@ -48,7 +50,7 @@ func InitTestHelper() (func(), error) {
 	return free, nil
 }
 
-func (h *TestHelper) NewContext(userID string) (context.Context, func()) {
+func (h *Helper) NewContext(userID string) (context.Context, func()) {
 	ctx := context.Background()
 
 	session := model.NewSession(userID, nil)
@@ -63,8 +65,8 @@ func (h *TestHelper) NewContext(userID string) (context.Context, func()) {
 	}
 }
 
-var testHelper *TestHelper
+var testHelper *Helper
 
-func GetTestHelper() *TestHelper {
+func GetTestHelper() *Helper {
 	return testHelper
 }
