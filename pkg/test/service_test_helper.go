@@ -6,7 +6,7 @@ import (
 
 	app_context "github.com/holocycle/holo-back/pkg/context2"
 	"github.com/holocycle/holo-back/pkg/model"
-	"gopkg.in/go-playground/assert.v1"
+	"github.com/stretchr/testify/assert"
 )
 
 type Service func(ctx context.Context, req interface{}) (res interface{}, err error)
@@ -32,26 +32,29 @@ func DoServiceTest(t *testing.T, testcase ServiceTestcase, sut Service) {
 
 		tx := app_context.GetDB(ctx)
 		for _, d := range testcase.Precondition {
-			err := tx.Save(d).Error
+			err := tx.Create(d).Error
 			if err != nil {
 				t.Fatalf("%+v\n", err)
 			}
 		}
 
 		res, err := sut(ctx, testcase.Req)
-		assert.Equal(t, testcase.Res, res)
-		assert.Equal(t, testcase.Err, err)
+		if testcase.Err != nil {
+			assert.Equal(t, testcase.Err, err)
+		} else {
+			assert.Nil(t, err)
+		}
+
+		if testcase.Res != nil {
+			assert.Equal(t, testcase.Res, res)
+		} else {
+			assert.Nil(t, res)
+		}
 
 		for _, expected := range testcase.Postcondition {
 			actual := NewModelSameTypeWith(expected)
 			err := tx.Where(expected).Find(actual).Error
-			if err != nil {
-				t.Fatalf("%+v\n", err)
-			}
-
-			SetNilToField(actual, "CreatedAt")
-			SetNilToField(actual, "UpdatedAt")
-			assert.Equal(t, expected, actual)
+			assert.NoError(t, err)
 		}
 	})
 }

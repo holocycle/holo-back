@@ -69,11 +69,3 @@ func NewModelSameTypeWith(model interface{}) interface{} {
 	modelType := reflect.TypeOf(model).Elem()
 	return reflect.New(modelType).Interface()
 }
-
-func SetNilToField(model interface{}, fieldName string) {
-	actualValue := reflect.ValueOf(model).Elem()
-	notFound := reflect.Value{}
-	if field := actualValue.FieldByName(fieldName); field != notFound {
-		field.Set(reflect.Zero(field.Type()))
-	}
-}
