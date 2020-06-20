@@ -44,9 +44,9 @@ func (q *CliplistContainQueryImpl) Where(cond *model.CliplistContain) CliplistCo
 func (q *CliplistContainQueryImpl) JoinClip() CliplistContainQuery {
 	return &CliplistContainQueryImpl{
 		Tx: q.Tx.
-			Preload("Clips").
-			Preload("Clips.Video").
-			Preload("Clips.Favorites"),
+			Preload("Clip").
+			Preload("Clip.Video").
+			Preload("Clip.Favorites"),
 	}
 }
 
@@ -82,7 +82,8 @@ func (q *CliplistContainQueryImpl) Delete() (int, error) {
 }
 
 func (q *CliplistContainRepositoryImpl) InsertToList(tx *gorm.DB, cliplistContain *model.CliplistContain) error {
-	err := tx.Where(&model.CliplistContain{CliplistID: cliplistContain.CliplistID}).
+	err := tx.Model(&model.CliplistContain{}).
+		Where(&model.CliplistContain{CliplistID: cliplistContain.CliplistID}).
 		Where("index >= ?", cliplistContain.Index).
 		Update("index", gorm.Expr("index + 1")).
 		Error
@@ -103,7 +104,8 @@ func (q *CliplistContainRepositoryImpl) DeleteFromList(tx *gorm.DB, cliplistCont
 		return newErr(err)
 	}
 
-	err = tx.Where(&model.CliplistContain{CliplistID: cliplistContain.CliplistID}).
+	err = tx.Model(&model.CliplistContain{}).
+		Where(&model.CliplistContain{CliplistID: cliplistContain.CliplistID}).
 		Where("index >= ?", cliplistContain.Index).
 		Update("index", gorm.Expr("index - 1")).
 		Error
