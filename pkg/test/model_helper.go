@@ -11,6 +11,7 @@ func ModelUser(id int) *model.User {
 	user := model.NewUser(
 		fmt.Sprintf("user%02d", id),
 		fmt.Sprintf("user%02d@example.com", id),
+		fmt.Sprintf("http://icon"),
 	)
 	user.ID = fmt.Sprintf("user%02d", id)
 	return user
