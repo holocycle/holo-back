@@ -1,0 +1,20 @@
+{
+  "license": "MIT",
+  "private": true,
+  "heroku": "registry.heroku.com/holo-back/web",
+  "scripts": {
+    "build": "run-s build:image build:tag",
+    "build:image": "docker build -f ./Dockerfile -t $npm_package_heroku:$(git rev-parse --short HEAD) --target=app ../../",
+    "build:tag": "docker tag $npm_package_heroku:$(git rev-parse --short HEAD) $npm_package_heroku:latest",
+    "deploy": "run-s heroku:login heroku:push heroku:release",
+    "heroku:login": "heroku container:login",
+    "heroku:push": "docker push $npm_package_heroku:latest",
+    "heroku:release": "heroku container:release -a holo-back web",
+    "migrate": "run-s db:migrate",
+    "db:credential": "heroku pg:credentials:url -a holo-back | sed -n -e '5p' | tr -d ' '",
+    "db:migrate": "DATABASE_URL=$(yarn --silent db:credential) docker-compose run goose"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5"
+  }
+}

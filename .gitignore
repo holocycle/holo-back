@@ -4,4 +4,5 @@ yarn-error.log
 build/*
 .go-cache
 
+.envrc
 scripts/app/secret.env
