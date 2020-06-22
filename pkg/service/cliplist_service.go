@@ -6,6 +6,7 @@ import (
 	"github.com/holocycle/holo-back/pkg/api"
 	app_context "github.com/holocycle/holo-back/pkg/context2"
 	"github.com/holocycle/holo-back/pkg/converter"
+	"github.com/holocycle/holo-back/pkg/core/service"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/holocycle/holo-back/pkg/repository"
 )
@@ -14,30 +15,30 @@ type CliplistService interface {
 	ListCliplists(
 		ctx context.Context,
 		req *api.ListCliplistsRequest,
-	) (*api.ListCliplistsResponse, Error)
+	) (*api.ListCliplistsResponse, service.Error)
 
 	GetCliplist(
 		ctx context.Context,
 		cliplistID string,
 		req *api.GetCliplistRequest,
-	) (*api.GetCliplistResponse, Error)
+	) (*api.GetCliplistResponse, service.Error)
 
 	PostCliplist(
 		ctx context.Context,
 		req *api.PostCliplistRequest,
-	) (*api.PostCliplistResponse, Error)
+	) (*api.PostCliplistResponse, service.Error)
 
 	PutCliplist(
 		ctx context.Context,
 		cliplistID string,
 		req *api.PutCliplistRequest,
-	) (*api.PutCliplistResponse, Error)
+	) (*api.PutCliplistResponse, service.Error)
 
 	DeleteCliplist(
 		ctx context.Context,
 		cliplistID string,
 		req *api.DeleteCliplistRequest,
-	) (*api.DeleteCliplistResponse, Error)
+	) (*api.DeleteCliplistResponse, service.Error)
 }
 
 type CliplistServiceImpl struct {
@@ -55,7 +56,7 @@ func NewCliplistService() CliplistService {
 func (s *CliplistServiceImpl) ListCliplists(
 	ctx context.Context,
 	req *api.ListCliplistsRequest,
-) (*api.ListCliplistsResponse, Error) {
+) (*api.ListCliplistsResponse, service.Error) {
 	tx := app_context.GetDB(ctx)
 
 	// TODO: use query
@@ -82,7 +83,7 @@ func (s *CliplistServiceImpl) GetCliplist(
 	ctx context.Context,
 	cliplistID string,
 	req *api.GetCliplistRequest,
-) (*api.GetCliplistResponse, Error) {
+) (*api.GetCliplistResponse, service.Error) {
 	cliplist, err := s.CliplistRepository.NewQuery(app_context.GetDB(ctx)).
 		JoinClip().
 		Where(&model.Cliplist{
@@ -113,7 +114,7 @@ func (s *CliplistServiceImpl) GetCliplist(
 func (s *CliplistServiceImpl) PostCliplist(
 	ctx context.Context,
 	req *api.PostCliplistRequest,
-) (*api.PostCliplistResponse, Error) {
+) (*api.PostCliplistResponse, service.Error) {
 	cliplist := model.NewCliplist(
 		app_context.GetSession(ctx).UserID,
 		req.Title,
@@ -134,7 +135,7 @@ func (s *CliplistServiceImpl) PutCliplist(
 	ctx context.Context,
 	cliplistID string,
 	req *api.PutCliplistRequest,
-) (*api.PutCliplistResponse, Error) {
+) (*api.PutCliplistResponse, service.Error) {
 	cliplist, err := s.CliplistRepository.NewQuery(app_context.GetDB(ctx)).
 		Where(&model.Cliplist{
 			ID:     cliplistID,
@@ -166,7 +167,7 @@ func (s *CliplistServiceImpl) DeleteCliplist(
 	ctx context.Context,
 	cliplistID string,
 	req *api.DeleteCliplistRequest,
-) (*api.DeleteCliplistResponse, Error) {
+) (*api.DeleteCliplistResponse, service.Error) {
 	cliplist, err := s.CliplistRepository.NewQuery(app_context.GetDB(ctx)).
 		Where(&model.Cliplist{
 			ID:     cliplistID,

@@ -6,6 +6,7 @@ import (
 	"github.com/holocycle/holo-back/pkg/api"
 	app_context "github.com/holocycle/holo-back/pkg/context2"
 	"github.com/holocycle/holo-back/pkg/converter"
+	"github.com/holocycle/holo-back/pkg/core/service"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/holocycle/holo-back/pkg/repository"
 )
@@ -16,21 +17,21 @@ type CliplistItemService interface {
 		cliplistID string,
 		index int,
 		req *api.GetCliplistItemRequest,
-	) (*api.GetCliplistItemResponse, Error)
+	) (*api.GetCliplistItemResponse, service.Error)
 
 	PostCliplistItem(
 		ctx context.Context,
 		cliplistID string,
 		index int,
 		req *api.PostCliplistItemRequest,
-	) (*api.PostCliplistItemResponse, Error)
+	) (*api.PostCliplistItemResponse, service.Error)
 
 	DeleteCliplistItem(
 		ctx context.Context,
 		cliplistID string,
 		index int,
 		req *api.DeleteCliplistItemRequest,
-	) (*api.DeleteCliplistItemResponse, Error)
+	) (*api.DeleteCliplistItemResponse, service.Error)
 }
 
 type CliplistItemServiceImpl struct {
@@ -52,7 +53,7 @@ func (s *CliplistItemServiceImpl) GetCliplistItem(
 	cliplistID string,
 	index int,
 	req *api.GetCliplistItemRequest,
-) (*api.GetCliplistItemResponse, Error) {
+) (*api.GetCliplistItemResponse, service.Error) {
 	_, err := s.CliplistRepository.NewQuery(app_context.GetDB(ctx)).
 		Where(&model.Cliplist{
 			ID:     cliplistID,
@@ -89,7 +90,7 @@ func (s *CliplistItemServiceImpl) PostCliplistItem(
 	cliplistID string,
 	index int,
 	req *api.PostCliplistItemRequest,
-) (*api.PostCliplistItemResponse, Error) {
+) (*api.PostCliplistItemResponse, service.Error) {
 	cliplist, err := s.CliplistRepository.NewQuery(app_context.GetDB(ctx)).
 		Where(&model.Cliplist{
 			ID:     cliplistID,
@@ -148,7 +149,7 @@ func (s *CliplistItemServiceImpl) DeleteCliplistItem(
 	cliplistID string,
 	index int,
 	req *api.DeleteCliplistItemRequest,
-) (*api.DeleteCliplistItemResponse, Error) {
+) (*api.DeleteCliplistItemResponse, service.Error) {
 	cliplist, err := s.CliplistRepository.NewQuery(app_context.GetDB(ctx)).
 		Where(&model.Cliplist{
 			ID:     cliplistID,

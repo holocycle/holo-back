@@ -3,7 +3,7 @@ package controller
 import (
 	"net/http"
 
-	"github.com/holocycle/holo-back/pkg/service"
+	"github.com/holocycle/holo-back/pkg/core/service"
 )
 
 func ConvertToStatus(err service.Error) int {
