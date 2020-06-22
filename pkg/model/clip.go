@@ -37,7 +37,7 @@ func NewClip(
 	status ClipStatus,
 ) *Clip {
 	return &Clip{
-		ID:          NewID(),
+		ID:          GetIDGenerator().New(),
 		UserID:      userID,
 		Title:       title,
 		Description: description,

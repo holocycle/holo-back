@@ -2,4 +2,8 @@ node_modules
 yarn-error.log
 
 build/*
+.go-cache
+cover.out
+
+.envrc
 scripts/app/secret.env

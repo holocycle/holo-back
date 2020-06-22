@@ -15,7 +15,7 @@ type User struct {
 
 func NewUser(name, email, iconURL string) *User {
 	return &User{
-		ID:        NewID(),
+		ID:        GetIDGenerator().New(),
 		Name:      name,
 		Email:     email,
 		IconURL:   iconURL,

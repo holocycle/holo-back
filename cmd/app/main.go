@@ -54,7 +54,7 @@ func main() {
 		middleware.NewContextMiddleware(),
 		middleware.NewLoggerMiddleware(log),
 		middleware.NewContextHandleMiddleware(func(ctx context.Context) (context.Context, error) {
-			ctx.SetLog(ctx.GetLog().With(zap.String("requestID", model.NewID())))
+			ctx.SetLog(ctx.GetLog().With(zap.String("requestID", model.GetIDGenerator().New())))
 			return ctx, nil
 		}),
 		middleware.NewRequestLoggingMiddleware(),
@@ -73,6 +73,7 @@ func main() {
 	controller.NewTagController(config).Register(e)
 	controller.NewUserController(config).Register(e)
 	controller.NewFavoriteController(config).Register(e)
+	controller.NewCliplistController(config).Register(e)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", config.Port)))
 }

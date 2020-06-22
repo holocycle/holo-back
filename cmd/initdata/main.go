@@ -114,11 +114,11 @@ func main() {
 	_ = commentsRepository.NewQuery(db).Create(comments4)
 
 	clipList := []model.Cliplist{
-		*model.NewCliplist(user1.ID, "クリップリスト1", "詳細"),
-		*model.NewCliplist(user1.ID, "クリップリスト2", "詳細"),
-		*model.NewCliplist(user1.ID, "クリップリスト3", "詳細"),
-		*model.NewCliplist(user1.ID, "1件クリップリスト", "詳細"),
-		*model.NewCliplist(user1.ID, "未登録クリップリスト", "詳細"),
+		*model.NewCliplist(user1.ID, "クリップリスト1", "詳細", model.CliplistStatusPublic),
+		*model.NewCliplist(user1.ID, "クリップリスト2", "詳細", model.CliplistStatusPublic),
+		*model.NewCliplist(user1.ID, "クリップリスト3", "詳細", model.CliplistStatusPublic),
+		*model.NewCliplist(user1.ID, "1件クリップリスト", "詳細", model.CliplistStatusPublic),
+		*model.NewCliplist(user1.ID, "未登録クリップリスト", "詳細", model.CliplistStatusPublic),
 	}
 	clipListRepository := repository.NewCliplistRepository()
 	for i := 0; i < len(clipList); i++ {
