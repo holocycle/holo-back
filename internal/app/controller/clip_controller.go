@@ -50,13 +50,17 @@ func (c *ClipController) ListClips(ctx context.Context) error {
 	log.Debug("success to validate", zap.Any("req", req))
 
 	query := c.ClipRepository.NewQuery(ctx.GetDB()).
+		Where(&model.Clip{Status: model.ClipStatusPublic}).
 		JoinVideo().
 		JoinFavorite()
 	if req.Limit > 0 {
 		query = query.Limit(req.Limit)
 	}
+
 	if req.OrderBy == "latest" {
 		query = query.Latest()
+	} else if req.OrderBy == "toprated" {
+		query = query.TopRated()
 	}
 	clips, err := query.FindAll()
 	if err != nil {
@@ -81,7 +85,7 @@ func (c *ClipController) PostClip(ctx context.Context) error {
 	youtubeCli := youtube.New(&c.Config.YoutubeClient)
 	video, err := youtubeCli.GetVideo(req.VideoID)
 	if err != nil {
-		return err // FIXME
+		return err
 	}
 	log.Debug("success to retireve video info from youtube", zap.Any("video", video))
 
@@ -119,6 +123,7 @@ func (c *ClipController) PostClip(ctx context.Context) error {
 		req.VideoID,
 		req.BeginAt,
 		req.EndAt,
+		model.ClipStatusPublic,
 	)
 	if err := c.ClipRepository.NewQuery(tx).Create(clip); err != nil {
 		log.Error("failed to create clip", zap.Any("clip", clip))
@@ -143,7 +148,8 @@ func (c *ClipController) GetClip(ctx context.Context) error {
 	clip, err := c.ClipRepository.NewQuery(ctx.GetDB()).
 		JoinVideo().
 		JoinFavorite().
-		Where(&model.Clip{ID: clipID}).Find()
+		Where(&model.Clip{ID: clipID, Status: model.ClipStatusPublic}).
+		Find()
 	if err != nil {
 		if repository.NotFoundError(err) {
 			return echo.NewHTTPError(http.StatusNotFound, "clip was not found")
@@ -158,9 +164,72 @@ func (c *ClipController) GetClip(ctx context.Context) error {
 }
 
 func (c *ClipController) PutClip(ctx context.Context) error {
-	return echo.NewHTTPError(http.StatusNotImplemented)
+	log := ctx.GetLog()
+
+	clipID := ctx.Param("clip_id")
+	if clipID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "please specify clip_id")
+	}
+
+	req := &api.PutClipRequest{}
+	if err := inject(ctx, req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	clip, err := c.ClipRepository.NewQuery(ctx.GetDB()).
+		Where(&model.Clip{ID: clipID, Status: model.ClipStatusPublic}).
+		Find()
+	if err != nil {
+		if repository.NotFoundError(err) {
+			return echo.NewHTTPError(http.StatusNotFound, "clip was not found")
+		}
+		return err
+	}
+
+	if app_context.GetUserID(ctx) != clip.UserID {
+		return echo.NewHTTPError(http.StatusForbidden, "clip is not yours")
+	}
+	log.Debug("success to validate parameters")
+
+	clip.Title = req.Title
+	clip.Description = req.Description
+	clip.BeginAt = req.BeginAt
+	clip.EndAt = req.EndAt
+	if err := c.ClipRepository.NewQuery(ctx.GetDB()).Save(clip); err != nil {
+		return err
+	}
+
+	return ctx.JSON(http.StatusOK, &api.PutClipResponse{
+		ClipID: clipID,
+	})
 }
 
 func (c *ClipController) DeleteClip(ctx context.Context) error {
-	return echo.NewHTTPError(http.StatusNotImplemented)
+	log := ctx.GetLog()
+
+	clipID := ctx.Param("clip_id")
+	if clipID == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "please specify clip_id")
+	}
+
+	clip, err := c.ClipRepository.NewQuery(ctx.GetDB()).
+		Where(&model.Clip{ID: clipID, Status: model.ClipStatusPublic}).
+		Find()
+	if err != nil {
+		if repository.NotFoundError(err) {
+			return echo.NewHTTPError(http.StatusNotFound, "clip was not found")
+		}
+		return err
+	}
+
+	if app_context.GetUserID(ctx) != clip.UserID {
+		return echo.NewHTTPError(http.StatusForbidden, "clip is not yours")
+	}
+	log.Debug("success to validate parameters")
+
+	clip.Status = model.ClipStatusDeleted
+	if err := c.ClipRepository.NewQuery(ctx.GetDB()).Save(clip); err != nil {
+		return err
+	}
+	return ctx.JSON(http.StatusOK, &api.DeleteClipRequest{})
 }

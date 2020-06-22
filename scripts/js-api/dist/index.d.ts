@@ -99,11 +99,27 @@ export declare class GetClipResponse {
     clip: Clip;
     static createFrom(source: any): GetClipResponse;
 }
+export declare class PutClipRequest {
+    title: string;
+    description: string;
+    beginAt: number;
+    endAt: number;
+    static createFrom(source: any): PutClipRequest;
+}
+export declare class PutClipResponse {
+    clipId: string;
+    static createFrom(source: any): PutClipResponse;
+}
+export declare class DeleteClipRequest {
+    static createFrom(source: any): DeleteClipRequest;
+}
+export declare class DeleteClipResponse {
+    static createFrom(source: any): DeleteClipResponse;
+}
 export declare class User {
     type: string;
     id: string;
     name: string;
-    email: string;
     iconUrl: string;
     static createFrom(source: any): User;
 }
@@ -195,6 +211,44 @@ export declare class DeleteTagOnClipRequest {
 }
 export declare class DeleteTagOnClipResponse {
     static createFrom(source: any): DeleteTagOnClipResponse;
+}
+export declare class LoginUser {
+    type: string;
+    id: string;
+    name: string;
+    iconUrl: string;
+    email: string;
+    static createFrom(source: any): LoginUser;
+}
+export declare class ListUserRequest {
+    limit: number;
+    orderBy: string;
+    static createFrom(source: any): ListUserRequest;
+}
+export declare class ListUserResponse {
+    users: User[];
+    static createFrom(source: any): ListUserResponse;
+}
+export declare class GetUserRequest {
+    static createFrom(source: any): GetUserRequest;
+}
+export declare class GetUserResponse {
+    user: User;
+    static createFrom(source: any): GetUserResponse;
+}
+export declare class GetLoginUserRequest {
+    static createFrom(source: any): GetLoginUserRequest;
+}
+export declare class GetLoginUserResponse {
+    loginUser: LoginUser;
+    static createFrom(source: any): GetLoginUserResponse;
+}
+export declare class GetUserFavoritesRequest {
+    static createFrom(source: any): GetUserFavoritesRequest;
+}
+export declare class GetUserFavoritesResponse {
+    favoriteClips: Clip[];
+    static createFrom(source: any): GetUserFavoritesResponse;
 }
 export declare class PutFavoriteRequest {
     static createFrom(source: any): PutFavoriteRequest;

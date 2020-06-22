@@ -19,7 +19,7 @@ func NewComment(
 	content string,
 ) *Comment {
 	return &Comment{
-		ID:      NewID(),
+		ID:      GetIDGenerator().New(),
 		UserID:  userID,
 		ClipID:  clipID,
 		Content: content,

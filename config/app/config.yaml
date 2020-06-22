@@ -1,4 +1,7 @@
 appname: "holo-app"
+port: 0 # env
+db:
+  url: "" # env
 cors:
   originwhitelist:
     - "" # overlay

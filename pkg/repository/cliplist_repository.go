@@ -11,6 +11,7 @@ type CliplistRepository interface {
 
 type CliplistQuery interface {
 	Where(cond *model.Cliplist) CliplistQuery
+	JoinClip() CliplistQuery
 
 	Create(Cliplist *model.Cliplist) error
 	Find() (*model.Cliplist, error)
@@ -35,6 +36,18 @@ type CliplistQueryImpl struct {
 
 func (q *CliplistQueryImpl) Where(cond *model.Cliplist) CliplistQuery {
 	return &CliplistQueryImpl{Tx: q.Tx.Where(cond)}
+}
+
+func (q *CliplistQueryImpl) JoinClip() CliplistQuery {
+	return &CliplistQueryImpl{
+		Tx: q.Tx.
+			Preload("CliplistContains", func(tx *gorm.DB) *gorm.DB {
+				return tx.Order("cliplist_contains.index")
+			}).
+			Preload("CliplistContains.Clip").
+			Preload("CliplistContains.Clip.Video").
+			Preload("CliplistContains.Clip.Favorites"),
+	}
 }
 
 func (q *CliplistQueryImpl) Create(Cliplist *model.Cliplist) error {

@@ -12,7 +12,7 @@ type Tag struct {
 
 func NewTag(name, color string) *Tag {
 	return &Tag{
-		ID:    NewID(),
+		ID:    GetIDGenerator().New(),
 		Name:  name,
 		Color: color,
 	}

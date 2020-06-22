@@ -12,7 +12,7 @@ type Session struct {
 
 func NewSession(userID string, expireAt *time.Time) *Session {
 	return &Session{
-		ID:        NewID(),
+		ID:        GetIDGenerator().New(),
 		UserID:    userID,
 		ExpireAt:  expireAt,
 		CreatedAt: nil,

@@ -252,11 +252,56 @@ export class GetClipResponse {
   }
 
 }
+export class PutClipRequest {
+  title: string;
+  description: string;
+  beginAt: number;
+  endAt: number;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new PutClipRequest();
+    result.title = source["title"];
+    result.description = source["description"];
+    result.beginAt = source["beginAt"];
+    result.endAt = source["endAt"];
+    return result;
+  }
+
+}
+export class PutClipResponse {
+  clipId: string;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new PutClipResponse();
+    result.clipId = source["clipId"];
+    return result;
+  }
+
+}
+export class DeleteClipRequest {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new DeleteClipRequest();
+    return result;
+  }
+
+}
+export class DeleteClipResponse {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new DeleteClipResponse();
+    return result;
+  }
+
+}
 export class User {
   type: string;
   id: string;
   name: string;
-  email: string;
   iconUrl: string;
 
   static createFrom(source: any) {
@@ -265,7 +310,6 @@ export class User {
     result.type = source["type"];
     result.id = source["id"];
     result.name = source["name"];
-    result.email = source["email"];
     result.iconUrl = source["iconUrl"];
     return result;
   }
@@ -516,6 +560,109 @@ export class DeleteTagOnClipResponse {
 
 }
 
+export class LoginUser {
+  type: string;
+  id: string;
+  name: string;
+  iconUrl: string;
+  email: string;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new LoginUser();
+    result.type = source["type"];
+    result.id = source["id"];
+    result.name = source["name"];
+    result.iconUrl = source["iconUrl"];
+    result.email = source["email"];
+    return result;
+  }
+
+}
+export class ListUserRequest {
+  limit: number;
+  orderBy: string;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new ListUserRequest();
+    result.limit = source["limit"];
+    result.orderBy = source["orderBy"];
+    return result;
+  }
+
+}
+export class ListUserResponse {
+  users: User[];
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new ListUserResponse();
+    result.users = source["users"] ? source["users"].map(function(element: any) { return User.createFrom(element); }) : null;
+    return result;
+  }
+
+}
+export class GetUserRequest {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new GetUserRequest();
+    return result;
+  }
+
+}
+export class GetUserResponse {
+  user: User;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new GetUserResponse();
+    result.user = source["user"] ? User.createFrom(source["user"]) : null;
+    return result;
+  }
+
+}
+export class GetLoginUserRequest {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new GetLoginUserRequest();
+    return result;
+  }
+
+}
+export class GetLoginUserResponse {
+  loginUser: LoginUser;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new GetLoginUserResponse();
+    result.loginUser = source["loginUser"] ? LoginUser.createFrom(source["loginUser"]) : null;
+    return result;
+  }
+
+}
+export class GetUserFavoritesRequest {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new GetUserFavoritesRequest();
+    return result;
+  }
+
+}
+export class GetUserFavoritesResponse {
+  favoriteClips: Clip[];
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new GetUserFavoritesResponse();
+    result.favoriteClips = source["favoriteClips"] ? source["favoriteClips"].map(function(element: any) { return Clip.createFrom(element); }) : null;
+    return result;
+  }
+
+}
 
 export class PutFavoriteRequest {
 

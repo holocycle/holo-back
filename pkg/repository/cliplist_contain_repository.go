@@ -7,10 +7,14 @@ import (
 
 type CliplistContainRepository interface {
 	NewQuery(tx *gorm.DB) CliplistContainQuery
+
+	InsertToList(tx *gorm.DB, cliplistContain *model.CliplistContain) error
+	DeleteFromList(tx *gorm.DB, cliplistContain *model.CliplistContain) error
 }
 
 type CliplistContainQuery interface {
 	Where(cond *model.CliplistContain) CliplistContainQuery
+	JoinClip() CliplistContainQuery
 
 	Create(CliplistContain *model.CliplistContain) error
 	Find() (*model.CliplistContain, error)
@@ -35,6 +39,15 @@ type CliplistContainQueryImpl struct {
 
 func (q *CliplistContainQueryImpl) Where(cond *model.CliplistContain) CliplistContainQuery {
 	return &CliplistContainQueryImpl{Tx: q.Tx.Where(cond)}
+}
+
+func (q *CliplistContainQueryImpl) JoinClip() CliplistContainQuery {
+	return &CliplistContainQueryImpl{
+		Tx: q.Tx.
+			Preload("Clip").
+			Preload("Clip.Video").
+			Preload("Clip.Favorites"),
+	}
 }
 
 func (q *CliplistContainQueryImpl) Create(CliplistContain *model.CliplistContain) error {
@@ -66,4 +79,38 @@ func (q *CliplistContainQueryImpl) Save(CliplistContain *model.CliplistContain) 
 func (q *CliplistContainQueryImpl) Delete() (int, error) {
 	res := q.Tx.Delete(&model.CliplistContain{})
 	return (int)(res.RowsAffected), newErr(res.Error)
+}
+
+func (r *CliplistContainRepositoryImpl) InsertToList(tx *gorm.DB, cliplistContain *model.CliplistContain) error {
+	err := tx.Model(&model.CliplistContain{}).
+		Where(&model.CliplistContain{CliplistID: cliplistContain.CliplistID}).
+		Where("index >= ?", cliplistContain.Index).
+		Update("index", gorm.Expr("index + 1")).
+		Error
+	if err != nil {
+		return newErr(err)
+	}
+
+	err = tx.Create(cliplistContain).Error
+	if err != nil {
+		return newErr(err)
+	}
+	return nil
+}
+
+func (r *CliplistContainRepositoryImpl) DeleteFromList(tx *gorm.DB, cliplistContain *model.CliplistContain) error {
+	err := tx.Delete(cliplistContain).Error
+	if err != nil {
+		return newErr(err)
+	}
+
+	err = tx.Model(&model.CliplistContain{}).
+		Where(&model.CliplistContain{CliplistID: cliplistContain.CliplistID}).
+		Where("index >= ?", cliplistContain.Index).
+		Update("index", gorm.Expr("index - 1")).
+		Error
+	if err != nil {
+		return newErr(err)
+	}
+	return nil
 }

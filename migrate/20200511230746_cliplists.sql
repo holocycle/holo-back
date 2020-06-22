@@ -6,6 +6,7 @@ CREATE TABLE cliplists (
   user_id        VARCHAR(64) REFERENCES users(id),
   title          VARCHAR(255) NOT NULL,
   description    TEXT NOT NULL,
+  status         VARCHAR(64) NOT NULL,
   created_at     TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at     TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

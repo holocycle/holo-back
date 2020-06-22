@@ -12,7 +12,7 @@ type HealthCheck struct {
 
 func NewHealthCheck() *HealthCheck {
 	return &HealthCheck{
-		ID:        NewID(),
+		ID:        GetIDGenerator().New(),
 		CreatedAt: nil,
 		UpdatedAt: nil,
 	}

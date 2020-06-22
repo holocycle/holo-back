@@ -1,0 +1,55 @@
+version: "3.7"
+services:
+  test:
+    container_name: "test"
+    image: somq14/holo-back-base:0.0.1
+    environment:
+      - GOPATH=/work/.go-cache/source
+      - GOCACHE=/work/.go-cache/build
+    env_file:
+      - config.env
+      - secret.env
+    entrypoint: ["go", "test"]
+    command: ["-coverprofile=cover.out", "./..."]
+    volumes:
+      - "../../:/work"
+    networks:
+      - "test-net"
+
+  testdb:
+    container_name: "testdb"
+    image: "postgres:12.2-alpine"
+    environment:
+      - POSTGRES_USER=holo
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5434:5432"
+    networks:
+      - "test-net"
+
+  goose:
+    container_name: "goose"
+    image: somq14/holo-back-base:0.0.1
+    environment:
+      - GOOSE_DRIVER=postgres
+      - GOOSE_DBSTRING=postgresql://testdb:5432/holo?user=holo&password=password&sslmode=disable
+    entrypoint: ["goose", "-dir", "migrate"]
+    command: "up"
+    volumes:
+      - "../../:/work"
+    networks:
+      - "test-net"
+
+  golangci-lint:
+    container_name: "golangci-lint"
+    image: somq14/holo-back-base:0.0.1
+    entrypoint: ["golangci-lint"]
+    command: "run"
+    volumes:
+      - "../../:/work"
+    networks:
+      - "test-net"
+
+networks:
+  test-net:
+    name: "test-net"

@@ -12,7 +12,7 @@ type Clip struct {
 
 type ListClipsRequest struct {
 	Limit   int    `json:"limit"   validate:"min=0,max=100"`
-	OrderBy string `json:"orderBy" validate:"oneof=any latest"`
+	OrderBy string `json:"orderBy" validate:"oneof=any latest toprated"`
 }
 
 type ListClipsResponse struct {
@@ -38,6 +38,23 @@ type GetClipResponse struct {
 	Clip *Clip `json:"clip"`
 }
 
+type PutClipRequest struct {
+	Title       string `json:"title"       validate:"required,max=255"`
+	Description string `json:"description" validate:"required"`
+	BeginAt     int    `json:"beginAt"     validate:"gte=0"`
+	EndAt       int    `json:"endAt"       validate:"gtfield=BeginAt"`
+}
+
+type PutClipResponse struct {
+	ClipID string `json:"clipId"`
+}
+
+type DeleteClipRequest struct {
+}
+
+type DeleteClipResponse struct {
+}
+
 func ClipModels() []interface{} {
 	return []interface{}{
 		Clip{},
@@ -47,5 +64,9 @@ func ClipModels() []interface{} {
 		PostClipResponse{},
 		GetClipRequest{},
 		GetClipResponse{},
+		PutClipRequest{},
+		PutClipResponse{},
+		DeleteClipRequest{},
+		DeleteClipResponse{},
 	}
 }

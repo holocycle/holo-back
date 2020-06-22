@@ -1,6 +1,9 @@
 package config
 
 import (
+	"os"
+	"path/filepath"
+
 	"github.com/holocycle/holo-back/pkg/db"
 	"github.com/holocycle/holo-back/pkg/logger"
 	"github.com/holocycle/holo-back/pkg/middleware"
@@ -9,8 +12,9 @@ import (
 )
 
 const (
-	envPrefix = "APP"
-	fileName  = "./config/app/config.yaml"
+	envPrefix       = "APP"
+	defaultFilePath = "./config/app"
+	defaultFileName = "config.yaml"
 )
 
 type AppConfig struct {
@@ -31,8 +35,16 @@ func NewConfig() (*AppConfig, error) {
 		// Verbose: true,
 	})
 
+	filePath := defaultFilePath
+	if envPath := os.Getenv("CONFIGOR_PATH"); envPath != "" {
+		filePath = envPath
+	}
+
 	config := &AppConfig{}
-	err := c.Load(config, fileName)
+	err := c.Load(
+		config,
+		filepath.Join(filePath, defaultFileName),
+	)
 	if err != nil {
 		return nil, err
 	}

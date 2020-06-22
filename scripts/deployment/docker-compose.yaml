@@ -1,0 +1,11 @@
+version: "3.7"
+services:
+  goose:
+    image: somq14/holo-back-base:0.0.1
+    environment:
+      - GOOSE_DRIVER=postgres
+      - GOOSE_DBSTRING=${DATABASE_URL}
+    entrypoint: ["goose", "-dir", "migrate"]
+    command: "up"
+    volumes:
+      - "../../:/work"

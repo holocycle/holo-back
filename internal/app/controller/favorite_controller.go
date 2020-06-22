@@ -38,7 +38,8 @@ func (c *FavoriteController) PutFavorite(ctx context.Context) error {
 	}
 
 	if _, err := c.ClipRepository.NewQuery(ctx.GetDB()).
-		Where(&model.Clip{ID: clipID}).Find(); err != nil {
+		Where(&model.Clip{ID: clipID, Status: model.ClipStatusPublic}).
+		Find(); err != nil {
 		if repository.NotFoundError(err) {
 			return echo.NewHTTPError(http.StatusNotFound, "clip was not found")
 		}
@@ -68,7 +69,8 @@ func (c *FavoriteController) DeleteFavorite(ctx context.Context) error {
 	}
 
 	if _, err := c.ClipRepository.NewQuery(ctx.GetDB()).
-		Where(&model.Clip{ID: clipID}).Find(); err != nil {
+		Where(&model.Clip{ID: clipID, Status: model.ClipStatusPublic}).
+		Find(); err != nil {
 		if repository.NotFoundError(err) {
 			return echo.NewHTTPError(http.StatusNotFound, "clip was not found")
 		}

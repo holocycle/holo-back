@@ -1,7 +1,6 @@
 # holo-back
 
 ## 前提
-- go 1.14
 - docker 19.3
 - docker-copose 1.25
 - yarn 1.22
@@ -18,7 +17,6 @@
 
 ```bash
 yarn install
-yarn setup # dockerイメージのビルド
 ```
 
 以下のファイルにAPIキーを設定する
@@ -39,18 +37,25 @@ DBマイグレーション
 yarn migrate
 ```
 
+ログの確認
+```bash
+yarn log -f
+```
+
 停止
 ```bash
 yarn stop   # コンテナの停止
 ```
 
-## デプロイ手順
+テスト
 ```bash
-yarn build # 本番環境用docker image の build
+yarn lint
+yarn test
 ```
 
+クリーン
 ```bash
-yarn deploy # herokuへのデプロイ
+yarn clean
 ```
 
 ## 便利なエイリアス
@@ -62,8 +67,8 @@ yarn docker logs # ログをみる例
 
 ### goose
 ```bash
-yarn goose        # goose の alias
-yarn goose status # DBの状態をみる
+yarn migrate        # goose の alias
+yarn migrate status # DBの状態をみる
 ```
 
 ### publish js-api

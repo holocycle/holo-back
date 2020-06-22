@@ -4,6 +4,13 @@ import (
 	"time"
 )
 
+type ClipStatus string
+
+const (
+	ClipStatusPublic  ClipStatus = "PUBLIC"
+	ClipStatusDeleted ClipStatus = "DELETED"
+)
+
 type Clip struct {
 	ID          string
 	UserID      string
@@ -12,6 +19,7 @@ type Clip struct {
 	VideoID     string
 	BeginAt     int
 	EndAt       int
+	Status      ClipStatus
 	CreatedAt   *time.Time
 	UpdatedAt   *time.Time
 
@@ -26,15 +34,17 @@ func NewClip(
 	videoID string,
 	beginAt,
 	EndAt int,
+	status ClipStatus,
 ) *Clip {
 	return &Clip{
-		ID:          NewID(),
+		ID:          GetIDGenerator().New(),
 		UserID:      userID,
 		Title:       title,
 		Description: description,
 		VideoID:     videoID,
 		BeginAt:     beginAt,
 		EndAt:       EndAt,
+		Status:      status,
 		CreatedAt:   nil,
 		UpdatedAt:   nil,
 	}

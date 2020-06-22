@@ -1,0 +1,2 @@
+# please fill these values and save as `.envrc`
+export HEROKU_API_KEY=
