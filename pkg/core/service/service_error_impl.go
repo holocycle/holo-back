@@ -21,8 +21,11 @@ func (e *serviceErrorImpl) Cause() error {
 }
 
 func (e *serviceErrorImpl) With(cause error) Error {
-	e.cause = cause
-	return e
+	return &serviceErrorImpl{
+		code:    e.code,
+		message: e.message,
+		cause:   cause,
+	}
 }
 
 func newServiceError(code ErrorCode, message string) Error {
