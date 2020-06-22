@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"testing"
 
 	"github.com/holocycle/holo-back/pkg/api"
@@ -12,13 +11,16 @@ import (
 func Test_ListCliplists(t *testing.T) {
 	testcases := []test.ServiceTestcase{
 		{
-			Name:          "no data",
-			UserID:        "user01",
-			Precondition:  []interface{}{},
-			Postcondition: []interface{}{},
-			Req: &api.ListCliplistsRequest{
-				Limit:   10,
-				OrderBy: "any",
+			Name:           "no data",
+			UserID:         "user01",
+			Precondition:   []interface{}{},
+			ExpectCreation: []interface{}{},
+			ExpectDeletion: []interface{}{},
+			Req: []interface{}{
+				&api.ListCliplistsRequest{
+					Limit:   10,
+					OrderBy: "any",
+				},
 			},
 			Res: &api.ListCliplistsResponse{
 				Cliplists: []*api.Cliplist{},
@@ -37,10 +39,13 @@ func Test_ListCliplists(t *testing.T) {
 				test.ModelCliplist(2, 1, model.CliplistStatusPublic),
 				test.ModelCliplist(3, 1, model.CliplistStatusDeleted),
 			},
-			Postcondition: []interface{}{},
-			Req: &api.ListCliplistsRequest{
-				Limit:   10,
-				OrderBy: "any",
+			ExpectCreation: []interface{}{},
+			ExpectDeletion: []interface{}{},
+			Req: []interface{}{
+				&api.ListCliplistsRequest{
+					Limit:   10,
+					OrderBy: "any",
+				},
 			},
 			Res: &api.ListCliplistsResponse{
 				Cliplists: []*api.Cliplist{
@@ -51,10 +56,7 @@ func Test_ListCliplists(t *testing.T) {
 			Err: nil,
 		},
 	}
-	test.DoServiceTests(t, testcases, func(ctx context.Context, req interface{}) (res interface{}, err error) {
-		service := NewCliplistService()
-		return service.ListCliplists(ctx, req.(*api.ListCliplistsRequest))
-	})
+	test.DoServiceTests(t, testcases, NewCliplistService().ListCliplists)
 }
 
 func Test_GetCliplist(t *testing.T) {
@@ -73,10 +75,14 @@ func Test_GetCliplist(t *testing.T) {
 				test.ModelCliplistContain(1, 0, 1),
 				test.ModelCliplistContain(1, 1, 2),
 			},
-			Postcondition: []interface{}{},
-			Req: &api.GetCliplistRequest{
-				Page:        0,
-				ItemPerPage: 10,
+			ExpectCreation: []interface{}{},
+			ExpectDeletion: []interface{}{},
+			Req: []interface{}{
+				"cliplist01",
+				&api.GetCliplistRequest{
+					Page:        0,
+					ItemPerPage: 10,
+				},
 			},
 			Res: &api.GetCliplistResponse{
 				Cliplist: test.APICliplist(1, 2, test.APICliplistItem(1, 0, test.APIVideo(1), true)),
@@ -109,10 +115,14 @@ func Test_GetCliplist(t *testing.T) {
 				test.ModelCliplistContain(1, 1, 2),
 				test.ModelCliplistContain(1, 2, 3),
 			},
-			Postcondition: []interface{}{},
-			Req: &api.GetCliplistRequest{
-				Page:        1,
-				ItemPerPage: 2,
+			ExpectCreation: []interface{}{},
+			ExpectDeletion: []interface{}{},
+			Req: []interface{}{
+				"cliplist01",
+				&api.GetCliplistRequest{
+					Page:        1,
+					ItemPerPage: 2,
+				},
 			},
 			Res: &api.GetCliplistResponse{
 				Cliplist: test.APICliplist(1, 3, test.APICliplistItem(1, 0, test.APIVideo(1), true)),
@@ -128,14 +138,17 @@ func Test_GetCliplist(t *testing.T) {
 			Err: nil,
 		},
 		{
-			Name:          "not found",
-			UserID:        "user01",
-			IDGenerator:   test.NewIDGenerator(),
-			Precondition:  []interface{}{},
-			Postcondition: []interface{}{},
-			Req: &api.GetCliplistRequest{
-				Page:        0,
-				ItemPerPage: 10,
+			Name:           "not found",
+			UserID:         "user01",
+			IDGenerator:    test.NewIDGenerator(),
+			Precondition:   []interface{}{},
+			ExpectCreation: []interface{}{},
+			Req: []interface{}{
+				"cliplist01",
+				&api.GetCliplistRequest{
+					Page:        0,
+					ItemPerPage: 10,
+				},
 			},
 			Res: nil,
 			Err: CliplistNotFound,
@@ -148,19 +161,20 @@ func Test_GetCliplist(t *testing.T) {
 				test.ModelUser(1),
 				test.ModelCliplist(1, 1, model.CliplistStatusDeleted),
 			},
-			Postcondition: []interface{}{},
-			Req: &api.GetCliplistRequest{
-				Page:        0,
-				ItemPerPage: 10,
+			ExpectCreation: []interface{}{},
+			ExpectDeletion: []interface{}{},
+			Req: []interface{}{
+				"cliplist01",
+				&api.GetCliplistRequest{
+					Page:        0,
+					ItemPerPage: 10,
+				},
 			},
 			Res: nil,
 			Err: CliplistNotFound,
 		},
 	}
-	test.DoServiceTests(t, testcases, func(ctx context.Context, req interface{}) (res interface{}, err error) {
-		service := NewCliplistService()
-		return service.GetCliplist(ctx, "cliplist01", req.(*api.GetCliplistRequest)) // FIXME
-	})
+	test.DoServiceTests(t, testcases, NewCliplistService().GetCliplist)
 }
 
 func Test_PostCliplist(t *testing.T) {
@@ -174,12 +188,15 @@ func Test_PostCliplist(t *testing.T) {
 			Precondition: []interface{}{
 				test.ModelUser(1),
 			},
-			Postcondition: []interface{}{
+			ExpectCreation: []interface{}{
 				test.ModelCliplist(1, 1, model.CliplistStatusPublic),
 			},
-			Req: &api.PostCliplistRequest{
-				Title:       "cliplist 01",
-				Description: "cliplist 01",
+			ExpectDeletion: []interface{}{},
+			Req: []interface{}{
+				&api.PostCliplistRequest{
+					Title:       "cliplist 01",
+					Description: "cliplist 01",
+				},
 			},
 			Res: &api.PostCliplistResponse{
 				CliplistID: "cliplist01",
@@ -187,10 +204,7 @@ func Test_PostCliplist(t *testing.T) {
 			Err: nil,
 		},
 	}
-	test.DoServiceTests(t, testcases, func(ctx context.Context, req interface{}) (res interface{}, err error) {
-		service := NewCliplistService()
-		return service.PostCliplist(ctx, req.(*api.PostCliplistRequest))
-	})
+	test.DoServiceTests(t, testcases, NewCliplistService().PostCliplist)
 }
 
 func Test_PutCliplist(t *testing.T) {
@@ -203,7 +217,7 @@ func Test_PutCliplist(t *testing.T) {
 				test.ModelUser(1),
 				test.ModelCliplist(1, 1, model.CliplistStatusPublic),
 			},
-			Postcondition: []interface{}{
+			ExpectCreation: []interface{}{
 				&model.Cliplist{
 					ID:          test.ModelCliplist(1, 1, model.CliplistStatusPublic).ID,
 					UserID:      test.ModelCliplist(1, 1, model.CliplistStatusPublic).UserID,
@@ -212,9 +226,13 @@ func Test_PutCliplist(t *testing.T) {
 					Status:      model.CliplistStatusPublic,
 				},
 			},
-			Req: &api.PutCliplistRequest{
-				Title:       "modified-title",
-				Description: "modified-description",
+			ExpectDeletion: []interface{}{},
+			Req: []interface{}{
+				"cliplist01",
+				&api.PutCliplistRequest{
+					Title:       "modified-title",
+					Description: "modified-description",
+				},
 			},
 			Res: &api.PutCliplistResponse{
 				CliplistID: "cliplist01",
@@ -228,10 +246,14 @@ func Test_PutCliplist(t *testing.T) {
 			Precondition: []interface{}{
 				test.ModelUser(1),
 			},
-			Postcondition: []interface{}{},
-			Req: &api.PutCliplistRequest{
-				Title:       "modified-title",
-				Description: "modified-description",
+			ExpectCreation: []interface{}{},
+			ExpectDeletion: []interface{}{},
+			Req: []interface{}{
+				"cliplist01",
+				&api.PutCliplistRequest{
+					Title:       "modified-title",
+					Description: "modified-description",
+				},
 			},
 			Res: nil,
 			Err: CliplistNotFound,
@@ -244,10 +266,14 @@ func Test_PutCliplist(t *testing.T) {
 				test.ModelUser(1),
 				test.ModelCliplist(1, 1, model.CliplistStatusDeleted),
 			},
-			Postcondition: []interface{}{},
-			Req: &api.PutCliplistRequest{
-				Title:       "modified-title",
-				Description: "modified-description",
+			ExpectCreation: []interface{}{},
+			ExpectDeletion: []interface{}{},
+			Req: []interface{}{
+				"cliplist01",
+				&api.PutCliplistRequest{
+					Title:       "modified-title",
+					Description: "modified-description",
+				},
 			},
 			Res: nil,
 			Err: CliplistNotFound,
@@ -260,19 +286,20 @@ func Test_PutCliplist(t *testing.T) {
 				test.ModelUser(1),
 				test.ModelCliplist(1, 1, model.CliplistStatusPublic),
 			},
-			Postcondition: []interface{}{},
-			Req: &api.PutCliplistRequest{
-				Title:       "modified-title",
-				Description: "modified-description",
+			ExpectCreation: []interface{}{},
+			ExpectDeletion: []interface{}{},
+			Req: []interface{}{
+				"cliplist01",
+				&api.PutCliplistRequest{
+					Title:       "modified-title",
+					Description: "modified-description",
+				},
 			},
 			Res: nil,
 			Err: NoPermissionToCliplist,
 		},
 	}
-	test.DoServiceTests(t, testcases, func(ctx context.Context, req interface{}) (res interface{}, err error) {
-		service := NewCliplistService()
-		return service.PutCliplist(ctx, "cliplist01", req.(*api.PutCliplistRequest)) // FIXME
-	})
+	test.DoServiceTests(t, testcases, NewCliplistService().PutCliplist)
 }
 
 func Test_DeleteCliplist(t *testing.T) {
@@ -285,16 +312,17 @@ func Test_DeleteCliplist(t *testing.T) {
 				test.ModelUser(1),
 				test.ModelCliplist(1, 1, model.CliplistStatusPublic),
 			},
-			Postcondition: []interface{}{
+			ExpectCreation: []interface{}{
 				test.ModelCliplist(1, 1, model.CliplistStatusDeleted),
 			},
-			Req: &api.DeleteCliplistRequest{},
+			ExpectDeletion: []interface{}{},
+			Req: []interface{}{
+				"cliplist01",
+				&api.DeleteCliplistRequest{},
+			},
 			Res: &api.DeleteCliplistResponse{},
 			Err: nil,
 		},
 	}
-	test.DoServiceTests(t, testcases, func(ctx context.Context, req interface{}) (res interface{}, err error) {
-		service := NewCliplistService()
-		return service.DeleteCliplist(ctx, "cliplist01", req.(*api.DeleteCliplistRequest)) // FIXME
-	})
+	test.DoServiceTests(t, testcases, NewCliplistService().DeleteCliplist)
 }
