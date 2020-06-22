@@ -18,7 +18,7 @@ func Call(f interface{}, args ...interface{}) ([]interface{}, error) {
 	for i := 0; i < fType.NumIn(); i++ {
 		paramType := fType.In(i)
 		argType := reflect.ValueOf(args[i]).Type()
-		if !paramType.AssignableTo(argType) {
+		if !argType.AssignableTo(paramType) {
 			return nil, fmt.Errorf("i-th arg's type is %+v and is not assignable to %+v", argType, paramType)
 		}
 		argValues = append(argValues, reflect.ValueOf(args[i]))
