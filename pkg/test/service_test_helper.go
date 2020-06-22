@@ -5,6 +5,7 @@ import (
 
 	app_context "github.com/holocycle/holo-back/pkg/context2"
 	"github.com/holocycle/holo-back/pkg/core"
+	"github.com/holocycle/holo-back/pkg/core/service"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
@@ -50,7 +51,10 @@ func DoServiceTest(t *testing.T, testcase ServiceTestcase, sut interface{}) {
 		}
 
 		if testcase.Err != nil {
-			assert.Equal(t, testcase.Err, res[1])
+			actualError := res[1].(service.Error)
+			expectedError := res[1].(service.Error)
+			assert.Equal(t, expectedError.Code(), actualError.Code())
+			assert.Equal(t, expectedError.Error(), actualError.Error())
 		} else {
 			assert.Nil(t, res[1])
 		}
