@@ -10,7 +10,7 @@ services:
       - config.env
       - secret.env
     entrypoint: ["go", "test"]
-    command: ["./..."]
+    command: ["-coverprofile=cover.out", "./..."]
     volumes:
       - "../../:/work"
     networks:
