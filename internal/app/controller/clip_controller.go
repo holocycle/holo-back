@@ -4,10 +4,8 @@ import (
 	"net/http"
 
 	"github.com/holocycle/holo-back/internal/app/config"
-	app_context "github.com/holocycle/holo-back/internal/app/context"
 	"github.com/holocycle/holo-back/pkg/api"
-	"github.com/holocycle/holo-back/pkg/context"
-	app_context2 "github.com/holocycle/holo-back/pkg/context2"
+	app_context "github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/converter"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/holocycle/holo-back/pkg/repository"
@@ -37,9 +35,9 @@ func (c *ClipController) Register(e *echo.Echo) {
 	delete(e, "/clips/:clip_id", c.DeleteClip)
 }
 
-func (c *ClipController) ListClips(ctx context.Context) error {
-	log := ctx.GetLog()
-	goCtx := app_context2.FromEchoContext(ctx)
+func (c *ClipController) ListClips(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
+	log := app_context.GetLog(goCtx)
 
 	req := &api.ListClipsRequest{}
 	if err := inject(ctx, req); err != nil {
@@ -71,9 +69,9 @@ func (c *ClipController) ListClips(ctx context.Context) error {
 	})
 }
 
-func (c *ClipController) PostClip(ctx context.Context) error {
-	log := ctx.GetLog()
-	goCtx := app_context2.FromEchoContext(ctx)
+func (c *ClipController) PostClip(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
+	log := app_context.GetLog(goCtx)
 
 	req := &api.PostClipRequest{}
 	if err := inject(ctx, req); err != nil {
@@ -115,7 +113,7 @@ func (c *ClipController) PostClip(ctx context.Context) error {
 	log.Debug("success to save video", zap.Any("video", video))
 
 	clip := model.NewClip(
-		app_context.GetSession(ctx).UserID,
+		app_context.GetSession(goCtx).UserID,
 		req.Title,
 		req.Description,
 		req.VideoID,
@@ -134,9 +132,9 @@ func (c *ClipController) PostClip(ctx context.Context) error {
 	})
 }
 
-func (c *ClipController) GetClip(ctx context.Context) error {
-	log := ctx.GetLog()
-	goCtx := app_context2.FromEchoContext(ctx)
+func (c *ClipController) GetClip(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
+	log := app_context.GetLog(goCtx)
 
 	clipID := ctx.Param("clip_id")
 	if clipID == "" {
@@ -162,9 +160,9 @@ func (c *ClipController) GetClip(ctx context.Context) error {
 	})
 }
 
-func (c *ClipController) PutClip(ctx context.Context) error {
-	log := ctx.GetLog()
-	goCtx := app_context2.FromEchoContext(ctx)
+func (c *ClipController) PutClip(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
+	log := app_context.GetLog(goCtx)
 
 	clipID := ctx.Param("clip_id")
 	if clipID == "" {
@@ -186,7 +184,7 @@ func (c *ClipController) PutClip(ctx context.Context) error {
 		return err
 	}
 
-	if app_context.GetUserID(ctx) != clip.UserID {
+	if app_context.GetSession(goCtx).UserID != clip.UserID {
 		return echo.NewHTTPError(http.StatusForbidden, "clip is not yours")
 	}
 	log.Debug("success to validate parameters")
@@ -204,9 +202,9 @@ func (c *ClipController) PutClip(ctx context.Context) error {
 	})
 }
 
-func (c *ClipController) DeleteClip(ctx context.Context) error {
-	log := ctx.GetLog()
-	goCtx := app_context2.FromEchoContext(ctx)
+func (c *ClipController) DeleteClip(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
+	log := app_context.GetLog(goCtx)
 
 	clipID := ctx.Param("clip_id")
 	if clipID == "" {
@@ -223,7 +221,7 @@ func (c *ClipController) DeleteClip(ctx context.Context) error {
 		return err
 	}
 
-	if app_context.GetUserID(ctx) != clip.UserID {
+	if app_context.GetSession(goCtx).UserID != clip.UserID {
 		return echo.NewHTTPError(http.StatusForbidden, "clip is not yours")
 	}
 	log.Debug("success to validate parameters")

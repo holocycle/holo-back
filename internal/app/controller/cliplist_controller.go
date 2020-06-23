@@ -6,8 +6,6 @@ import (
 
 	"github.com/holocycle/holo-back/internal/app/config"
 	"github.com/holocycle/holo-back/pkg/api"
-	"github.com/holocycle/holo-back/pkg/context"
-	app_context2 "github.com/holocycle/holo-back/pkg/context2"
 	"github.com/holocycle/holo-back/pkg/service"
 	"github.com/labstack/echo/v4"
 )
@@ -36,14 +34,14 @@ func (c *CliplistController) Register(e *echo.Echo) {
 	delete(e, "/cliplists/:cliplist_id/:index", c.DeleteCliplistItem)
 }
 
-func (c *CliplistController) ListCliplists(ctx context.Context) error {
+func (c *CliplistController) ListCliplists(ctx echo.Context) error {
 	req := &api.ListCliplistsRequest{}
 	if err := inject(ctx, req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	res, err := c.ServiceContainer.CliplistService.ListCliplists(
-		app_context2.FromEchoContext(ctx),
+		ctx.Request().Context(),
 		req,
 	)
 	if err != nil {
@@ -53,7 +51,7 @@ func (c *CliplistController) ListCliplists(ctx context.Context) error {
 	return ctx.JSON(http.StatusOK, res)
 }
 
-func (c *CliplistController) GetCliplist(ctx context.Context) error {
+func (c *CliplistController) GetCliplist(ctx echo.Context) error {
 	req := &api.GetCliplistRequest{}
 	if err := inject(ctx, req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -65,7 +63,7 @@ func (c *CliplistController) GetCliplist(ctx context.Context) error {
 	}
 
 	res, err := c.ServiceContainer.CliplistService.GetCliplist(
-		app_context2.FromEchoContext(ctx),
+		ctx.Request().Context(),
 		cliplistID,
 		req,
 	)
@@ -76,14 +74,14 @@ func (c *CliplistController) GetCliplist(ctx context.Context) error {
 	return ctx.JSON(http.StatusOK, res)
 }
 
-func (c *CliplistController) PostCliplist(ctx context.Context) error {
+func (c *CliplistController) PostCliplist(ctx echo.Context) error {
 	req := &api.PostCliplistRequest{}
 	if err := inject(ctx, req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	res, err := c.ServiceContainer.CliplistService.PostCliplist(
-		app_context2.FromEchoContext(ctx),
+		ctx.Request().Context(),
 		req,
 	)
 	if err != nil {
@@ -93,7 +91,7 @@ func (c *CliplistController) PostCliplist(ctx context.Context) error {
 	return ctx.JSON(http.StatusOK, res)
 }
 
-func (c *CliplistController) PutCliplist(ctx context.Context) error {
+func (c *CliplistController) PutCliplist(ctx echo.Context) error {
 	req := &api.PutCliplistRequest{}
 	if err := inject(ctx, req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -105,7 +103,7 @@ func (c *CliplistController) PutCliplist(ctx context.Context) error {
 	}
 
 	res, err := c.ServiceContainer.CliplistService.PutCliplist(
-		app_context2.FromEchoContext(ctx),
+		ctx.Request().Context(),
 		cliplistID,
 		req,
 	)
@@ -116,7 +114,7 @@ func (c *CliplistController) PutCliplist(ctx context.Context) error {
 	return ctx.JSON(http.StatusOK, res)
 }
 
-func (c *CliplistController) DeleteCliplist(ctx context.Context) error {
+func (c *CliplistController) DeleteCliplist(ctx echo.Context) error {
 	req := &api.DeleteCliplistRequest{}
 	if err := inject(ctx, req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -128,7 +126,7 @@ func (c *CliplistController) DeleteCliplist(ctx context.Context) error {
 	}
 
 	res, err := c.ServiceContainer.CliplistService.DeleteCliplist(
-		app_context2.FromEchoContext(ctx),
+		ctx.Request().Context(),
 		cliplistID,
 		req,
 	)
@@ -139,7 +137,7 @@ func (c *CliplistController) DeleteCliplist(ctx context.Context) error {
 	return ctx.JSON(http.StatusOK, res)
 }
 
-func (c *CliplistController) GetCliplistItem(ctx context.Context) error {
+func (c *CliplistController) GetCliplistItem(ctx echo.Context) error {
 	req := &api.GetCliplistItemRequest{}
 	if err := inject(ctx, req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -160,7 +158,7 @@ func (c *CliplistController) GetCliplistItem(ctx context.Context) error {
 	}
 
 	res, serr := c.ServiceContainer.CliplistItemService.GetCliplistItem(
-		app_context2.FromEchoContext(ctx),
+		ctx.Request().Context(),
 		cliplistID,
 		index,
 		req,
@@ -172,7 +170,7 @@ func (c *CliplistController) GetCliplistItem(ctx context.Context) error {
 	return ctx.JSON(http.StatusOK, res)
 }
 
-func (c *CliplistController) PostCliplistItem(ctx context.Context) error {
+func (c *CliplistController) PostCliplistItem(ctx echo.Context) error {
 	req := &api.PostCliplistItemRequest{}
 	if err := inject(ctx, req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -193,7 +191,7 @@ func (c *CliplistController) PostCliplistItem(ctx context.Context) error {
 	}
 
 	res, serr := c.ServiceContainer.CliplistItemService.PostCliplistItem(
-		app_context2.FromEchoContext(ctx),
+		ctx.Request().Context(),
 		cliplistID,
 		index,
 		req,
@@ -205,7 +203,7 @@ func (c *CliplistController) PostCliplistItem(ctx context.Context) error {
 	return ctx.JSON(http.StatusOK, res)
 }
 
-func (c *CliplistController) DeleteCliplistItem(ctx context.Context) error {
+func (c *CliplistController) DeleteCliplistItem(ctx echo.Context) error {
 	req := &api.DeleteCliplistItemRequest{}
 	if err := inject(ctx, req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -226,7 +224,7 @@ func (c *CliplistController) DeleteCliplistItem(ctx context.Context) error {
 	}
 
 	res, serr := c.ServiceContainer.CliplistItemService.DeleteCliplistItem(
-		app_context2.FromEchoContext(ctx),
+		ctx.Request().Context(),
 		cliplistID,
 		index,
 		req,

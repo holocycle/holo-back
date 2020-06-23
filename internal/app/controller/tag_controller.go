@@ -4,10 +4,8 @@ import (
 	"net/http"
 
 	"github.com/holocycle/holo-back/internal/app/config"
-	app_context "github.com/holocycle/holo-back/internal/app/context"
 	"github.com/holocycle/holo-back/pkg/api"
-	"github.com/holocycle/holo-back/pkg/context"
-	app_context2 "github.com/holocycle/holo-back/pkg/context2"
+	app_context "github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/converter"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/holocycle/holo-back/pkg/repository"
@@ -36,8 +34,8 @@ func (c *TagController) Register(e *echo.Echo) {
 	delete(e, "/clips/:clip_id/tags/:tag_id", c.DeleteTagOnClip)
 }
 
-func (c *TagController) ListTags(ctx context.Context) error {
-	goCtx := app_context2.FromEchoContext(ctx)
+func (c *TagController) ListTags(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
 	req := &api.ListTagsRequest{}
 	if err := inject(ctx, req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -53,8 +51,8 @@ func (c *TagController) ListTags(ctx context.Context) error {
 	})
 }
 
-func (c *TagController) GetTag(ctx context.Context) error {
-	goCtx := app_context2.FromEchoContext(ctx)
+func (c *TagController) GetTag(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
 	req := &api.GetTagRequest{}
 	if err := inject(ctx, req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
@@ -77,8 +75,8 @@ func (c *TagController) GetTag(ctx context.Context) error {
 	})
 }
 
-func (c *TagController) PutTag(ctx context.Context) error {
-	goCtx := app_context2.FromEchoContext(ctx)
+func (c *TagController) PutTag(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
 	req := &api.PutTagRequest{}
 	if err := inject(ctx, req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -104,9 +102,9 @@ func (c *TagController) PutTag(ctx context.Context) error {
 	})
 }
 
-func (c *TagController) ListTagsOnClip(ctx context.Context) error {
-	log := ctx.GetLog()
-	goCtx := app_context2.FromEchoContext(ctx)
+func (c *TagController) ListTagsOnClip(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
+	log := app_context.GetLog(goCtx)
 
 	req := &api.ListTagsOnClipRequest{}
 	if err := inject(ctx, req); err != nil {
@@ -143,9 +141,9 @@ func (c *TagController) ListTagsOnClip(ctx context.Context) error {
 	})
 }
 
-func (c *TagController) PutTagOnClip(ctx context.Context) error {
-	log := ctx.GetLog()
-	goCtx := app_context2.FromEchoContext(ctx)
+func (c *TagController) PutTagOnClip(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
+	log := app_context.GetLog(goCtx)
 
 	req := &api.PutTagOnClipRequest{}
 	if err := inject(ctx, req); err != nil {
@@ -199,7 +197,7 @@ func (c *TagController) PutTagOnClip(ctx context.Context) error {
 	clipTagged = model.NewClipTagged(
 		clipID,
 		tagID,
-		app_context.GetSession(ctx).UserID,
+		app_context.GetSession(goCtx).UserID,
 	)
 	if err := c.RepositoryContainer.ClipTaggedRepository.NewQuery(goCtx).Create(clipTagged); err != nil {
 		return err
@@ -208,9 +206,9 @@ func (c *TagController) PutTagOnClip(ctx context.Context) error {
 	return ctx.JSON(http.StatusCreated, &api.PutTagOnClipResponse{})
 }
 
-func (c *TagController) DeleteTagOnClip(ctx context.Context) error {
-	log := ctx.GetLog()
-	goCtx := app_context2.FromEchoContext(ctx)
+func (c *TagController) DeleteTagOnClip(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
+	log := app_context.GetLog(goCtx)
 
 	req := &api.DeleteTagOnClipRequest{}
 	if err := inject(ctx, req); err != nil {

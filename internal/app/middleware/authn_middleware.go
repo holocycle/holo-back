@@ -5,9 +5,7 @@ import (
 	"strings"
 	"time"
 
-	app_context "github.com/holocycle/holo-back/internal/app/context"
-	"github.com/holocycle/holo-back/pkg/context"
-	app_context2 "github.com/holocycle/holo-back/pkg/context2"
+	app_context "github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/holocycle/holo-back/pkg/repository"
 
@@ -32,17 +30,16 @@ func NewAuthnMiddleware(skipper echo_middleware.Skipper) echo.MiddlewareFunc {
 
 func (m *AuthnMiddleware) Process(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		ctx := c.(context.Context)
 		if m.Skipper(c) {
-			return next(ctx)
+			return next(c)
 		}
 
-		token, err := getAuthToken(ctx.Request().Header)
+		token, err := getAuthToken(c.Request().Header)
 		if err != nil {
 			return err
 		}
 
-		session, err := repository.NewSessionRepository().NewQuery(app_context2.FromEchoContext(ctx)).
+		session, err := repository.NewSessionRepository().NewQuery(c.Request().Context()).
 			Where(&model.Session{ID: token}).Find()
 		if err != nil {
 			if repository.NotFoundError(err) {
@@ -56,8 +53,9 @@ func (m *AuthnMiddleware) Process(next echo.HandlerFunc) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusUnauthorized, "`Authorization` token is expired")
 		}
 
-		app_context.SetSession(ctx, session)
-		return next(ctx)
+		newCtx := app_context.SetSession(c.Request().Context(), session)
+		c.SetRequest(c.Request().WithContext(newCtx))
+		return next(c)
 	}
 }
 

@@ -3,7 +3,7 @@ package test
 import (
 	"testing"
 
-	app_context "github.com/holocycle/holo-back/pkg/context2"
+	app_context "github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/core"
 	"github.com/holocycle/holo-back/pkg/core/service"
 	"github.com/holocycle/holo-back/pkg/model"

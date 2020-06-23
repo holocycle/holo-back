@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/holocycle/holo-back/internal/app/config"
-	app_context "github.com/holocycle/holo-back/pkg/context2"
+	app_context "github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/db"
 	"github.com/holocycle/holo-back/pkg/logger"
 	"github.com/holocycle/holo-back/pkg/model"

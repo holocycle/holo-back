@@ -4,10 +4,8 @@ import (
 	"net/http"
 
 	"github.com/holocycle/holo-back/internal/app/config"
-	app_context "github.com/holocycle/holo-back/internal/app/context"
 	"github.com/holocycle/holo-back/pkg/api"
-	"github.com/holocycle/holo-back/pkg/context"
-	app_context2 "github.com/holocycle/holo-back/pkg/context2"
+	app_context "github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/holocycle/holo-back/pkg/repository"
 	"github.com/labstack/echo/v4"
@@ -30,8 +28,8 @@ func (c *FavoriteController) Register(e *echo.Echo) {
 	delete(e, "/clips/:clip_id/favorite", c.DeleteFavorite)
 }
 
-func (c *FavoriteController) PutFavorite(ctx context.Context) error {
-	goCtx := app_context2.FromEchoContext(ctx)
+func (c *FavoriteController) PutFavorite(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
 
 	clipID := ctx.Param("clip_id")
 	if clipID == "" {
@@ -47,7 +45,7 @@ func (c *FavoriteController) PutFavorite(ctx context.Context) error {
 		return err
 	}
 
-	favorite := model.NewFavorite(clipID, app_context.GetUserID(ctx))
+	favorite := model.NewFavorite(clipID, app_context.GetSession(goCtx).UserID)
 	_, err := c.RepositoryContainer.FavoriteRepository.NewQuery(goCtx).Where(favorite).Find()
 	if err != nil && !repository.NotFoundError(err) {
 		return err
@@ -63,8 +61,8 @@ func (c *FavoriteController) PutFavorite(ctx context.Context) error {
 	return ctx.JSON(http.StatusCreated, &api.PutFavoriteResponse{})
 }
 
-func (c *FavoriteController) DeleteFavorite(ctx context.Context) error {
-	goCtx := app_context2.FromEchoContext(ctx)
+func (c *FavoriteController) DeleteFavorite(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
 
 	clipID := ctx.Param("clip_id")
 	if clipID == "" {
@@ -80,7 +78,7 @@ func (c *FavoriteController) DeleteFavorite(ctx context.Context) error {
 		return err
 	}
 
-	favorite := model.NewFavorite(clipID, app_context.GetUserID(ctx))
+	favorite := model.NewFavorite(clipID, app_context.GetSession(goCtx).UserID)
 	rows, err := c.RepositoryContainer.FavoriteRepository.NewQuery(goCtx).Where(favorite).Delete()
 	if err != nil {
 		return err

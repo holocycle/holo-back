@@ -4,10 +4,8 @@ import (
 	"net/http"
 
 	"github.com/holocycle/holo-back/internal/app/config"
-	app_context "github.com/holocycle/holo-back/internal/app/context"
 	"github.com/holocycle/holo-back/pkg/api"
-	"github.com/holocycle/holo-back/pkg/context"
-	app_context2 "github.com/holocycle/holo-back/pkg/context2"
+	app_context "github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/converter"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/holocycle/holo-back/pkg/repository"
@@ -35,9 +33,9 @@ func (c *UserController) Register(e *echo.Echo) {
 	get(e, "/users/:user_id/favorites", c.GetOneUsersFavorites)
 }
 
-func (c *UserController) ListUsers(ctx context.Context) error {
-	log := ctx.GetLog()
-	goCtx := app_context2.FromEchoContext(ctx)
+func (c *UserController) ListUsers(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
+	log := app_context.GetLog(goCtx)
 
 	req := &api.ListUserRequest{}
 	if err := inject(ctx, req); err != nil {
@@ -68,9 +66,9 @@ func (c *UserController) ListUsers(ctx context.Context) error {
 	})
 }
 
-func (c *UserController) GetUsersMe(ctx context.Context) error {
-	log := ctx.GetLog()
-	goCtx := app_context2.FromEchoContext(ctx)
+func (c *UserController) GetUsersMe(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
+	log := app_context.GetLog(goCtx)
 
 	req := &api.GetLoginUserRequest{}
 	if err := inject(ctx, req); err != nil {
@@ -78,7 +76,7 @@ func (c *UserController) GetUsersMe(ctx context.Context) error {
 	}
 	log.Info("success to validate", zap.Any("req", req))
 
-	loginUserID := app_context.GetSession(ctx).UserID
+	loginUserID := app_context.GetSession(goCtx).UserID
 	loginUser, err := c.RepositoryContainer.UserRepository.NewQuery(goCtx).Where(&model.User{ID: loginUserID}).Find()
 	if err != nil {
 		return err
@@ -91,10 +89,10 @@ func (c *UserController) GetUsersMe(ctx context.Context) error {
 	})
 }
 
-func (c *UserController) GetLoginUserFavorites(ctx context.Context) error {
-	loginUserID := app_context.GetSession(ctx).UserID
-	log := ctx.GetLog()
-	goCtx := app_context2.FromEchoContext(ctx)
+func (c *UserController) GetLoginUserFavorites(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
+	log := app_context.GetLog(goCtx)
+	loginUserID := app_context.GetSession(goCtx).UserID
 
 	req := &api.GetUserFavoritesRequest{}
 	if err := inject(ctx, req); err != nil {
@@ -115,9 +113,9 @@ func (c *UserController) GetLoginUserFavorites(ctx context.Context) error {
 	})
 }
 
-func (c *UserController) GetOneUser(ctx context.Context) error {
-	log := ctx.GetLog()
-	goCtx := app_context2.FromEchoContext(ctx)
+func (c *UserController) GetOneUser(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
+	log := app_context.GetLog(goCtx)
 
 	userID := ctx.Param("user_id")
 	if userID == "" {
@@ -137,9 +135,9 @@ func (c *UserController) GetOneUser(ctx context.Context) error {
 	})
 }
 
-func (c *UserController) GetOneUsersFavorites(ctx context.Context) error {
-	log := ctx.GetLog()
-	goCtx := app_context2.FromEchoContext(ctx)
+func (c *UserController) GetOneUsersFavorites(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
+	log := app_context.GetLog(goCtx)
 
 	userID := ctx.Param("user_id")
 	if userID == "" {
