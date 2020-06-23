@@ -1,12 +1,15 @@
 package repository
 
 import (
+	"context"
+
+	app_context "github.com/holocycle/holo-back/pkg/context2"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/jinzhu/gorm"
 )
 
 type FavoriteRepository interface {
-	NewQuery(tx *gorm.DB) FavoriteQuery
+	NewQuery(ctx context.Context) FavoriteQuery
 }
 
 type FavoriteQuery interface {
@@ -26,8 +29,8 @@ func NewFavoriteRepository() FavoriteRepository {
 
 type FavoriteRepositoryImpl struct{}
 
-func (r *FavoriteRepositoryImpl) NewQuery(tx *gorm.DB) FavoriteQuery {
-	return &FavoriteQueryImpl{Tx: tx}
+func (r *FavoriteRepositoryImpl) NewQuery(ctx context.Context) FavoriteQuery {
+	return &FavoriteQueryImpl{Tx: app_context.GetDB(ctx)}
 }
 
 type FavoriteQueryImpl struct {

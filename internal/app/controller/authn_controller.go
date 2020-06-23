@@ -9,6 +9,7 @@ import (
 	"github.com/holocycle/holo-back/internal/app/config"
 	app_context "github.com/holocycle/holo-back/internal/app/context"
 	"github.com/holocycle/holo-back/pkg/context"
+	app_context2 "github.com/holocycle/holo-back/pkg/context2"
 	"github.com/holocycle/holo-back/pkg/httpclient"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/holocycle/holo-back/pkg/repository"
@@ -17,16 +18,14 @@ import (
 )
 
 type AuthnController struct {
-	Config            *config.AppConfig
-	UserRepository    repository.UserRepository
-	SessionRepository repository.SessionRepository
+	Config              *config.AppConfig
+	RepositoryContainer *repository.Container
 }
 
 func NewAuthnController(config *config.AppConfig) *AuthnController {
 	return &AuthnController{
-		Config:            config,
-		UserRepository:    repository.NewUserRepository(),
-		SessionRepository: repository.NewSessionRepository(),
+		Config:              config,
+		RepositoryContainer: repository.NewContainer(),
 	}
 }
 
@@ -61,6 +60,7 @@ func (c *AuthnController) LoginGoogle(ctx context.Context) error {
 
 func (c *AuthnController) LoginGoogleCallback(ctx context.Context) error {
 	log := ctx.GetLog()
+	goCtx := app_context2.FromEchoContext(ctx)
 
 	code := ctx.FormValue("code")
 	if code == "" {
@@ -108,8 +108,7 @@ func (c *AuthnController) LoginGoogleCallback(ctx context.Context) error {
 	}
 	log.Info("success to retrieve email info", zap.String("email", email))
 
-	tx := ctx.GetDB()
-	user, err := c.UserRepository.NewQuery(tx).
+	user, err := c.RepositoryContainer.UserRepository.NewQuery(goCtx).
 		Where(&model.User{Email: email}).Find()
 	if err != nil && !repository.NotFoundError(err) {
 		return err
@@ -119,7 +118,7 @@ func (c *AuthnController) LoginGoogleCallback(ctx context.Context) error {
 		log.Info("user not found", zap.String("email", email))
 		//TODO: imageURLの取得処理
 		user = model.NewUser(email, email, "https://yt3.ggpht.com/a/AATXAJwHPp_TkvcWJyblt9XVYDjNSjrj6KdpQSCQNQ=s288-c-k-c0xffffffff-no-rj-mo")
-		if err := c.UserRepository.NewQuery(tx).Create(user); err != nil {
+		if err := c.RepositoryContainer.UserRepository.NewQuery(goCtx).Create(user); err != nil {
 			return err
 		}
 		log.Info("success to create user", zap.Any("user", user))
@@ -133,7 +132,7 @@ func (c *AuthnController) LoginGoogleCallback(ctx context.Context) error {
 	expireAt := time.Now().Add(tokenDuration)
 	session := model.NewSession(user.ID, &expireAt)
 
-	if err := c.SessionRepository.NewQuery(tx).Create(session); err != nil {
+	if err := c.RepositoryContainer.SessionRepository.NewQuery(goCtx).Create(session); err != nil {
 		return err
 	}
 	log.Info("success to craete session", zap.Any("session", session))
@@ -143,10 +142,10 @@ func (c *AuthnController) LoginGoogleCallback(ctx context.Context) error {
 }
 
 func (c *AuthnController) Logout(ctx context.Context) error {
+	goCtx := app_context2.FromEchoContext(ctx)
 	session := app_context.GetSession(ctx)
 
-	tx := ctx.GetDB()
-	_, err := c.SessionRepository.NewQuery(tx).
+	_, err := c.RepositoryContainer.SessionRepository.NewQuery(goCtx).
 		Where(&model.Session{ID: session.ID}).Delete()
 	if err != nil {
 		return err

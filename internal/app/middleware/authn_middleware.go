@@ -7,6 +7,7 @@ import (
 
 	app_context "github.com/holocycle/holo-back/internal/app/context"
 	"github.com/holocycle/holo-back/pkg/context"
+	app_context2 "github.com/holocycle/holo-back/pkg/context2"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/holocycle/holo-back/pkg/repository"
 
@@ -41,8 +42,7 @@ func (m *AuthnMiddleware) Process(next echo.HandlerFunc) echo.HandlerFunc {
 			return err
 		}
 
-		tx := ctx.GetDB()
-		session, err := repository.NewSessionRepository().NewQuery(tx).
+		session, err := repository.NewSessionRepository().NewQuery(app_context2.FromEchoContext(ctx)).
 			Where(&model.Session{ID: token}).Find()
 		if err != nil {
 			if repository.NotFoundError(err) {

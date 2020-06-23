@@ -7,6 +7,7 @@ import (
 	app_context "github.com/holocycle/holo-back/internal/app/context"
 	"github.com/holocycle/holo-back/pkg/api"
 	"github.com/holocycle/holo-back/pkg/context"
+	app_context2 "github.com/holocycle/holo-back/pkg/context2"
 	"github.com/holocycle/holo-back/pkg/converter"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/holocycle/holo-back/pkg/repository"
@@ -15,14 +16,14 @@ import (
 )
 
 type CommentController struct {
-	Config            *config.AppConfig
-	CommentRepository repository.CommentRepository
+	Config              *config.AppConfig
+	RepositoryContainer *repository.Container
 }
 
 func NewCommentController(config *config.AppConfig) *CommentController {
 	return &CommentController{
-		Config:            config,
-		CommentRepository: repository.NewCommentRepository(),
+		Config:              config,
+		RepositoryContainer: repository.NewContainer(),
 	}
 }
 
@@ -35,6 +36,7 @@ func (c *CommentController) Register(e *echo.Echo) {
 
 func (c *CommentController) ListComments(ctx context.Context) error {
 	log := ctx.GetLog()
+	goCtx := app_context2.FromEchoContext(ctx)
 
 	clipID := ctx.Param("clip_id")
 	if clipID == "" {
@@ -50,8 +52,7 @@ func (c *CommentController) ListComments(ctx context.Context) error {
 
 	// TODO: clipIDが実在することのバリデーション処理
 
-	tx := ctx.GetDB()
-	query := c.CommentRepository.NewQuery(tx)
+	query := c.RepositoryContainer.CommentRepository.NewQuery(goCtx)
 	if req.Limit > 0 {
 		query = query.Limit(req.Limit)
 	}
@@ -73,6 +74,7 @@ func (c *CommentController) ListComments(ctx context.Context) error {
 
 func (c *CommentController) GetComment(ctx context.Context) error {
 	log := ctx.GetLog()
+	goCtx := app_context2.FromEchoContext(ctx)
 
 	clipID := ctx.Param("clip_id")
 	if clipID == "" {
@@ -92,8 +94,7 @@ func (c *CommentController) GetComment(ctx context.Context) error {
 
 	// TODO: clipIDが実在することのバリデーション処理
 
-	tx := ctx.GetDB()
-	comment, err := c.CommentRepository.NewQuery(tx).
+	comment, err := c.RepositoryContainer.CommentRepository.NewQuery(goCtx).
 		Where(
 			&model.Comment{
 				ID:     commentID,
@@ -115,6 +116,7 @@ func (c *CommentController) GetComment(ctx context.Context) error {
 
 func (c *CommentController) PostComment(ctx context.Context) error {
 	log := ctx.GetLog()
+	goCtx := app_context2.FromEchoContext(ctx)
 
 	req := &api.PostCommentRequest{}
 	if err := inject(ctx, req); err != nil {
@@ -129,13 +131,12 @@ func (c *CommentController) PostComment(ctx context.Context) error {
 
 	// TODO: clipIDが実在することのバリデーション処理
 
-	tx := ctx.GetDB()
 	comment := model.NewComment(
 		app_context.GetSession(ctx).UserID,
 		clipID,
 		req.Content,
 	)
-	if err := c.CommentRepository.NewQuery(tx).Create(comment); err != nil {
+	if err := c.RepositoryContainer.CommentRepository.NewQuery(goCtx).Create(comment); err != nil {
 		log.Error("failed to create comment", zap.Any("comment", comment))
 		return err
 	}
@@ -148,6 +149,7 @@ func (c *CommentController) PostComment(ctx context.Context) error {
 
 func (c *CommentController) DeleteComment(ctx context.Context) error {
 	log := ctx.GetLog()
+	goCtx := app_context2.FromEchoContext(ctx)
 
 	req := &api.DeleteCommentRequest{}
 	if err := inject(ctx, req); err != nil {
@@ -166,13 +168,12 @@ func (c *CommentController) DeleteComment(ctx context.Context) error {
 
 	// TODO: clipIDが実在することのバリデーション処理
 
-	tx := ctx.GetDB()
 	cond := &model.Comment{
 		ID:     commentID,
 		UserID: app_context.GetSession(ctx).UserID,
 		ClipID: clipID,
 	}
-	rows, err := c.CommentRepository.NewQuery(tx).Where(cond).Delete()
+	rows, err := c.RepositoryContainer.CommentRepository.NewQuery(goCtx).Where(cond).Delete()
 	if err != nil {
 		return err
 	}

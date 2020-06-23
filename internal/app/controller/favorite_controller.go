@@ -7,22 +7,21 @@ import (
 	app_context "github.com/holocycle/holo-back/internal/app/context"
 	"github.com/holocycle/holo-back/pkg/api"
 	"github.com/holocycle/holo-back/pkg/context"
+	app_context2 "github.com/holocycle/holo-back/pkg/context2"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/holocycle/holo-back/pkg/repository"
 	"github.com/labstack/echo/v4"
 )
 
 type FavoriteController struct {
-	Config             *config.AppConfig
-	ClipRepository     repository.ClipRepository
-	FavoriteRepository repository.FavoriteRepository
+	Config              *config.AppConfig
+	RepositoryContainer *repository.Container
 }
 
 func NewFavoriteController(config *config.AppConfig) *FavoriteController {
 	return &FavoriteController{
-		Config:             config,
-		ClipRepository:     repository.NewClipRepository(),
-		FavoriteRepository: repository.NewFavoriteRepository(),
+		Config:              config,
+		RepositoryContainer: repository.NewContainer(),
 	}
 }
 
@@ -32,12 +31,14 @@ func (c *FavoriteController) Register(e *echo.Echo) {
 }
 
 func (c *FavoriteController) PutFavorite(ctx context.Context) error {
+	goCtx := app_context2.FromEchoContext(ctx)
+
 	clipID := ctx.Param("clip_id")
 	if clipID == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "please specify clip_id")
 	}
 
-	if _, err := c.ClipRepository.NewQuery(ctx.GetDB()).
+	if _, err := c.RepositoryContainer.ClipRepository.NewQuery(goCtx).
 		Where(&model.Clip{ID: clipID, Status: model.ClipStatusPublic}).
 		Find(); err != nil {
 		if repository.NotFoundError(err) {
@@ -47,7 +48,7 @@ func (c *FavoriteController) PutFavorite(ctx context.Context) error {
 	}
 
 	favorite := model.NewFavorite(clipID, app_context.GetUserID(ctx))
-	_, err := c.FavoriteRepository.NewQuery(ctx.GetDB()).Where(favorite).Find()
+	_, err := c.RepositoryContainer.FavoriteRepository.NewQuery(goCtx).Where(favorite).Find()
 	if err != nil && !repository.NotFoundError(err) {
 		return err
 	}
@@ -55,7 +56,7 @@ func (c *FavoriteController) PutFavorite(ctx context.Context) error {
 		return ctx.JSON(http.StatusConflict, &api.PutFavoriteResponse{})
 	}
 
-	if err := c.FavoriteRepository.NewQuery(ctx.GetDB()).Create(favorite); err != nil {
+	if err := c.RepositoryContainer.FavoriteRepository.NewQuery(goCtx).Create(favorite); err != nil {
 		return err
 	}
 
@@ -63,12 +64,14 @@ func (c *FavoriteController) PutFavorite(ctx context.Context) error {
 }
 
 func (c *FavoriteController) DeleteFavorite(ctx context.Context) error {
+	goCtx := app_context2.FromEchoContext(ctx)
+
 	clipID := ctx.Param("clip_id")
 	if clipID == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "please specify clip_id")
 	}
 
-	if _, err := c.ClipRepository.NewQuery(ctx.GetDB()).
+	if _, err := c.RepositoryContainer.ClipRepository.NewQuery(goCtx).
 		Where(&model.Clip{ID: clipID, Status: model.ClipStatusPublic}).
 		Find(); err != nil {
 		if repository.NotFoundError(err) {
@@ -78,7 +81,7 @@ func (c *FavoriteController) DeleteFavorite(ctx context.Context) error {
 	}
 
 	favorite := model.NewFavorite(clipID, app_context.GetUserID(ctx))
-	rows, err := c.FavoriteRepository.NewQuery(ctx.GetDB()).Where(favorite).Delete()
+	rows, err := c.RepositoryContainer.FavoriteRepository.NewQuery(goCtx).Where(favorite).Delete()
 	if err != nil {
 		return err
 	}

@@ -8,17 +8,13 @@ import (
 	"github.com/holocycle/holo-back/pkg/api"
 	"github.com/holocycle/holo-back/pkg/context"
 	app_context2 "github.com/holocycle/holo-back/pkg/context2"
-	"github.com/holocycle/holo-back/pkg/repository"
 	"github.com/holocycle/holo-back/pkg/service"
 	"github.com/labstack/echo/v4"
 )
 
 type CliplistController struct {
-	Config                    *config.AppConfig
-	ClipRepository            repository.ClipRepository
-	CliplistRepository        repository.CliplistRepository
-	CliplistContainRepository repository.CliplistContainRepository
-	ServiceContainer          *service.Container
+	Config           *config.AppConfig
+	ServiceContainer *service.Container
 }
 
 func NewCliplistController(config *config.AppConfig) *CliplistController {
