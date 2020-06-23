@@ -6,18 +6,21 @@ import (
 	"github.com/holocycle/holo-back/internal/app/config"
 	"github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/model"
+	"github.com/holocycle/holo-back/pkg/repository"
 	"github.com/pkg/errors"
 
 	"github.com/labstack/echo/v4"
 )
 
 type AppController struct {
-	Config *config.AppConfig
+	Config              *config.AppConfig
+	RepositoryContainer *repository.Container
 }
 
 func NewAppController(config *config.AppConfig) *AppController {
 	return &AppController{
-		Config: config,
+		Config:              config,
+		RepositoryContainer: repository.NewContainer(),
 	}
 }
 

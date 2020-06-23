@@ -16,14 +16,14 @@ import (
 )
 
 type CommentController struct {
-	Config            *config.AppConfig
-	CommentRepository repository.CommentRepository
+	Config              *config.AppConfig
+	RepositoryContainer *repository.Container
 }
 
 func NewCommentController(config *config.AppConfig) *CommentController {
 	return &CommentController{
-		Config:            config,
-		CommentRepository: repository.NewCommentRepository(),
+		Config:              config,
+		RepositoryContainer: repository.NewContainer(),
 	}
 }
 
@@ -52,7 +52,7 @@ func (c *CommentController) ListComments(ctx context.Context) error {
 
 	// TODO: clipIDが実在することのバリデーション処理
 
-	query := c.CommentRepository.NewQuery(goCtx)
+	query := c.RepositoryContainer.CommentRepository.NewQuery(goCtx)
 	if req.Limit > 0 {
 		query = query.Limit(req.Limit)
 	}
@@ -94,7 +94,7 @@ func (c *CommentController) GetComment(ctx context.Context) error {
 
 	// TODO: clipIDが実在することのバリデーション処理
 
-	comment, err := c.CommentRepository.NewQuery(goCtx).
+	comment, err := c.RepositoryContainer.CommentRepository.NewQuery(goCtx).
 		Where(
 			&model.Comment{
 				ID:     commentID,
@@ -136,7 +136,7 @@ func (c *CommentController) PostComment(ctx context.Context) error {
 		clipID,
 		req.Content,
 	)
-	if err := c.CommentRepository.NewQuery(goCtx).Create(comment); err != nil {
+	if err := c.RepositoryContainer.CommentRepository.NewQuery(goCtx).Create(comment); err != nil {
 		log.Error("failed to create comment", zap.Any("comment", comment))
 		return err
 	}
@@ -173,7 +173,7 @@ func (c *CommentController) DeleteComment(ctx context.Context) error {
 		UserID: app_context.GetSession(ctx).UserID,
 		ClipID: clipID,
 	}
-	rows, err := c.CommentRepository.NewQuery(goCtx).Where(cond).Delete()
+	rows, err := c.RepositoryContainer.CommentRepository.NewQuery(goCtx).Where(cond).Delete()
 	if err != nil {
 		return err
 	}

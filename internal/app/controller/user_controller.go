@@ -16,16 +16,14 @@ import (
 )
 
 type UserController struct {
-	Config             *config.AppConfig
-	UserRepository     repository.UserRepository
-	FavoriteRepository repository.FavoriteRepository
+	Config              *config.AppConfig
+	RepositoryContainer *repository.Container
 }
 
 func NewUserController(config *config.AppConfig) *UserController {
 	return &UserController{
-		Config:             config,
-		UserRepository:     repository.NewUserRepository(),
-		FavoriteRepository: repository.NewFavoriteRepository(),
+		Config:              config,
+		RepositoryContainer: repository.NewContainer(),
 	}
 }
 
@@ -47,7 +45,7 @@ func (c *UserController) ListUsers(ctx context.Context) error {
 	}
 	log.Info("success to validate", zap.Any("req", req))
 
-	query := c.UserRepository.NewQuery(goCtx)
+	query := c.RepositoryContainer.UserRepository.NewQuery(goCtx)
 	if req.Limit > 0 {
 		query = query.Limit(req.Limit)
 	}
@@ -81,7 +79,7 @@ func (c *UserController) GetUsersMe(ctx context.Context) error {
 	log.Info("success to validate", zap.Any("req", req))
 
 	loginUserID := app_context.GetSession(ctx).UserID
-	loginUser, err := c.UserRepository.NewQuery(goCtx).Where(&model.User{ID: loginUserID}).Find()
+	loginUser, err := c.RepositoryContainer.UserRepository.NewQuery(goCtx).Where(&model.User{ID: loginUserID}).Find()
 	if err != nil {
 		return err
 	}
@@ -104,7 +102,7 @@ func (c *UserController) GetLoginUserFavorites(ctx context.Context) error {
 	}
 	log.Info("success to validate", zap.Any("req", req))
 
-	favorites, err := c.FavoriteRepository.NewQuery(goCtx).
+	favorites, err := c.RepositoryContainer.FavoriteRepository.NewQuery(goCtx).
 		Where(&model.Favorite{UserID: loginUserID}).
 		JoinClip().
 		FindAll()
@@ -127,7 +125,7 @@ func (c *UserController) GetOneUser(ctx context.Context) error {
 	}
 	log.Debug("success to validate request", zap.String("userID", userID))
 
-	user, err := c.UserRepository.NewQuery(goCtx).Where(&model.User{ID: userID}).Find()
+	user, err := c.RepositoryContainer.UserRepository.NewQuery(goCtx).Where(&model.User{ID: userID}).Find()
 	if err != nil {
 		return err
 	}
@@ -149,7 +147,7 @@ func (c *UserController) GetOneUsersFavorites(ctx context.Context) error {
 	}
 	log.Debug("success to validate request", zap.String("userID", userID))
 
-	favorites, err := c.FavoriteRepository.NewQuery(goCtx).
+	favorites, err := c.RepositoryContainer.FavoriteRepository.NewQuery(goCtx).
 		Where(&model.Favorite{UserID: userID}).
 		JoinClip().
 		FindAll()

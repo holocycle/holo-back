@@ -17,18 +17,14 @@ import (
 )
 
 type ClipController struct {
-	Config             *config.AppConfig
-	ClipRepository     repository.ClipRepository
-	VideoRepository    repository.VideoRepository
-	FavoriteRepository repository.FavoriteRepository
+	Config              *config.AppConfig
+	RepositoryContainer *repository.Container
 }
 
 func NewClipController(config *config.AppConfig) *ClipController {
 	return &ClipController{
-		Config:             config,
-		ClipRepository:     repository.NewClipRepository(),
-		VideoRepository:    repository.NewVideoRepository(),
-		FavoriteRepository: repository.NewFavoriteRepository(),
+		Config:              config,
+		RepositoryContainer: repository.NewContainer(),
 	}
 }
 
@@ -51,7 +47,7 @@ func (c *ClipController) ListClips(ctx context.Context) error {
 	}
 	log.Debug("success to validate", zap.Any("req", req))
 
-	query := c.ClipRepository.NewQuery(goCtx).
+	query := c.RepositoryContainer.ClipRepository.NewQuery(goCtx).
 		Where(&model.Clip{Status: model.ClipStatusPublic}).
 		JoinVideo().
 		JoinFavorite()
@@ -112,7 +108,7 @@ func (c *ClipController) PostClip(ctx context.Context) error {
 		zap.Int("video.Duration", video.Duration),
 	)
 
-	if err := c.VideoRepository.NewQuery(goCtx).Save(video); err != nil {
+	if err := c.RepositoryContainer.VideoRepository.NewQuery(goCtx).Save(video); err != nil {
 		log.Error("failed to save video", zap.Any("video", video))
 		return err
 	}
@@ -127,7 +123,7 @@ func (c *ClipController) PostClip(ctx context.Context) error {
 		req.EndAt,
 		model.ClipStatusPublic,
 	)
-	if err := c.ClipRepository.NewQuery(goCtx).Create(clip); err != nil {
+	if err := c.RepositoryContainer.ClipRepository.NewQuery(goCtx).Create(clip); err != nil {
 		log.Error("failed to create clip", zap.Any("clip", clip))
 		return err
 	}
@@ -148,7 +144,7 @@ func (c *ClipController) GetClip(ctx context.Context) error {
 	}
 	log.Debug("success to retrieve path parameter", zap.String("clipId", clipID))
 
-	clip, err := c.ClipRepository.NewQuery(goCtx).
+	clip, err := c.RepositoryContainer.ClipRepository.NewQuery(goCtx).
 		JoinVideo().
 		JoinFavorite().
 		Where(&model.Clip{ID: clipID, Status: model.ClipStatusPublic}).
@@ -180,7 +176,7 @@ func (c *ClipController) PutClip(ctx context.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	clip, err := c.ClipRepository.NewQuery(goCtx).
+	clip, err := c.RepositoryContainer.ClipRepository.NewQuery(goCtx).
 		Where(&model.Clip{ID: clipID, Status: model.ClipStatusPublic}).
 		Find()
 	if err != nil {
@@ -199,7 +195,7 @@ func (c *ClipController) PutClip(ctx context.Context) error {
 	clip.Description = req.Description
 	clip.BeginAt = req.BeginAt
 	clip.EndAt = req.EndAt
-	if err := c.ClipRepository.NewQuery(goCtx).Save(clip); err != nil {
+	if err := c.RepositoryContainer.ClipRepository.NewQuery(goCtx).Save(clip); err != nil {
 		return err
 	}
 
@@ -217,7 +213,7 @@ func (c *ClipController) DeleteClip(ctx context.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "please specify clip_id")
 	}
 
-	clip, err := c.ClipRepository.NewQuery(goCtx).
+	clip, err := c.RepositoryContainer.ClipRepository.NewQuery(goCtx).
 		Where(&model.Clip{ID: clipID, Status: model.ClipStatusPublic}).
 		Find()
 	if err != nil {
@@ -233,7 +229,7 @@ func (c *ClipController) DeleteClip(ctx context.Context) error {
 	log.Debug("success to validate parameters")
 
 	clip.Status = model.ClipStatusDeleted
-	if err := c.ClipRepository.NewQuery(goCtx).Save(clip); err != nil {
+	if err := c.RepositoryContainer.ClipRepository.NewQuery(goCtx).Save(clip); err != nil {
 		return err
 	}
 	return ctx.JSON(http.StatusOK, &api.DeleteClipRequest{})

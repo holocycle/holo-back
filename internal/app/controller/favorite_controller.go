@@ -14,16 +14,14 @@ import (
 )
 
 type FavoriteController struct {
-	Config             *config.AppConfig
-	ClipRepository     repository.ClipRepository
-	FavoriteRepository repository.FavoriteRepository
+	Config              *config.AppConfig
+	RepositoryContainer *repository.Container
 }
 
 func NewFavoriteController(config *config.AppConfig) *FavoriteController {
 	return &FavoriteController{
-		Config:             config,
-		ClipRepository:     repository.NewClipRepository(),
-		FavoriteRepository: repository.NewFavoriteRepository(),
+		Config:              config,
+		RepositoryContainer: repository.NewContainer(),
 	}
 }
 
@@ -40,7 +38,7 @@ func (c *FavoriteController) PutFavorite(ctx context.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "please specify clip_id")
 	}
 
-	if _, err := c.ClipRepository.NewQuery(goCtx).
+	if _, err := c.RepositoryContainer.ClipRepository.NewQuery(goCtx).
 		Where(&model.Clip{ID: clipID, Status: model.ClipStatusPublic}).
 		Find(); err != nil {
 		if repository.NotFoundError(err) {
@@ -50,7 +48,7 @@ func (c *FavoriteController) PutFavorite(ctx context.Context) error {
 	}
 
 	favorite := model.NewFavorite(clipID, app_context.GetUserID(ctx))
-	_, err := c.FavoriteRepository.NewQuery(goCtx).Where(favorite).Find()
+	_, err := c.RepositoryContainer.FavoriteRepository.NewQuery(goCtx).Where(favorite).Find()
 	if err != nil && !repository.NotFoundError(err) {
 		return err
 	}
@@ -58,7 +56,7 @@ func (c *FavoriteController) PutFavorite(ctx context.Context) error {
 		return ctx.JSON(http.StatusConflict, &api.PutFavoriteResponse{})
 	}
 
-	if err := c.FavoriteRepository.NewQuery(goCtx).Create(favorite); err != nil {
+	if err := c.RepositoryContainer.FavoriteRepository.NewQuery(goCtx).Create(favorite); err != nil {
 		return err
 	}
 
@@ -73,7 +71,7 @@ func (c *FavoriteController) DeleteFavorite(ctx context.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "please specify clip_id")
 	}
 
-	if _, err := c.ClipRepository.NewQuery(goCtx).
+	if _, err := c.RepositoryContainer.ClipRepository.NewQuery(goCtx).
 		Where(&model.Clip{ID: clipID, Status: model.ClipStatusPublic}).
 		Find(); err != nil {
 		if repository.NotFoundError(err) {
@@ -83,7 +81,7 @@ func (c *FavoriteController) DeleteFavorite(ctx context.Context) error {
 	}
 
 	favorite := model.NewFavorite(clipID, app_context.GetUserID(ctx))
-	rows, err := c.FavoriteRepository.NewQuery(goCtx).Where(favorite).Delete()
+	rows, err := c.RepositoryContainer.FavoriteRepository.NewQuery(goCtx).Where(favorite).Delete()
 	if err != nil {
 		return err
 	}

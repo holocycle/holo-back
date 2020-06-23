@@ -16,16 +16,14 @@ import (
 )
 
 type LiverController struct {
-	Config            *config.AppConfig
-	LiverRepository   repository.LiverRepository
-	ChannelRepository repository.ChannelRepository
+	Config              *config.AppConfig
+	RepositoryContainer *repository.Container
 }
 
 func NewLiverController(config *config.AppConfig) *LiverController {
 	return &LiverController{
-		Config:            config,
-		LiverRepository:   repository.NewLiverRepository(),
-		ChannelRepository: repository.NewChannelRepository(),
+		Config:              config,
+		RepositoryContainer: repository.NewContainer(),
 	}
 }
 
@@ -36,7 +34,7 @@ func (c *LiverController) Register(e *echo.Echo) {
 
 func (c *LiverController) ListLivers(ctx context.Context) error {
 	goCtx := app_context2.FromEchoContext(ctx)
-	livers, err := c.LiverRepository.NewQuery(goCtx).JoinChannel().FindAll()
+	livers, err := c.RepositoryContainer.LiverRepository.NewQuery(goCtx).JoinChannel().FindAll()
 	if err != nil {
 		return err
 	}
@@ -58,12 +56,12 @@ func (c *LiverController) ListLivers(ctx context.Context) error {
 		}
 
 		for _, channel := range channels {
-			if err := c.ChannelRepository.NewQuery(goCtx).Save(channel); err != nil {
+			if err := c.RepositoryContainer.ChannelRepository.NewQuery(goCtx).Save(channel); err != nil {
 				return err
 			}
 		}
 
-		livers, err = c.LiverRepository.NewQuery(goCtx).JoinChannel().FindAll()
+		livers, err = c.RepositoryContainer.LiverRepository.NewQuery(goCtx).JoinChannel().FindAll()
 		if err != nil {
 			return err
 		}
@@ -81,7 +79,7 @@ func (c *LiverController) GetLiver(ctx context.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "please specify liver_id")
 	}
 
-	liver, err := c.LiverRepository.NewQuery(goCtx).
+	liver, err := c.RepositoryContainer.LiverRepository.NewQuery(goCtx).
 		JoinChannel().Where(&model.Liver{ID: liverID}).Find()
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, "liver was not found")
