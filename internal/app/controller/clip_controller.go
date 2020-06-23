@@ -7,6 +7,7 @@ import (
 	app_context "github.com/holocycle/holo-back/internal/app/context"
 	"github.com/holocycle/holo-back/pkg/api"
 	"github.com/holocycle/holo-back/pkg/context"
+	app_context2 "github.com/holocycle/holo-back/pkg/context2"
 	"github.com/holocycle/holo-back/pkg/converter"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/holocycle/holo-back/pkg/repository"
@@ -42,6 +43,7 @@ func (c *ClipController) Register(e *echo.Echo) {
 
 func (c *ClipController) ListClips(ctx context.Context) error {
 	log := ctx.GetLog()
+	goCtx := app_context2.FromEchoContext(ctx)
 
 	req := &api.ListClipsRequest{}
 	if err := inject(ctx, req); err != nil {
@@ -49,7 +51,7 @@ func (c *ClipController) ListClips(ctx context.Context) error {
 	}
 	log.Debug("success to validate", zap.Any("req", req))
 
-	query := c.ClipRepository.NewQuery(ctx.GetDB()).
+	query := c.ClipRepository.NewQuery(goCtx).
 		Where(&model.Clip{Status: model.ClipStatusPublic}).
 		JoinVideo().
 		JoinFavorite()
@@ -75,6 +77,7 @@ func (c *ClipController) ListClips(ctx context.Context) error {
 
 func (c *ClipController) PostClip(ctx context.Context) error {
 	log := ctx.GetLog()
+	goCtx := app_context2.FromEchoContext(ctx)
 
 	req := &api.PostClipRequest{}
 	if err := inject(ctx, req); err != nil {
@@ -109,8 +112,7 @@ func (c *ClipController) PostClip(ctx context.Context) error {
 		zap.Int("video.Duration", video.Duration),
 	)
 
-	tx := ctx.GetDB()
-	if err := c.VideoRepository.NewQuery(tx).Save(video); err != nil {
+	if err := c.VideoRepository.NewQuery(goCtx).Save(video); err != nil {
 		log.Error("failed to save video", zap.Any("video", video))
 		return err
 	}
@@ -125,7 +127,7 @@ func (c *ClipController) PostClip(ctx context.Context) error {
 		req.EndAt,
 		model.ClipStatusPublic,
 	)
-	if err := c.ClipRepository.NewQuery(tx).Create(clip); err != nil {
+	if err := c.ClipRepository.NewQuery(goCtx).Create(clip); err != nil {
 		log.Error("failed to create clip", zap.Any("clip", clip))
 		return err
 	}
@@ -138,6 +140,7 @@ func (c *ClipController) PostClip(ctx context.Context) error {
 
 func (c *ClipController) GetClip(ctx context.Context) error {
 	log := ctx.GetLog()
+	goCtx := app_context2.FromEchoContext(ctx)
 
 	clipID := ctx.Param("clip_id")
 	if clipID == "" {
@@ -145,7 +148,7 @@ func (c *ClipController) GetClip(ctx context.Context) error {
 	}
 	log.Debug("success to retrieve path parameter", zap.String("clipId", clipID))
 
-	clip, err := c.ClipRepository.NewQuery(ctx.GetDB()).
+	clip, err := c.ClipRepository.NewQuery(goCtx).
 		JoinVideo().
 		JoinFavorite().
 		Where(&model.Clip{ID: clipID, Status: model.ClipStatusPublic}).
@@ -165,6 +168,7 @@ func (c *ClipController) GetClip(ctx context.Context) error {
 
 func (c *ClipController) PutClip(ctx context.Context) error {
 	log := ctx.GetLog()
+	goCtx := app_context2.FromEchoContext(ctx)
 
 	clipID := ctx.Param("clip_id")
 	if clipID == "" {
@@ -176,7 +180,7 @@ func (c *ClipController) PutClip(ctx context.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	clip, err := c.ClipRepository.NewQuery(ctx.GetDB()).
+	clip, err := c.ClipRepository.NewQuery(goCtx).
 		Where(&model.Clip{ID: clipID, Status: model.ClipStatusPublic}).
 		Find()
 	if err != nil {
@@ -195,7 +199,7 @@ func (c *ClipController) PutClip(ctx context.Context) error {
 	clip.Description = req.Description
 	clip.BeginAt = req.BeginAt
 	clip.EndAt = req.EndAt
-	if err := c.ClipRepository.NewQuery(ctx.GetDB()).Save(clip); err != nil {
+	if err := c.ClipRepository.NewQuery(goCtx).Save(clip); err != nil {
 		return err
 	}
 
@@ -206,13 +210,14 @@ func (c *ClipController) PutClip(ctx context.Context) error {
 
 func (c *ClipController) DeleteClip(ctx context.Context) error {
 	log := ctx.GetLog()
+	goCtx := app_context2.FromEchoContext(ctx)
 
 	clipID := ctx.Param("clip_id")
 	if clipID == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "please specify clip_id")
 	}
 
-	clip, err := c.ClipRepository.NewQuery(ctx.GetDB()).
+	clip, err := c.ClipRepository.NewQuery(goCtx).
 		Where(&model.Clip{ID: clipID, Status: model.ClipStatusPublic}).
 		Find()
 	if err != nil {
@@ -228,7 +233,7 @@ func (c *ClipController) DeleteClip(ctx context.Context) error {
 	log.Debug("success to validate parameters")
 
 	clip.Status = model.ClipStatusDeleted
-	if err := c.ClipRepository.NewQuery(ctx.GetDB()).Save(clip); err != nil {
+	if err := c.ClipRepository.NewQuery(goCtx).Save(clip); err != nil {
 		return err
 	}
 	return ctx.JSON(http.StatusOK, &api.DeleteClipRequest{})

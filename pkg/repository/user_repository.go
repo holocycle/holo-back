@@ -1,12 +1,15 @@
 package repository
 
 import (
+	"context"
+
+	app_context "github.com/holocycle/holo-back/pkg/context2"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/jinzhu/gorm"
 )
 
 type UserRepository interface {
-	NewQuery(tx *gorm.DB) UserQuery
+	NewQuery(ctx context.Context) UserQuery
 }
 
 type UserQuery interface {
@@ -28,8 +31,8 @@ func NewUserRepository() UserRepository {
 
 type UserRepositoryImpl struct{}
 
-func (r *UserRepositoryImpl) NewQuery(tx *gorm.DB) UserQuery {
-	return &UserQueryImpl{Tx: tx}
+func (r *UserRepositoryImpl) NewQuery(ctx context.Context) UserQuery {
+	return &UserQueryImpl{Tx: app_context.GetDB(ctx)}
 }
 
 type UserQueryImpl struct {

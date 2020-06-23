@@ -1,12 +1,15 @@
 package repository
 
 import (
+	"context"
+
+	app_context "github.com/holocycle/holo-back/pkg/context2"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/jinzhu/gorm"
 )
 
 type LiverRepository interface {
-	NewQuery(tx *gorm.DB) LiverQuery
+	NewQuery(ctx context.Context) LiverQuery
 }
 
 type LiverQuery interface {
@@ -26,8 +29,8 @@ func NewLiverRepository() LiverRepository {
 
 type LiverRepositoryImpl struct{}
 
-func (r *LiverRepositoryImpl) NewQuery(tx *gorm.DB) LiverQuery {
-	return &LiverQueryImpl{Tx: tx}
+func (r *LiverRepositoryImpl) NewQuery(ctx context.Context) LiverQuery {
+	return &LiverQueryImpl{Tx: app_context.GetDB(ctx)}
 }
 
 type LiverQueryImpl struct {

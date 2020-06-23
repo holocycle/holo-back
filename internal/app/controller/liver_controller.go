@@ -7,6 +7,7 @@ import (
 	"github.com/holocycle/holo-back/internal/app/config"
 	"github.com/holocycle/holo-back/pkg/api"
 	"github.com/holocycle/holo-back/pkg/context"
+	app_context2 "github.com/holocycle/holo-back/pkg/context2"
 	"github.com/holocycle/holo-back/pkg/converter"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/holocycle/holo-back/pkg/repository"
@@ -34,8 +35,8 @@ func (c *LiverController) Register(e *echo.Echo) {
 }
 
 func (c *LiverController) ListLivers(ctx context.Context) error {
-	tx := ctx.GetDB()
-	livers, err := c.LiverRepository.NewQuery(tx).JoinChannel().FindAll()
+	goCtx := app_context2.FromEchoContext(ctx)
+	livers, err := c.LiverRepository.NewQuery(goCtx).JoinChannel().FindAll()
 	if err != nil {
 		return err
 	}
@@ -57,12 +58,12 @@ func (c *LiverController) ListLivers(ctx context.Context) error {
 		}
 
 		for _, channel := range channels {
-			if err := c.ChannelRepository.NewQuery(ctx.GetDB()).Save(channel); err != nil {
+			if err := c.ChannelRepository.NewQuery(goCtx).Save(channel); err != nil {
 				return err
 			}
 		}
 
-		livers, err = c.LiverRepository.NewQuery(tx).JoinChannel().FindAll()
+		livers, err = c.LiverRepository.NewQuery(goCtx).JoinChannel().FindAll()
 		if err != nil {
 			return err
 		}
@@ -74,13 +75,13 @@ func (c *LiverController) ListLivers(ctx context.Context) error {
 }
 
 func (c *LiverController) GetLiver(ctx context.Context) error {
+	goCtx := app_context2.FromEchoContext(ctx)
 	liverID := ctx.Param("liver_id")
 	if liverID == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "please specify liver_id")
 	}
 
-	tx := ctx.GetDB()
-	liver, err := c.LiverRepository.NewQuery(tx).
+	liver, err := c.LiverRepository.NewQuery(goCtx).
 		JoinChannel().Where(&model.Liver{ID: liverID}).Find()
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, "liver was not found")

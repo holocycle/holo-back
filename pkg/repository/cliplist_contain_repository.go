@@ -1,15 +1,18 @@
 package repository
 
 import (
+	"context"
+
+	app_context "github.com/holocycle/holo-back/pkg/context2"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/jinzhu/gorm"
 )
 
 type CliplistContainRepository interface {
-	NewQuery(tx *gorm.DB) CliplistContainQuery
+	NewQuery(ctx context.Context) CliplistContainQuery
 
-	InsertToList(tx *gorm.DB, cliplistContain *model.CliplistContain) error
-	DeleteFromList(tx *gorm.DB, cliplistContain *model.CliplistContain) error
+	InsertToList(ctx context.Context, cliplistContain *model.CliplistContain) error
+	DeleteFromList(ctx context.Context, cliplistContain *model.CliplistContain) error
 }
 
 type CliplistContainQuery interface {
@@ -29,8 +32,8 @@ func NewCliplistContainRepository() CliplistContainRepository {
 
 type CliplistContainRepositoryImpl struct{}
 
-func (r *CliplistContainRepositoryImpl) NewQuery(tx *gorm.DB) CliplistContainQuery {
-	return &CliplistContainQueryImpl{Tx: tx}
+func (r *CliplistContainRepositoryImpl) NewQuery(ctx context.Context) CliplistContainQuery {
+	return &CliplistContainQueryImpl{Tx: app_context.GetDB(ctx)}
 }
 
 type CliplistContainQueryImpl struct {
@@ -81,7 +84,8 @@ func (q *CliplistContainQueryImpl) Delete() (int, error) {
 	return (int)(res.RowsAffected), newErr(res.Error)
 }
 
-func (r *CliplistContainRepositoryImpl) InsertToList(tx *gorm.DB, cliplistContain *model.CliplistContain) error {
+func (r *CliplistContainRepositoryImpl) InsertToList(ctx context.Context, cliplistContain *model.CliplistContain) error {
+	tx := app_context.GetDB(ctx)
 	err := tx.Model(&model.CliplistContain{}).
 		Where(&model.CliplistContain{CliplistID: cliplistContain.CliplistID}).
 		Where("index >= ?", cliplistContain.Index).
@@ -98,7 +102,8 @@ func (r *CliplistContainRepositoryImpl) InsertToList(tx *gorm.DB, cliplistContai
 	return nil
 }
 
-func (r *CliplistContainRepositoryImpl) DeleteFromList(tx *gorm.DB, cliplistContain *model.CliplistContain) error {
+func (r *CliplistContainRepositoryImpl) DeleteFromList(ctx context.Context, cliplistContain *model.CliplistContain) error {
+	tx := app_context.GetDB(ctx)
 	err := tx.Delete(cliplistContain).Error
 	if err != nil {
 		return newErr(err)

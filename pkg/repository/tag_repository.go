@@ -1,13 +1,16 @@
 package repository
 
 import (
+	"context"
+
 	"github.com/jinzhu/gorm"
 
+	app_context "github.com/holocycle/holo-back/pkg/context2"
 	"github.com/holocycle/holo-back/pkg/model"
 )
 
 type TagRepository interface {
-	NewQuery(tx *gorm.DB) TagQuery
+	NewQuery(ctx context.Context) TagQuery
 }
 
 type TagQuery interface {
@@ -27,8 +30,8 @@ func NewTagRepository() TagRepository {
 type TagRepositoryImpl struct {
 }
 
-func (r *TagRepositoryImpl) NewQuery(tx *gorm.DB) TagQuery {
-	return &TagQueryImpl{Tx: tx}
+func (r *TagRepositoryImpl) NewQuery(ctx context.Context) TagQuery {
+	return &TagQueryImpl{Tx: app_context.GetDB(ctx)}
 }
 
 type TagQueryImpl struct {

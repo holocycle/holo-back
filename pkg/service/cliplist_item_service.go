@@ -54,7 +54,7 @@ func (s *CliplistItemServiceImpl) GetCliplistItem(
 	index int,
 	req *api.GetCliplistItemRequest,
 ) (*api.GetCliplistItemResponse, service.Error) {
-	_, err := s.CliplistRepository.NewQuery(app_context.GetDB(ctx)).
+	_, err := s.CliplistRepository.NewQuery(ctx).
 		Where(&model.Cliplist{
 			ID:     cliplistID,
 			Status: model.CliplistStatusPublic,
@@ -67,7 +67,7 @@ func (s *CliplistItemServiceImpl) GetCliplistItem(
 		return nil, InternalError.With(err)
 	}
 
-	cliplistContain, err := s.CliplistContainRepository.NewQuery(app_context.GetDB(ctx)).
+	cliplistContain, err := s.CliplistContainRepository.NewQuery(ctx).
 		JoinClip().
 		Where(&model.CliplistContain{
 			CliplistID: cliplistID,
@@ -91,7 +91,7 @@ func (s *CliplistItemServiceImpl) PostCliplistItem(
 	index int,
 	req *api.PostCliplistItemRequest,
 ) (*api.PostCliplistItemResponse, service.Error) {
-	cliplist, err := s.CliplistRepository.NewQuery(app_context.GetDB(ctx)).
+	cliplist, err := s.CliplistRepository.NewQuery(ctx).
 		Where(&model.Cliplist{
 			ID:     cliplistID,
 			Status: model.CliplistStatusPublic,
@@ -107,7 +107,7 @@ func (s *CliplistItemServiceImpl) PostCliplistItem(
 		return nil, NoPermissionToCliplist
 	}
 
-	cliplistContains, err := s.CliplistContainRepository.NewQuery(app_context.GetDB(ctx)).
+	cliplistContains, err := s.CliplistContainRepository.NewQuery(ctx).
 		Where(&model.CliplistContain{
 			CliplistID: cliplistID,
 		}).FindAll()
@@ -118,7 +118,7 @@ func (s *CliplistItemServiceImpl) PostCliplistItem(
 		return nil, CliplistIndexOutOfRange
 	}
 
-	_, err = s.ClipRepository.NewQuery(app_context.GetDB(ctx)).Where(&model.Clip{
+	_, err = s.ClipRepository.NewQuery(ctx).Where(&model.Clip{
 		ID:     req.ClipID,
 		Status: model.ClipStatusPublic,
 	}).Find()
@@ -134,7 +134,7 @@ func (s *CliplistItemServiceImpl) PostCliplistItem(
 		index,
 		req.ClipID,
 	)
-	err = s.CliplistContainRepository.InsertToList(app_context.GetDB(ctx), cliplistContain)
+	err = s.CliplistContainRepository.InsertToList(ctx, cliplistContain)
 	if err != nil {
 		return nil, InternalError.With(err)
 	}
@@ -150,7 +150,7 @@ func (s *CliplistItemServiceImpl) DeleteCliplistItem(
 	index int,
 	req *api.DeleteCliplistItemRequest,
 ) (*api.DeleteCliplistItemResponse, service.Error) {
-	cliplist, err := s.CliplistRepository.NewQuery(app_context.GetDB(ctx)).
+	cliplist, err := s.CliplistRepository.NewQuery(ctx).
 		Where(&model.Cliplist{
 			ID:     cliplistID,
 			Status: model.CliplistStatusPublic,
@@ -166,7 +166,7 @@ func (s *CliplistItemServiceImpl) DeleteCliplistItem(
 		return nil, NoPermissionToCliplist.With(err)
 	}
 
-	cliplistContains, err := s.CliplistContainRepository.NewQuery(app_context.GetDB(ctx)).
+	cliplistContains, err := s.CliplistContainRepository.NewQuery(ctx).
 		Where(&model.CliplistContain{
 			CliplistID: cliplistID,
 		}).FindAll()
@@ -177,7 +177,7 @@ func (s *CliplistItemServiceImpl) DeleteCliplistItem(
 		return nil, CliplistIndexOutOfRange
 	}
 
-	err = s.CliplistContainRepository.DeleteFromList(app_context.GetDB(ctx), cliplistContains[index])
+	err = s.CliplistContainRepository.DeleteFromList(ctx, cliplistContains[index])
 	if err != nil {
 		return nil, InternalError.With(err)
 	}
