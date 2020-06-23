@@ -7,9 +7,7 @@ import (
 	"time"
 
 	"github.com/holocycle/holo-back/internal/app/config"
-	app_context "github.com/holocycle/holo-back/internal/app/context"
-	"github.com/holocycle/holo-back/pkg/context"
-	app_context2 "github.com/holocycle/holo-back/pkg/context2"
+	app_context "github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/httpclient"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/holocycle/holo-back/pkg/repository"
@@ -35,8 +33,9 @@ func (c *AuthnController) Register(e *echo.Echo) {
 	post(e, "/logout", c.Logout)
 }
 
-func (c *AuthnController) LoginGoogle(ctx context.Context) error {
-	log := ctx.GetLog()
+func (c *AuthnController) LoginGoogle(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
+	log := app_context.GetLog(goCtx)
 
 	callbackURL := ctx.FormValue("callback")
 	if _, err := net_url.Parse(callbackURL); err != nil || callbackURL == "" {
@@ -58,9 +57,9 @@ func (c *AuthnController) LoginGoogle(ctx context.Context) error {
 	return ctx.Redirect(http.StatusFound, url.String())
 }
 
-func (c *AuthnController) LoginGoogleCallback(ctx context.Context) error {
-	log := ctx.GetLog()
-	goCtx := app_context2.FromEchoContext(ctx)
+func (c *AuthnController) LoginGoogleCallback(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
+	log := app_context.GetLog(goCtx)
 
 	code := ctx.FormValue("code")
 	if code == "" {
@@ -141,9 +140,9 @@ func (c *AuthnController) LoginGoogleCallback(ctx context.Context) error {
 	return ctx.Redirect(http.StatusFound, callbackURL.String())
 }
 
-func (c *AuthnController) Logout(ctx context.Context) error {
-	goCtx := app_context2.FromEchoContext(ctx)
-	session := app_context.GetSession(ctx)
+func (c *AuthnController) Logout(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
+	session := app_context.GetSession(goCtx)
 
 	_, err := c.RepositoryContainer.SessionRepository.NewQuery(goCtx).
 		Where(&model.Session{ID: session.ID}).Delete()

@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"github.com/holocycle/holo-back/pkg/context"
+	app_context "github.com/holocycle/holo-back/pkg/context"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
@@ -16,20 +16,19 @@ func NewRequestLoggingMiddleware() echo.MiddlewareFunc {
 
 func (m *RequestLoggingMiddleware) Process(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		ctx := c.(context.Context)
-		log := ctx.GetLog()
+		log := app_context.GetLog(c.Request().Context())
 
-		param, _ := ctx.FormParams()
-		pathParam := ctx.ParamValues()
+		param, _ := c.FormParams()
+		pathParam := c.ParamValues()
 
-		req := ctx.Request()
+		req := c.Request()
 		log.Info("request log",
 			zap.String("method", req.Method),
 			zap.String("host", req.Host),
-			zap.String("path", ctx.Path()),
+			zap.String("path", c.Path()),
 			zap.Any("param", param),
 			zap.Any("pathParam", pathParam))
 
-		return next(ctx)
+		return next(c)
 	}
 }

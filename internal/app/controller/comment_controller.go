@@ -4,10 +4,8 @@ import (
 	"net/http"
 
 	"github.com/holocycle/holo-back/internal/app/config"
-	app_context "github.com/holocycle/holo-back/internal/app/context"
 	"github.com/holocycle/holo-back/pkg/api"
-	"github.com/holocycle/holo-back/pkg/context"
-	app_context2 "github.com/holocycle/holo-back/pkg/context2"
+	app_context "github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/converter"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/holocycle/holo-back/pkg/repository"
@@ -34,9 +32,9 @@ func (c *CommentController) Register(e *echo.Echo) {
 	delete(e, "/clips/:clip_id/comments/:comment_id", c.DeleteComment)
 }
 
-func (c *CommentController) ListComments(ctx context.Context) error {
-	log := ctx.GetLog()
-	goCtx := app_context2.FromEchoContext(ctx)
+func (c *CommentController) ListComments(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
+	log := app_context.GetLog(goCtx)
 
 	clipID := ctx.Param("clip_id")
 	if clipID == "" {
@@ -72,9 +70,9 @@ func (c *CommentController) ListComments(ctx context.Context) error {
 	})
 }
 
-func (c *CommentController) GetComment(ctx context.Context) error {
-	log := ctx.GetLog()
-	goCtx := app_context2.FromEchoContext(ctx)
+func (c *CommentController) GetComment(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
+	log := app_context.GetLog(goCtx)
 
 	clipID := ctx.Param("clip_id")
 	if clipID == "" {
@@ -114,9 +112,9 @@ func (c *CommentController) GetComment(ctx context.Context) error {
 	})
 }
 
-func (c *CommentController) PostComment(ctx context.Context) error {
-	log := ctx.GetLog()
-	goCtx := app_context2.FromEchoContext(ctx)
+func (c *CommentController) PostComment(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
+	log := app_context.GetLog(goCtx)
 
 	req := &api.PostCommentRequest{}
 	if err := inject(ctx, req); err != nil {
@@ -132,7 +130,7 @@ func (c *CommentController) PostComment(ctx context.Context) error {
 	// TODO: clipIDが実在することのバリデーション処理
 
 	comment := model.NewComment(
-		app_context.GetSession(ctx).UserID,
+		app_context.GetSession(goCtx).UserID,
 		clipID,
 		req.Content,
 	)
@@ -147,9 +145,9 @@ func (c *CommentController) PostComment(ctx context.Context) error {
 	})
 }
 
-func (c *CommentController) DeleteComment(ctx context.Context) error {
-	log := ctx.GetLog()
-	goCtx := app_context2.FromEchoContext(ctx)
+func (c *CommentController) DeleteComment(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
+	log := app_context.GetLog(goCtx)
 
 	req := &api.DeleteCommentRequest{}
 	if err := inject(ctx, req); err != nil {
@@ -170,7 +168,7 @@ func (c *CommentController) DeleteComment(ctx context.Context) error {
 
 	cond := &model.Comment{
 		ID:     commentID,
-		UserID: app_context.GetSession(ctx).UserID,
+		UserID: app_context.GetSession(goCtx).UserID,
 		ClipID: clipID,
 	}
 	rows, err := c.RepositoryContainer.CommentRepository.NewQuery(goCtx).Where(cond).Delete()

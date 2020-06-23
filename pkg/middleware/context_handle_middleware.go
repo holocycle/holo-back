@@ -1,7 +1,8 @@
 package middleware
 
 import (
-	"github.com/holocycle/holo-back/pkg/context"
+	"context"
+
 	"github.com/labstack/echo/v4"
 )
 
@@ -20,12 +21,11 @@ func NewContextHandleMiddleware(handler ContextHandler) echo.MiddlewareFunc {
 
 func (m *ContextHandleMiddleware) Process(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		ctx := c.(context.Context)
-
-		newCtx, err := m.Handler(ctx)
+		newCtx, err := m.Handler(c.Request().Context())
 		if err != nil {
 			return err
 		}
-		return next(newCtx)
+		c.SetRequest(c.Request().WithContext(newCtx))
+		return next(c)
 	}
 }

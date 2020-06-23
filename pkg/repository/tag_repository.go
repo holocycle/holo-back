@@ -5,7 +5,7 @@ import (
 
 	"github.com/jinzhu/gorm"
 
-	app_context "github.com/holocycle/holo-back/pkg/context2"
+	app_context "github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/model"
 )
 

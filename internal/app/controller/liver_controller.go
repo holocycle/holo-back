@@ -6,8 +6,6 @@ import (
 
 	"github.com/holocycle/holo-back/internal/app/config"
 	"github.com/holocycle/holo-back/pkg/api"
-	"github.com/holocycle/holo-back/pkg/context"
-	app_context2 "github.com/holocycle/holo-back/pkg/context2"
 	"github.com/holocycle/holo-back/pkg/converter"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/holocycle/holo-back/pkg/repository"
@@ -32,8 +30,8 @@ func (c *LiverController) Register(e *echo.Echo) {
 	get(e, "/livers/:liver_id", c.GetLiver)
 }
 
-func (c *LiverController) ListLivers(ctx context.Context) error {
-	goCtx := app_context2.FromEchoContext(ctx)
+func (c *LiverController) ListLivers(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
 	livers, err := c.RepositoryContainer.LiverRepository.NewQuery(goCtx).JoinChannel().FindAll()
 	if err != nil {
 		return err
@@ -72,8 +70,8 @@ func (c *LiverController) ListLivers(ctx context.Context) error {
 	})
 }
 
-func (c *LiverController) GetLiver(ctx context.Context) error {
-	goCtx := app_context2.FromEchoContext(ctx)
+func (c *LiverController) GetLiver(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
 	liverID := ctx.Param("liver_id")
 	if liverID == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "please specify liver_id")

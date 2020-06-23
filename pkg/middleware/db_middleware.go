@@ -3,9 +3,9 @@ package middleware
 import (
 	"fmt"
 
-	"github.com/holocycle/holo-back/pkg/context"
 	"go.uber.org/zap"
 
+	app_context "github.com/holocycle/holo-back/pkg/context"
 	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo/v4"
 )
@@ -23,11 +23,6 @@ func NewDBMiddleware(db *gorm.DB) echo.MiddlewareFunc {
 
 func (m *DBMiddleware) Process(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		ctx, ok := c.(context.Context)
-		if !ok {
-			panic("DBMiddleware: require ContextMiddleware before DBMiddleware")
-		}
-
 		tx := m.DB.Begin()
 		if err := tx.Error; err != nil {
 			return err
@@ -39,13 +34,12 @@ func (m *DBMiddleware) Process(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 		}()
 
-		if ctx.GetLog() != nil {
-			log := ctx.GetLog()
-			tx.SetLogger(&loggerForGorm{log: log})
-		}
+		log := app_context.GetLog(c.Request().Context())
+		tx.SetLogger(&loggerForGorm{log: log})
 
-		ctx.SetDB(tx)
-		err := next(ctx)
+		newCtx := app_context.SetDB(c.Request().Context(), tx)
+		c.SetRequest(c.Request().WithContext(newCtx))
+		err := next(c)
 		if err != nil {
 			tx.Rollback()
 			if tx.Error != nil {
