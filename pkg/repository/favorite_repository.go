@@ -79,6 +79,6 @@ func (q *FavoriteQueryImpl) Delete() (int, error) {
 
 func (q *FavoriteQueryImpl) Count() int {
 	var count int
-	q.Tx.Find(&model.Favorite{}).Count(&count)
+	q.Tx.Model(&model.Favorite{}).Count(&count)
 	return count
 }

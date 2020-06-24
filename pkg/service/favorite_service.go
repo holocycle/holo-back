@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/holocycle/holo-back/pkg/api"
+	app_context "github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/core/service"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/holocycle/holo-back/pkg/repository"
@@ -15,22 +16,22 @@ const (
 )
 
 type FavoriteService interface {
-	GetFavoriteItem(
+	GetFavorite(
 		ctx context.Context,
-		cliID string,
-		userID string,
+		clipID string,
+		request *api.GetFavoriteRequest,
 	) (*api.GetFavoriteResponse, service.Error)
 
-	PutFavoriteItem(
+	PutFavorite(
 		ctx context.Context,
 		clipID string,
-		userID string,
+		request *api.PutFavoriteRequest,
 	) (*api.PutFavoriteResponse, service.Error)
 
-	DeleteFavoriteItem(
+	DeleteFavorite(
 		ctx context.Context,
 		clipID string,
-		userID string,
+		request *api.DeleteFavoriteRequest,
 	) (*api.DeleteFavoriteResponse, service.Error)
 }
 
@@ -44,12 +45,23 @@ func NewFavoriteService() FavoriteService {
 	}
 }
 
-func (s *FavoriteServiceImpl) GetFavoriteItem(
+func (s *FavoriteServiceImpl) GetFavorite(
 	ctx context.Context,
 	clipID string,
-	userID string,
+	_ *api.GetFavoriteRequest,
 ) (*api.GetFavoriteResponse, service.Error) {
-	favorite := model.NewFavorite(clipID, userID)
+	_, err := s.RepositoryContainer.ClipRepository.
+		NewQuery(ctx).
+		Where(&model.Clip{ID: clipID, Status: model.ClipStatusPublic}).
+		Find()
+	if err != nil {
+		if repository.NotFoundError(err) {
+			return nil, ClipNotFound.With(err)
+		}
+		return nil, InternalError.With(err)
+	}
+
+	favorite := model.NewFavorite(clipID, app_context.GetSession(ctx).UserID)
 	count := s.RepositoryContainer.FavoriteRepository.
 		NewQuery(ctx).
 		Where(favorite).
@@ -69,51 +81,62 @@ func (s *FavoriteServiceImpl) GetFavoriteItem(
 	return nil, InternalError
 }
 
-func (s *FavoriteServiceImpl) PutFavoriteItem(
+func (s *FavoriteServiceImpl) PutFavorite(
 	ctx context.Context,
 	clipID string,
-	userID string,
+	_ *api.PutFavoriteRequest,
 ) (*api.PutFavoriteResponse, service.Error) {
-	if _, err := s.RepositoryContainer.ClipRepository.NewQuery(ctx).
+	_, err := s.RepositoryContainer.ClipRepository.
+		NewQuery(ctx).
 		Where(&model.Clip{ID: clipID, Status: model.ClipStatusPublic}).
-		Find(); err != nil {
+		Find()
+	if err != nil {
 		if repository.NotFoundError(err) {
 			return nil, ClipNotFound.With(err)
 		}
+		return nil, InternalError.With(err)
 	}
 
-	favorite := model.NewFavorite(clipID, userID)
-	count := s.RepositoryContainer.FavoriteRepository.NewQuery(ctx).Where(favorite).Count()
+	favorite := model.NewFavorite(clipID, app_context.GetSession(ctx).UserID)
+	count := s.RepositoryContainer.FavoriteRepository.
+		NewQuery(ctx).
+		Where(favorite).
+		Count()
 	if count < 0 {
 		return nil, InternalError
-	} else if count >= 1 {
-		// お気に入りにしようとしたが、既にお気に入り登録済の状態。正常終了と扱う
-		return &api.PutFavoriteResponse{}, nil
 	}
 
-	if err := s.RepositoryContainer.FavoriteRepository.NewQuery(ctx).Create(favorite); err != nil {
+	err = s.RepositoryContainer.FavoriteRepository.
+		NewQuery(ctx).
+		Save(favorite)
+	if err != nil {
 		return nil, InternalError.With(err)
 	}
 
 	return &api.PutFavoriteResponse{}, nil
 }
 
-func (s *FavoriteServiceImpl) DeleteFavoriteItem(
+func (s *FavoriteServiceImpl) DeleteFavorite(
 	ctx context.Context,
 	clipID string,
-	userID string,
+	_ *api.DeleteFavoriteRequest,
 ) (*api.DeleteFavoriteResponse, service.Error) {
-	if _, err := s.RepositoryContainer.ClipRepository.NewQuery(ctx).
+	_, err := s.RepositoryContainer.ClipRepository.
+		NewQuery(ctx).
 		Where(&model.Clip{ID: clipID, Status: model.ClipStatusPublic}).
-		Find(); err != nil {
+		Find()
+	if err != nil {
 		if repository.NotFoundError(err) {
 			return nil, ClipNotFound.With(err)
 		}
 		return nil, InternalError.With(err)
 	}
 
-	favorite := model.NewFavorite(clipID, userID)
-	_, err := s.RepositoryContainer.FavoriteRepository.NewQuery(ctx).Where(favorite).Delete()
+	favorite := model.NewFavorite(clipID, app_context.GetSession(ctx).UserID)
+	_, err = s.RepositoryContainer.FavoriteRepository.
+		NewQuery(ctx).
+		Where(favorite).
+		Delete()
 	if err != nil {
 		return nil, InternalError.With(err)
 	}

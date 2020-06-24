@@ -23,7 +23,7 @@ func Test_GetFavorite(t *testing.T) {
 			ExpectDeletion: []interface{}{},
 			Req: []interface{}{
 				"clip01",
-				"user01",
+				&api.GetFavoriteRequest{},
 			},
 			Res: &api.GetFavoriteResponse{
 				Favorite: UNFAVORITE,
@@ -44,7 +44,7 @@ func Test_GetFavorite(t *testing.T) {
 			ExpectDeletion: []interface{}{},
 			Req: []interface{}{
 				"clip01",
-				"user01",
+				&api.GetFavoriteRequest{},
 			},
 			Res: &api.GetFavoriteResponse{
 				Favorite: FAVORITE,
@@ -52,7 +52,7 @@ func Test_GetFavorite(t *testing.T) {
 			Err: nil,
 		},
 	}
-	test.DoServiceTests(t, testcases, NewFavoriteService().GetFavoriteItem)
+	test.DoServiceTests(t, testcases, NewFavoriteService().GetFavorite)
 }
 
 func Test_PutFavorite(t *testing.T) {
@@ -72,7 +72,7 @@ func Test_PutFavorite(t *testing.T) {
 			ExpectDeletion: []interface{}{},
 			Req: []interface{}{
 				"clip01",
-				"user01",
+				&api.PutFavoriteRequest{},
 			},
 			Res: &api.PutFavoriteResponse{},
 			Err: nil,
@@ -91,13 +91,13 @@ func Test_PutFavorite(t *testing.T) {
 			ExpectDeletion: []interface{}{},
 			Req: []interface{}{
 				"clip01",
-				"user01",
+				&api.PutFavoriteRequest{},
 			},
 			Res: &api.PutFavoriteResponse{},
 			Err: nil,
 		},
 	}
-	test.DoServiceTests(t, testcases, NewFavoriteService().PutFavoriteItem)
+	test.DoServiceTests(t, testcases, NewFavoriteService().PutFavorite)
 }
 
 func Test_DeleteFavorite(t *testing.T) {
@@ -115,7 +115,7 @@ func Test_DeleteFavorite(t *testing.T) {
 			ExpectDeletion: []interface{}{},
 			Req: []interface{}{
 				"clip01",
-				"user01",
+				&api.DeleteFavoriteRequest{},
 			},
 			Res: &api.DeleteFavoriteResponse{},
 			Err: nil,
@@ -135,11 +135,11 @@ func Test_DeleteFavorite(t *testing.T) {
 			},
 			Req: []interface{}{
 				"clip01",
-				"user01",
+				&api.DeleteFavoriteRequest{},
 			},
 			Res: &api.DeleteFavoriteResponse{},
 			Err: nil,
 		},
 	}
-	test.DoServiceTests(t, testcases, NewFavoriteService().DeleteFavoriteItem)
+	test.DoServiceTests(t, testcases, NewFavoriteService().DeleteFavorite)
 }
