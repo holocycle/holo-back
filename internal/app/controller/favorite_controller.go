@@ -22,7 +22,7 @@ func NewFavoriteController(config *config.AppConfig) *FavoriteController {
 }
 
 func (c *FavoriteController) Register(e *echo.Echo) {
-	get(e, "/clips/:clip_id/favorite", c.GetFavorite)
+	getRequiredAuth(e, "/clips/:clip_id/favorite", c.GetFavorite)
 	put(e, "/clips/:clip_id/favorite", c.PutFavorite)
 	delete(e, "/clips/:clip_id/favorite", c.DeleteFavorite)
 }
