@@ -3,6 +3,12 @@ export declare class ModelBase {
     id: string;
     static createFrom(source: any): ModelBase;
 }
+export declare class PageInfo {
+    totalPage: number;
+    currentPage: number;
+    itemPerPage: number;
+    static createFrom(source: any): PageInfo;
+}
 export declare class Time {
     static createFrom(source: any): Time;
 }
@@ -250,6 +256,13 @@ export declare class GetUserFavoritesResponse {
     favoriteClips: Clip[];
     static createFrom(source: any): GetUserFavoritesResponse;
 }
+export declare class GetFavoriteRequest {
+    static createFrom(source: any): GetFavoriteRequest;
+}
+export declare class GetFavoriteResponse {
+    favorite: boolean;
+    static createFrom(source: any): GetFavoriteResponse;
+}
 export declare class PutFavoriteRequest {
     static createFrom(source: any): PutFavoriteRequest;
 }
@@ -261,4 +274,91 @@ export declare class DeleteFavoriteRequest {
 }
 export declare class DeleteFavoriteResponse {
     static createFrom(source: any): DeleteFavoriteResponse;
+}
+export declare class CliplistItem {
+    type: string;
+    id: string;
+    title: string;
+    description: string;
+    beginAt: number;
+    endAt: number;
+    favoriteCount: number;
+    video: Video;
+    available: boolean;
+    static createFrom(source: any): CliplistItem;
+}
+export declare class Cliplist {
+    type: string;
+    id: string;
+    title: string;
+    description: string;
+    length: number;
+    firstItem: CliplistItem;
+    static createFrom(source: any): Cliplist;
+}
+export declare class ListCliplistsRequest {
+    limit: number;
+    orderBy: string;
+    static createFrom(source: any): ListCliplistsRequest;
+}
+export declare class ListCliplistsResponse {
+    cliplists: Cliplist[];
+    static createFrom(source: any): ListCliplistsResponse;
+}
+export declare class GetCliplistRequest {
+    page: number;
+    itemPerPage: number;
+    static createFrom(source: any): GetCliplistRequest;
+}
+export declare class GetCliplistResponse {
+    cliplist: Cliplist;
+    pageInfo: PageInfo;
+    cliplistItems: CliplistItem[];
+    static createFrom(source: any): GetCliplistResponse;
+}
+export declare class PostCliplistRequest {
+    title: string;
+    description: string;
+    static createFrom(source: any): PostCliplistRequest;
+}
+export declare class PostCliplistResponse {
+    cliplistId: string;
+    static createFrom(source: any): PostCliplistResponse;
+}
+export declare class PutCliplistRequest {
+    title: string;
+    description: string;
+    static createFrom(source: any): PutCliplistRequest;
+}
+export declare class PutCliplistResponse {
+    cliplistId: string;
+    static createFrom(source: any): PutCliplistResponse;
+}
+export declare class DeleteCliplistRequest {
+    static createFrom(source: any): DeleteCliplistRequest;
+}
+export declare class DeleteCliplistResponse {
+    static createFrom(source: any): DeleteCliplistResponse;
+}
+export declare class GetCliplistItemRequest {
+    static createFrom(source: any): GetCliplistItemRequest;
+}
+export declare class GetCliplistItemResponse {
+    cliplistItem: CliplistItem;
+    static createFrom(source: any): GetCliplistItemResponse;
+}
+export declare class PostCliplistItemRequest {
+    clipId: string;
+    static createFrom(source: any): PostCliplistItemRequest;
+}
+export declare class PostCliplistItemResponse {
+    cliplistId: string;
+    static createFrom(source: any): PostCliplistItemResponse;
+}
+export declare class DeleteCliplistItemRequest {
+    static createFrom(source: any): DeleteCliplistItemRequest;
+}
+export declare class DeleteCliplistItemResponse {
+    cliplistId: string;
+    static createFrom(source: any): DeleteCliplistItemResponse;
 }

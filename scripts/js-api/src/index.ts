@@ -14,6 +14,21 @@ export class ModelBase {
   }
 
 }
+export class PageInfo {
+  totalPage: number;
+  currentPage: number;
+  itemPerPage: number;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new PageInfo();
+    result.totalPage = source["totalPage"];
+    result.currentPage = source["currentPage"];
+    result.itemPerPage = source["itemPerPage"];
+    return result;
+  }
+
+}
 export class Time {
 
   static createFrom(source: any) {
@@ -664,6 +679,26 @@ export class GetUserFavoritesResponse {
 
 }
 
+export class GetFavoriteRequest {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new GetFavoriteRequest();
+    return result;
+  }
+
+}
+export class GetFavoriteResponse {
+  favorite: boolean;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new GetFavoriteResponse();
+    result.favorite = source["favorite"];
+    return result;
+  }
+
+}
 export class PutFavoriteRequest {
 
   static createFrom(source: any) {
@@ -696,6 +731,235 @@ export class DeleteFavoriteResponse {
   static createFrom(source: any) {
     if ('string' === typeof source) source = JSON.parse(source);
     const result = new DeleteFavoriteResponse();
+    return result;
+  }
+
+}
+export class CliplistItem {
+  type: string;
+  id: string;
+  title: string;
+  description: string;
+  beginAt: number;
+  endAt: number;
+  favoriteCount: number;
+  video: Video;
+  available: boolean;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new CliplistItem();
+    result.type = source["type"];
+    result.id = source["id"];
+    result.title = source["title"];
+    result.description = source["description"];
+    result.beginAt = source["beginAt"];
+    result.endAt = source["endAt"];
+    result.favoriteCount = source["favoriteCount"];
+    result.video = source["video"] ? Video.createFrom(source["video"]) : null;
+    result.available = source["available"];
+    return result;
+  }
+
+}
+export class Cliplist {
+  type: string;
+  id: string;
+  title: string;
+  description: string;
+  length: number;
+  firstItem: CliplistItem;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new Cliplist();
+    result.type = source["type"];
+    result.id = source["id"];
+    result.title = source["title"];
+    result.description = source["description"];
+    result.length = source["length"];
+    result.firstItem = source["firstItem"] ? CliplistItem.createFrom(source["firstItem"]) : null;
+    return result;
+  }
+
+}
+
+export class ListCliplistsRequest {
+  limit: number;
+  orderBy: string;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new ListCliplistsRequest();
+    result.limit = source["limit"];
+    result.orderBy = source["orderBy"];
+    return result;
+  }
+
+}
+export class ListCliplistsResponse {
+  cliplists: Cliplist[];
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new ListCliplistsResponse();
+    result.cliplists = source["cliplists"] ? source["cliplists"].map(function(element: any) { return Cliplist.createFrom(element); }) : null;
+    return result;
+  }
+
+}
+export class GetCliplistRequest {
+  page: number;
+  itemPerPage: number;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new GetCliplistRequest();
+    result.page = source["page"];
+    result.itemPerPage = source["itemPerPage"];
+    return result;
+  }
+
+}
+export class GetCliplistResponse {
+  cliplist: Cliplist;
+  pageInfo: PageInfo;
+  cliplistItems: CliplistItem[];
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new GetCliplistResponse();
+    result.cliplist = source["cliplist"] ? Cliplist.createFrom(source["cliplist"]) : null;
+    result.pageInfo = source["pageInfo"] ? PageInfo.createFrom(source["pageInfo"]) : null;
+    result.cliplistItems = source["cliplistItems"] ? source["cliplistItems"].map(function(element: any) { return CliplistItem.createFrom(element); }) : null;
+    return result;
+  }
+
+}
+export class PostCliplistRequest {
+  title: string;
+  description: string;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new PostCliplistRequest();
+    result.title = source["title"];
+    result.description = source["description"];
+    return result;
+  }
+
+}
+export class PostCliplistResponse {
+  cliplistId: string;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new PostCliplistResponse();
+    result.cliplistId = source["cliplistId"];
+    return result;
+  }
+
+}
+export class PutCliplistRequest {
+  title: string;
+  description: string;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new PutCliplistRequest();
+    result.title = source["title"];
+    result.description = source["description"];
+    return result;
+  }
+
+}
+export class PutCliplistResponse {
+  cliplistId: string;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new PutCliplistResponse();
+    result.cliplistId = source["cliplistId"];
+    return result;
+  }
+
+}
+export class DeleteCliplistRequest {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new DeleteCliplistRequest();
+    return result;
+  }
+
+}
+export class DeleteCliplistResponse {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new DeleteCliplistResponse();
+    return result;
+  }
+
+}
+export class GetCliplistItemRequest {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new GetCliplistItemRequest();
+    return result;
+  }
+
+}
+export class GetCliplistItemResponse {
+  cliplistItem: CliplistItem;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new GetCliplistItemResponse();
+    result.cliplistItem = source["cliplistItem"] ? CliplistItem.createFrom(source["cliplistItem"]) : null;
+    return result;
+  }
+
+}
+export class PostCliplistItemRequest {
+  clipId: string;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new PostCliplistItemRequest();
+    result.clipId = source["clipId"];
+    return result;
+  }
+
+}
+export class PostCliplistItemResponse {
+  cliplistId: string;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new PostCliplistItemResponse();
+    result.cliplistId = source["cliplistId"];
+    return result;
+  }
+
+}
+export class DeleteCliplistItemRequest {
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new DeleteCliplistItemRequest();
+    return result;
+  }
+
+}
+export class DeleteCliplistItemResponse {
+  cliplistId: string;
+
+  static createFrom(source: any) {
+    if ('string' === typeof source) source = JSON.parse(source);
+    const result = new DeleteCliplistItemResponse();
+    result.cliplistId = source["cliplistId"];
     return result;
   }
 

@@ -21,6 +21,7 @@ type FavoriteQuery interface {
 	FindAll() ([]*model.Favorite, error)
 	Save(Favorite *model.Favorite) error
 	Delete() (int, error)
+	Count() (int, error)
 }
 
 func NewFavoriteRepository() FavoriteRepository {
@@ -74,4 +75,12 @@ func (q *FavoriteQueryImpl) Save(Favorite *model.Favorite) error {
 func (q *FavoriteQueryImpl) Delete() (int, error) {
 	res := q.Tx.Delete(&model.Favorite{})
 	return (int)(res.RowsAffected), newErr(res.Error)
+}
+
+func (q *FavoriteQueryImpl) Count() (int, error) {
+	var count int
+	if err := q.Tx.Model(&model.Favorite{}).Count(&count).Error; err != nil {
+		return -1, newErr(err)
+	}
+	return count, nil
 }
