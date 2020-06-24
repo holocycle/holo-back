@@ -62,10 +62,14 @@ func (s *FavoriteServiceImpl) GetFavorite(
 	}
 
 	favorite := model.NewFavorite(clipID, app_context.GetSession(ctx).UserID)
-	count := s.RepositoryContainer.FavoriteRepository.
+	count, err := s.RepositoryContainer.FavoriteRepository.
 		NewQuery(ctx).
 		Where(favorite).
 		Count()
+	if err != nil {
+		return nil, InternalError.With(err)
+	}
+
 	if count == 0 {
 		return &api.GetFavoriteResponse{
 			Favorite: UNFAVORITE,
@@ -98,14 +102,6 @@ func (s *FavoriteServiceImpl) PutFavorite(
 	}
 
 	favorite := model.NewFavorite(clipID, app_context.GetSession(ctx).UserID)
-	count := s.RepositoryContainer.FavoriteRepository.
-		NewQuery(ctx).
-		Where(favorite).
-		Count()
-	if count < 0 {
-		return nil, InternalError
-	}
-
 	err = s.RepositoryContainer.FavoriteRepository.
 		NewQuery(ctx).
 		Save(favorite)
