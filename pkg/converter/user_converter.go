@@ -28,7 +28,7 @@ func ConvertToFavoriteClips(favorites []*model.Favorite) []*api.Clip {
 	res := make([]*api.Clip, 0)
 	for _, favorite := range favorites {
 		clip := favorite.Clip
-		res = append(res, ConvertToClip(clip, nil, nil))
+		res = append(res, ConvertToClip(clip, clip.Video, nil))
 	}
 	return res
 }
