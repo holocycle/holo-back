@@ -70,3 +70,11 @@ func NewModelSameTypeWith(model interface{}) interface{} {
 	modelType := reflect.TypeOf(model).Elem()
 	return reflect.New(modelType).Interface()
 }
+
+func ModelFavorite(clip, user int) *model.Favorite {
+	favorite := model.NewFavorite(
+		fmt.Sprintf("clip%02d", clip),
+		fmt.Sprintf("user%02d", user),
+	)
+	return favorite
+}

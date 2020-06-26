@@ -1,12 +1,15 @@
 package repository
 
 import (
+	"context"
+
+	app_context "github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/jinzhu/gorm"
 )
 
 type CommentRepository interface {
-	NewQuery(tx *gorm.DB) CommentQuery
+	NewQuery(ctx context.Context) CommentQuery
 }
 
 type CommentQuery interface {
@@ -30,8 +33,8 @@ func NewCommentRepository() CommentRepository {
 
 type CommentRepositoryImpl struct{}
 
-func (r *CommentRepositoryImpl) NewQuery(tx *gorm.DB) CommentQuery {
-	return &CommentQueryImpl{Tx: tx}
+func (r *CommentRepositoryImpl) NewQuery(ctx context.Context) CommentQuery {
+	return &CommentQueryImpl{Tx: app_context.GetDB(ctx)}
 }
 
 type CommentQueryImpl struct {

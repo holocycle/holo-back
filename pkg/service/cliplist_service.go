@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/holocycle/holo-back/pkg/api"
-	app_context "github.com/holocycle/holo-back/pkg/context2"
+	app_context "github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/converter"
 	"github.com/holocycle/holo-back/pkg/core/service"
 	"github.com/holocycle/holo-back/pkg/model"
@@ -42,14 +42,12 @@ type CliplistService interface {
 }
 
 type CliplistServiceImpl struct {
-	ClipRepository     repository.ClipRepository
-	CliplistRepository repository.CliplistRepository
+	RepositoryContainer *repository.Container
 }
 
 func NewCliplistService() CliplistService {
 	return &CliplistServiceImpl{
-		ClipRepository:     repository.NewClipRepository(),
-		CliplistRepository: repository.NewCliplistRepository(),
+		RepositoryContainer: repository.NewContainer(),
 	}
 }
 
@@ -66,7 +64,7 @@ func (s *CliplistServiceImpl) ListCliplists(
 
 	// TODO: OrderBy
 
-	cliplist, err := s.CliplistRepository.NewQuery(tx).
+	cliplist, err := s.RepositoryContainer.CliplistRepository.NewQuery(ctx).
 		JoinClip().
 		Where(&model.Cliplist{Status: model.CliplistStatusPublic}).
 		FindAll()
@@ -84,7 +82,7 @@ func (s *CliplistServiceImpl) GetCliplist(
 	cliplistID string,
 	req *api.GetCliplistRequest,
 ) (*api.GetCliplistResponse, service.Error) {
-	cliplist, err := s.CliplistRepository.NewQuery(app_context.GetDB(ctx)).
+	cliplist, err := s.RepositoryContainer.CliplistRepository.NewQuery(ctx).
 		JoinClip().
 		Where(&model.Cliplist{
 			ID:     cliplistID,
@@ -121,7 +119,7 @@ func (s *CliplistServiceImpl) PostCliplist(
 		req.Description,
 		model.CliplistStatusPublic,
 	)
-	err := s.CliplistRepository.NewQuery(app_context.GetDB(ctx)).Create(cliplist)
+	err := s.RepositoryContainer.CliplistRepository.NewQuery(ctx).Create(cliplist)
 	if err != nil {
 		return nil, InternalError.With(err)
 	}
@@ -136,7 +134,7 @@ func (s *CliplistServiceImpl) PutCliplist(
 	cliplistID string,
 	req *api.PutCliplistRequest,
 ) (*api.PutCliplistResponse, service.Error) {
-	cliplist, err := s.CliplistRepository.NewQuery(app_context.GetDB(ctx)).
+	cliplist, err := s.RepositoryContainer.CliplistRepository.NewQuery(ctx).
 		Where(&model.Cliplist{
 			ID:     cliplistID,
 			Status: model.CliplistStatusPublic,
@@ -154,7 +152,7 @@ func (s *CliplistServiceImpl) PutCliplist(
 
 	cliplist.Title = req.Title
 	cliplist.Description = req.Description
-	if err = s.CliplistRepository.NewQuery(app_context.GetDB(ctx)).Save(cliplist); err != nil {
+	if err = s.RepositoryContainer.CliplistRepository.NewQuery(ctx).Save(cliplist); err != nil {
 		return nil, InternalError.With(err)
 	}
 
@@ -168,7 +166,7 @@ func (s *CliplistServiceImpl) DeleteCliplist(
 	cliplistID string,
 	req *api.DeleteCliplistRequest,
 ) (*api.DeleteCliplistResponse, service.Error) {
-	cliplist, err := s.CliplistRepository.NewQuery(app_context.GetDB(ctx)).
+	cliplist, err := s.RepositoryContainer.CliplistRepository.NewQuery(ctx).
 		Where(&model.Cliplist{
 			ID:     cliplistID,
 			Status: model.CliplistStatusPublic,
@@ -185,7 +183,7 @@ func (s *CliplistServiceImpl) DeleteCliplist(
 	}
 
 	cliplist.Status = model.CliplistStatusDeleted
-	if err := s.CliplistRepository.NewQuery(app_context.GetDB(ctx)).Save(cliplist); err != nil {
+	if err := s.RepositoryContainer.CliplistRepository.NewQuery(ctx).Save(cliplist); err != nil {
 		return nil, InternalError.With(err)
 	}
 

@@ -15,6 +15,21 @@ var ModelBase = /** @class */ (function () {
     return ModelBase;
 }());
 exports.ModelBase = ModelBase;
+var PageInfo = /** @class */ (function () {
+    function PageInfo() {
+    }
+    PageInfo.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new PageInfo();
+        result.totalPage = source["totalPage"];
+        result.currentPage = source["currentPage"];
+        result.itemPerPage = source["itemPerPage"];
+        return result;
+    };
+    return PageInfo;
+}());
+exports.PageInfo = PageInfo;
 var Time = /** @class */ (function () {
     function Time() {
     }
@@ -721,6 +736,31 @@ var GetUserFavoritesResponse = /** @class */ (function () {
     return GetUserFavoritesResponse;
 }());
 exports.GetUserFavoritesResponse = GetUserFavoritesResponse;
+var GetFavoriteRequest = /** @class */ (function () {
+    function GetFavoriteRequest() {
+    }
+    GetFavoriteRequest.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new GetFavoriteRequest();
+        return result;
+    };
+    return GetFavoriteRequest;
+}());
+exports.GetFavoriteRequest = GetFavoriteRequest;
+var GetFavoriteResponse = /** @class */ (function () {
+    function GetFavoriteResponse() {
+    }
+    GetFavoriteResponse.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new GetFavoriteResponse();
+        result.favorite = source["favorite"];
+        return result;
+    };
+    return GetFavoriteResponse;
+}());
+exports.GetFavoriteResponse = GetFavoriteResponse;
 var PutFavoriteRequest = /** @class */ (function () {
     function PutFavoriteRequest() {
     }
@@ -769,3 +809,252 @@ var DeleteFavoriteResponse = /** @class */ (function () {
     return DeleteFavoriteResponse;
 }());
 exports.DeleteFavoriteResponse = DeleteFavoriteResponse;
+var CliplistItem = /** @class */ (function () {
+    function CliplistItem() {
+    }
+    CliplistItem.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new CliplistItem();
+        result.type = source["type"];
+        result.id = source["id"];
+        result.title = source["title"];
+        result.description = source["description"];
+        result.beginAt = source["beginAt"];
+        result.endAt = source["endAt"];
+        result.favoriteCount = source["favoriteCount"];
+        result.video = source["video"] ? Video.createFrom(source["video"]) : null;
+        result.available = source["available"];
+        return result;
+    };
+    return CliplistItem;
+}());
+exports.CliplistItem = CliplistItem;
+var Cliplist = /** @class */ (function () {
+    function Cliplist() {
+    }
+    Cliplist.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new Cliplist();
+        result.type = source["type"];
+        result.id = source["id"];
+        result.title = source["title"];
+        result.description = source["description"];
+        result.length = source["length"];
+        result.firstItem = source["firstItem"] ? CliplistItem.createFrom(source["firstItem"]) : null;
+        return result;
+    };
+    return Cliplist;
+}());
+exports.Cliplist = Cliplist;
+var ListCliplistsRequest = /** @class */ (function () {
+    function ListCliplistsRequest() {
+    }
+    ListCliplistsRequest.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new ListCliplistsRequest();
+        result.limit = source["limit"];
+        result.orderBy = source["orderBy"];
+        return result;
+    };
+    return ListCliplistsRequest;
+}());
+exports.ListCliplistsRequest = ListCliplistsRequest;
+var ListCliplistsResponse = /** @class */ (function () {
+    function ListCliplistsResponse() {
+    }
+    ListCliplistsResponse.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new ListCliplistsResponse();
+        result.cliplists = source["cliplists"] ? source["cliplists"].map(function (element) { return Cliplist.createFrom(element); }) : null;
+        return result;
+    };
+    return ListCliplistsResponse;
+}());
+exports.ListCliplistsResponse = ListCliplistsResponse;
+var GetCliplistRequest = /** @class */ (function () {
+    function GetCliplistRequest() {
+    }
+    GetCliplistRequest.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new GetCliplistRequest();
+        result.page = source["page"];
+        result.itemPerPage = source["itemPerPage"];
+        return result;
+    };
+    return GetCliplistRequest;
+}());
+exports.GetCliplistRequest = GetCliplistRequest;
+var GetCliplistResponse = /** @class */ (function () {
+    function GetCliplistResponse() {
+    }
+    GetCliplistResponse.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new GetCliplistResponse();
+        result.cliplist = source["cliplist"] ? Cliplist.createFrom(source["cliplist"]) : null;
+        result.pageInfo = source["pageInfo"] ? PageInfo.createFrom(source["pageInfo"]) : null;
+        result.cliplistItems = source["cliplistItems"] ? source["cliplistItems"].map(function (element) { return CliplistItem.createFrom(element); }) : null;
+        return result;
+    };
+    return GetCliplistResponse;
+}());
+exports.GetCliplistResponse = GetCliplistResponse;
+var PostCliplistRequest = /** @class */ (function () {
+    function PostCliplistRequest() {
+    }
+    PostCliplistRequest.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new PostCliplistRequest();
+        result.title = source["title"];
+        result.description = source["description"];
+        return result;
+    };
+    return PostCliplistRequest;
+}());
+exports.PostCliplistRequest = PostCliplistRequest;
+var PostCliplistResponse = /** @class */ (function () {
+    function PostCliplistResponse() {
+    }
+    PostCliplistResponse.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new PostCliplistResponse();
+        result.cliplistId = source["cliplistId"];
+        return result;
+    };
+    return PostCliplistResponse;
+}());
+exports.PostCliplistResponse = PostCliplistResponse;
+var PutCliplistRequest = /** @class */ (function () {
+    function PutCliplistRequest() {
+    }
+    PutCliplistRequest.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new PutCliplistRequest();
+        result.title = source["title"];
+        result.description = source["description"];
+        return result;
+    };
+    return PutCliplistRequest;
+}());
+exports.PutCliplistRequest = PutCliplistRequest;
+var PutCliplistResponse = /** @class */ (function () {
+    function PutCliplistResponse() {
+    }
+    PutCliplistResponse.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new PutCliplistResponse();
+        result.cliplistId = source["cliplistId"];
+        return result;
+    };
+    return PutCliplistResponse;
+}());
+exports.PutCliplistResponse = PutCliplistResponse;
+var DeleteCliplistRequest = /** @class */ (function () {
+    function DeleteCliplistRequest() {
+    }
+    DeleteCliplistRequest.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new DeleteCliplistRequest();
+        return result;
+    };
+    return DeleteCliplistRequest;
+}());
+exports.DeleteCliplistRequest = DeleteCliplistRequest;
+var DeleteCliplistResponse = /** @class */ (function () {
+    function DeleteCliplistResponse() {
+    }
+    DeleteCliplistResponse.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new DeleteCliplistResponse();
+        return result;
+    };
+    return DeleteCliplistResponse;
+}());
+exports.DeleteCliplistResponse = DeleteCliplistResponse;
+var GetCliplistItemRequest = /** @class */ (function () {
+    function GetCliplistItemRequest() {
+    }
+    GetCliplistItemRequest.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new GetCliplistItemRequest();
+        return result;
+    };
+    return GetCliplistItemRequest;
+}());
+exports.GetCliplistItemRequest = GetCliplistItemRequest;
+var GetCliplistItemResponse = /** @class */ (function () {
+    function GetCliplistItemResponse() {
+    }
+    GetCliplistItemResponse.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new GetCliplistItemResponse();
+        result.cliplistItem = source["cliplistItem"] ? CliplistItem.createFrom(source["cliplistItem"]) : null;
+        return result;
+    };
+    return GetCliplistItemResponse;
+}());
+exports.GetCliplistItemResponse = GetCliplistItemResponse;
+var PostCliplistItemRequest = /** @class */ (function () {
+    function PostCliplistItemRequest() {
+    }
+    PostCliplistItemRequest.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new PostCliplistItemRequest();
+        result.clipId = source["clipId"];
+        return result;
+    };
+    return PostCliplistItemRequest;
+}());
+exports.PostCliplistItemRequest = PostCliplistItemRequest;
+var PostCliplistItemResponse = /** @class */ (function () {
+    function PostCliplistItemResponse() {
+    }
+    PostCliplistItemResponse.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new PostCliplistItemResponse();
+        result.cliplistId = source["cliplistId"];
+        return result;
+    };
+    return PostCliplistItemResponse;
+}());
+exports.PostCliplistItemResponse = PostCliplistItemResponse;
+var DeleteCliplistItemRequest = /** @class */ (function () {
+    function DeleteCliplistItemRequest() {
+    }
+    DeleteCliplistItemRequest.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new DeleteCliplistItemRequest();
+        return result;
+    };
+    return DeleteCliplistItemRequest;
+}());
+exports.DeleteCliplistItemRequest = DeleteCliplistItemRequest;
+var DeleteCliplistItemResponse = /** @class */ (function () {
+    function DeleteCliplistItemResponse() {
+    }
+    DeleteCliplistItemResponse.createFrom = function (source) {
+        if ('string' === typeof source)
+            source = JSON.parse(source);
+        var result = new DeleteCliplistItemResponse();
+        result.cliplistId = source["cliplistId"];
+        return result;
+    };
+    return DeleteCliplistItemResponse;
+}());
+exports.DeleteCliplistItemResponse = DeleteCliplistItemResponse;

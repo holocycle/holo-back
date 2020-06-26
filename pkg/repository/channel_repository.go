@@ -1,12 +1,15 @@
 package repository
 
 import (
+	"context"
+
+	app_context "github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/jinzhu/gorm"
 )
 
 type ChannelRepository interface {
-	NewQuery(tx *gorm.DB) ChannelQuery
+	NewQuery(ctx context.Context) ChannelQuery
 }
 
 type ChannelQuery interface {
@@ -25,8 +28,8 @@ func NewChannelRepository() ChannelRepository {
 
 type ChannelRepositoryImpl struct{}
 
-func (r *ChannelRepositoryImpl) NewQuery(tx *gorm.DB) ChannelQuery {
-	return &ChannelQueryImpl{Tx: tx}
+func (r *ChannelRepositoryImpl) NewQuery(ctx context.Context) ChannelQuery {
+	return &ChannelQueryImpl{Tx: app_context.GetDB(ctx)}
 }
 
 type ChannelQueryImpl struct {

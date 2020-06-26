@@ -1,12 +1,15 @@
 package repository
 
 import (
+	"context"
+
+	app_context "github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/jinzhu/gorm"
 )
 
 type BookmarkRepository interface {
-	NewQuery(tx *gorm.DB) BookmarkQuery
+	NewQuery(ctx context.Context) BookmarkQuery
 }
 
 type BookmarkQuery interface {
@@ -25,8 +28,8 @@ func NewBookmarkRepository() BookmarkRepository {
 
 type BookmarkRepositoryImpl struct{}
 
-func (r *BookmarkRepositoryImpl) NewQuery(tx *gorm.DB) BookmarkQuery {
-	return &BookmarkQueryImpl{Tx: tx}
+func (r *BookmarkRepositoryImpl) NewQuery(ctx context.Context) BookmarkQuery {
+	return &BookmarkQueryImpl{Tx: app_context.GetDB(ctx)}
 }
 
 type BookmarkQueryImpl struct {

@@ -6,7 +6,6 @@ import (
 
 	"github.com/holocycle/holo-back/internal/app/config"
 	"github.com/holocycle/holo-back/pkg/api"
-	"github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/converter"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/holocycle/holo-back/pkg/repository"
@@ -15,16 +14,14 @@ import (
 )
 
 type LiverController struct {
-	Config            *config.AppConfig
-	LiverRepository   repository.LiverRepository
-	ChannelRepository repository.ChannelRepository
+	Config              *config.AppConfig
+	RepositoryContainer *repository.Container
 }
 
 func NewLiverController(config *config.AppConfig) *LiverController {
 	return &LiverController{
-		Config:            config,
-		LiverRepository:   repository.NewLiverRepository(),
-		ChannelRepository: repository.NewChannelRepository(),
+		Config:              config,
+		RepositoryContainer: repository.NewContainer(),
 	}
 }
 
@@ -33,9 +30,9 @@ func (c *LiverController) Register(e *echo.Echo) {
 	get(e, "/livers/:liver_id", c.GetLiver)
 }
 
-func (c *LiverController) ListLivers(ctx context.Context) error {
-	tx := ctx.GetDB()
-	livers, err := c.LiverRepository.NewQuery(tx).JoinChannel().FindAll()
+func (c *LiverController) ListLivers(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
+	livers, err := c.RepositoryContainer.LiverRepository.NewQuery(goCtx).JoinChannel().FindAll()
 	if err != nil {
 		return err
 	}
@@ -57,12 +54,12 @@ func (c *LiverController) ListLivers(ctx context.Context) error {
 		}
 
 		for _, channel := range channels {
-			if err := c.ChannelRepository.NewQuery(ctx.GetDB()).Save(channel); err != nil {
+			if err := c.RepositoryContainer.ChannelRepository.NewQuery(goCtx).Save(channel); err != nil {
 				return err
 			}
 		}
 
-		livers, err = c.LiverRepository.NewQuery(tx).JoinChannel().FindAll()
+		livers, err = c.RepositoryContainer.LiverRepository.NewQuery(goCtx).JoinChannel().FindAll()
 		if err != nil {
 			return err
 		}
@@ -73,14 +70,14 @@ func (c *LiverController) ListLivers(ctx context.Context) error {
 	})
 }
 
-func (c *LiverController) GetLiver(ctx context.Context) error {
+func (c *LiverController) GetLiver(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
 	liverID := ctx.Param("liver_id")
 	if liverID == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "please specify liver_id")
 	}
 
-	tx := ctx.GetDB()
-	liver, err := c.LiverRepository.NewQuery(tx).
+	liver, err := c.RepositoryContainer.LiverRepository.NewQuery(goCtx).
 		JoinChannel().Where(&model.Liver{ID: liverID}).Find()
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, "liver was not found")

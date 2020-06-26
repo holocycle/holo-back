@@ -5,7 +5,7 @@ import (
 )
 
 var (
-	InternalError = service.NewNotFoundError("Sorry. Please retry later.")
+	InternalError = service.NewInternalError("Sorry. Please retry later.")
 )
 
 var (

@@ -1,12 +1,15 @@
 package repository
 
 import (
+	"context"
+
+	app_context "github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/jinzhu/gorm"
 )
 
 type SessionRepository interface {
-	NewQuery(tx *gorm.DB) SessionQuery
+	NewQuery(ctx context.Context) SessionQuery
 }
 
 type SessionQuery interface {
@@ -25,8 +28,8 @@ func NewSessionRepository() SessionRepository {
 
 type SessionRepositoryImpl struct{}
 
-func (r *SessionRepositoryImpl) NewQuery(tx *gorm.DB) SessionQuery {
-	return &SessionQueryImpl{Tx: tx}
+func (r *SessionRepositoryImpl) NewQuery(ctx context.Context) SessionQuery {
+	return &SessionQueryImpl{Tx: app_context.GetDB(ctx)}
 }
 
 type SessionQueryImpl struct {

@@ -1,12 +1,15 @@
 package repository
 
 import (
+	"context"
+
+	app_context "github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/jinzhu/gorm"
 )
 
 type FavoriteRepository interface {
-	NewQuery(tx *gorm.DB) FavoriteQuery
+	NewQuery(ctx context.Context) FavoriteQuery
 }
 
 type FavoriteQuery interface {
@@ -18,6 +21,7 @@ type FavoriteQuery interface {
 	FindAll() ([]*model.Favorite, error)
 	Save(Favorite *model.Favorite) error
 	Delete() (int, error)
+	Count() (int, error)
 }
 
 func NewFavoriteRepository() FavoriteRepository {
@@ -26,8 +30,8 @@ func NewFavoriteRepository() FavoriteRepository {
 
 type FavoriteRepositoryImpl struct{}
 
-func (r *FavoriteRepositoryImpl) NewQuery(tx *gorm.DB) FavoriteQuery {
-	return &FavoriteQueryImpl{Tx: tx}
+func (r *FavoriteRepositoryImpl) NewQuery(ctx context.Context) FavoriteQuery {
+	return &FavoriteQueryImpl{Tx: app_context.GetDB(ctx)}
 }
 
 type FavoriteQueryImpl struct {
@@ -39,7 +43,11 @@ func (q *FavoriteQueryImpl) Where(cond *model.Favorite) FavoriteQuery {
 }
 
 func (q *FavoriteQueryImpl) JoinClip() FavoriteQuery {
-	return &FavoriteQueryImpl{Tx: q.Tx.Preload("clip")}
+	return &FavoriteQueryImpl{
+		Tx: q.Tx.
+			Preload("Clip").
+			Preload("Clip.Video"),
+	}
 }
 
 func (q *FavoriteQueryImpl) Create(Favorite *model.Favorite) error {
@@ -71,4 +79,12 @@ func (q *FavoriteQueryImpl) Save(Favorite *model.Favorite) error {
 func (q *FavoriteQueryImpl) Delete() (int, error) {
 	res := q.Tx.Delete(&model.Favorite{})
 	return (int)(res.RowsAffected), newErr(res.Error)
+}
+
+func (q *FavoriteQueryImpl) Count() (int, error) {
+	var count int
+	if err := q.Tx.Model(&model.Favorite{}).Count(&count).Error; err != nil {
+		return -1, newErr(err)
+	}
+	return count, nil
 }

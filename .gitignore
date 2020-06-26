@@ -7,3 +7,9 @@ cover.out
 
 .envrc
 scripts/app/secret.env
+
+# IDE / Editor
+.idea
+
+# macOS
+.DS_Store

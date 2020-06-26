@@ -1,12 +1,13 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 
 	"github.com/holocycle/holo-back/internal/app/config"
 	"github.com/holocycle/holo-back/internal/app/controller"
-	"github.com/holocycle/holo-back/pkg/context"
+	app_context "github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/db"
 	"github.com/holocycle/holo-back/pkg/logger"
 	"github.com/holocycle/holo-back/pkg/middleware"
@@ -51,11 +52,11 @@ func main() {
 	middlewares := []echo.MiddlewareFunc{
 		echo_middleware.Recover(),
 		middleware.NewCORSMiddleware(&config.CORS),
-		middleware.NewContextMiddleware(),
 		middleware.NewLoggerMiddleware(log),
 		middleware.NewContextHandleMiddleware(func(ctx context.Context) (context.Context, error) {
-			ctx.SetLog(ctx.GetLog().With(zap.String("requestID", model.GetIDGenerator().New())))
-			return ctx, nil
+			id := model.GetIDGenerator().New()
+			log := app_context.GetLog(ctx).With(zap.String("requestID", id))
+			return app_context.SetLog(ctx, log), nil
 		}),
 		middleware.NewRequestLoggingMiddleware(),
 		middleware.NewErrorLoggingMiddleware(),

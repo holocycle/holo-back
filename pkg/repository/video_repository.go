@@ -1,12 +1,15 @@
 package repository
 
 import (
+	"context"
+
+	app_context "github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/jinzhu/gorm"
 )
 
 type VideoRepository interface {
-	NewQuery(tx *gorm.DB) VideoQuery
+	NewQuery(ctx context.Context) VideoQuery
 }
 
 type VideoQuery interface {
@@ -25,8 +28,8 @@ func NewVideoRepository() VideoRepository {
 
 type VideoRepositoryImpl struct{}
 
-func (r *VideoRepositoryImpl) NewQuery(tx *gorm.DB) VideoQuery {
-	return &VideoQueryImpl{Tx: tx}
+func (r *VideoRepositoryImpl) NewQuery(ctx context.Context) VideoQuery {
+	return &VideoQueryImpl{Tx: app_context.GetDB(ctx)}
 }
 
 type VideoQueryImpl struct {

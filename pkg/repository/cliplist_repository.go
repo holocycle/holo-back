@@ -1,12 +1,15 @@
 package repository
 
 import (
+	"context"
+
+	app_context "github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/jinzhu/gorm"
 )
 
 type CliplistRepository interface {
-	NewQuery(tx *gorm.DB) CliplistQuery
+	NewQuery(ctx context.Context) CliplistQuery
 }
 
 type CliplistQuery interface {
@@ -26,8 +29,8 @@ func NewCliplistRepository() CliplistRepository {
 
 type CliplistRepositoryImpl struct{}
 
-func (r *CliplistRepositoryImpl) NewQuery(tx *gorm.DB) CliplistQuery {
-	return &CliplistQueryImpl{Tx: tx}
+func (r *CliplistRepositoryImpl) NewQuery(ctx context.Context) CliplistQuery {
+	return &CliplistQueryImpl{Tx: app_context.GetDB(ctx)}
 }
 
 type CliplistQueryImpl struct {

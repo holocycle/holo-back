@@ -4,9 +4,8 @@ import (
 	"net/http"
 
 	"github.com/holocycle/holo-back/internal/app/config"
-	app_context "github.com/holocycle/holo-back/internal/app/context"
 	"github.com/holocycle/holo-back/pkg/api"
-	"github.com/holocycle/holo-back/pkg/context"
+	app_context "github.com/holocycle/holo-back/pkg/context"
 	"github.com/holocycle/holo-back/pkg/converter"
 	"github.com/holocycle/holo-back/pkg/model"
 	"github.com/holocycle/holo-back/pkg/repository"
@@ -15,16 +14,14 @@ import (
 )
 
 type UserController struct {
-	Config             *config.AppConfig
-	UserRepository     repository.UserRepository
-	FavoriteRepository repository.FavoriteRepository
+	Config              *config.AppConfig
+	RepositoryContainer *repository.Container
 }
 
 func NewUserController(config *config.AppConfig) *UserController {
 	return &UserController{
-		Config:             config,
-		UserRepository:     repository.NewUserRepository(),
-		FavoriteRepository: repository.NewFavoriteRepository(),
+		Config:              config,
+		RepositoryContainer: repository.NewContainer(),
 	}
 }
 
@@ -36,8 +33,9 @@ func (c *UserController) Register(e *echo.Echo) {
 	get(e, "/users/:user_id/favorites", c.GetOneUsersFavorites)
 }
 
-func (c *UserController) ListUsers(ctx context.Context) error {
-	log := ctx.GetLog()
+func (c *UserController) ListUsers(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
+	log := app_context.GetLog(goCtx)
 
 	req := &api.ListUserRequest{}
 	if err := inject(ctx, req); err != nil {
@@ -45,8 +43,7 @@ func (c *UserController) ListUsers(ctx context.Context) error {
 	}
 	log.Info("success to validate", zap.Any("req", req))
 
-	tx := ctx.GetDB()
-	query := c.UserRepository.NewQuery(tx)
+	query := c.RepositoryContainer.UserRepository.NewQuery(goCtx)
 	if req.Limit > 0 {
 		query = query.Limit(req.Limit)
 	}
@@ -69,8 +66,9 @@ func (c *UserController) ListUsers(ctx context.Context) error {
 	})
 }
 
-func (c *UserController) GetUsersMe(ctx context.Context) error {
-	log := ctx.GetLog()
+func (c *UserController) GetUsersMe(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
+	log := app_context.GetLog(goCtx)
 
 	req := &api.GetLoginUserRequest{}
 	if err := inject(ctx, req); err != nil {
@@ -78,9 +76,8 @@ func (c *UserController) GetUsersMe(ctx context.Context) error {
 	}
 	log.Info("success to validate", zap.Any("req", req))
 
-	tx := ctx.GetDB()
-	loginUserID := app_context.GetSession(ctx).UserID
-	loginUser, err := c.UserRepository.NewQuery(tx).Where(&model.User{ID: loginUserID}).Find()
+	loginUserID := app_context.GetSession(goCtx).UserID
+	loginUser, err := c.RepositoryContainer.UserRepository.NewQuery(goCtx).Where(&model.User{ID: loginUserID}).Find()
 	if err != nil {
 		return err
 	}
@@ -92,9 +89,10 @@ func (c *UserController) GetUsersMe(ctx context.Context) error {
 	})
 }
 
-func (c *UserController) GetLoginUserFavorites(ctx context.Context) error {
-	loginUserID := app_context.GetSession(ctx).UserID
-	log := ctx.GetLog()
+func (c *UserController) GetLoginUserFavorites(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
+	log := app_context.GetLog(goCtx)
+	loginUserID := app_context.GetSession(goCtx).UserID
 
 	req := &api.GetUserFavoritesRequest{}
 	if err := inject(ctx, req); err != nil {
@@ -102,8 +100,7 @@ func (c *UserController) GetLoginUserFavorites(ctx context.Context) error {
 	}
 	log.Info("success to validate", zap.Any("req", req))
 
-	tx := ctx.GetDB()
-	favorites, err := c.FavoriteRepository.NewQuery(tx).
+	favorites, err := c.RepositoryContainer.FavoriteRepository.NewQuery(goCtx).
 		Where(&model.Favorite{UserID: loginUserID}).
 		JoinClip().
 		FindAll()
@@ -116,16 +113,17 @@ func (c *UserController) GetLoginUserFavorites(ctx context.Context) error {
 	})
 }
 
-func (c *UserController) GetOneUser(ctx context.Context) error {
-	log := ctx.GetLog()
+func (c *UserController) GetOneUser(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
+	log := app_context.GetLog(goCtx)
+
 	userID := ctx.Param("user_id")
 	if userID == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "please specify user_id")
 	}
 	log.Debug("success to validate request", zap.String("userID", userID))
 
-	tx := ctx.GetDB()
-	user, err := c.UserRepository.NewQuery(tx).Where(&model.User{ID: userID}).Find()
+	user, err := c.RepositoryContainer.UserRepository.NewQuery(goCtx).Where(&model.User{ID: userID}).Find()
 	if err != nil {
 		return err
 	}
@@ -137,16 +135,17 @@ func (c *UserController) GetOneUser(ctx context.Context) error {
 	})
 }
 
-func (c *UserController) GetOneUsersFavorites(ctx context.Context) error {
-	log := ctx.GetLog()
+func (c *UserController) GetOneUsersFavorites(ctx echo.Context) error {
+	goCtx := ctx.Request().Context()
+	log := app_context.GetLog(goCtx)
+
 	userID := ctx.Param("user_id")
 	if userID == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "please specify user_id")
 	}
 	log.Debug("success to validate request", zap.String("userID", userID))
 
-	tx := ctx.GetDB()
-	favorites, err := c.FavoriteRepository.NewQuery(tx).
+	favorites, err := c.RepositoryContainer.FavoriteRepository.NewQuery(goCtx).
 		Where(&model.Favorite{UserID: userID}).
 		JoinClip().
 		FindAll()
