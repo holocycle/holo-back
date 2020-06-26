@@ -43,7 +43,11 @@ func (q *FavoriteQueryImpl) Where(cond *model.Favorite) FavoriteQuery {
 }
 
 func (q *FavoriteQueryImpl) JoinClip() FavoriteQuery {
-	return &FavoriteQueryImpl{Tx: q.Tx.Preload("clip")}
+	return &FavoriteQueryImpl{
+		Tx: q.Tx.
+			Preload("Clip").
+			Preload("Clip.Video"),
+	}
 }
 
 func (q *FavoriteQueryImpl) Create(Favorite *model.Favorite) error {
