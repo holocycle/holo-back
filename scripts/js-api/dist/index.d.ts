@@ -77,9 +77,15 @@ export declare class Clip {
     video: Video;
     static createFrom(source: any): Clip;
 }
+export declare class ClipFilter {
+    tags: string[];
+    createdBy: string;
+    static createFrom(source: any): ClipFilter;
+}
 export declare class ListClipsRequest {
     limit: number;
     orderBy: string;
+    filter: ClipFilter;
     static createFrom(source: any): ListClipsRequest;
 }
 export declare class ListClipsResponse {
@@ -176,6 +182,7 @@ export declare class Tag {
     static createFrom(source: any): Tag;
 }
 export declare class ListTagsRequest {
+    key: string;
     static createFrom(source: any): ListTagsRequest;
 }
 export declare class ListTagsResponse {

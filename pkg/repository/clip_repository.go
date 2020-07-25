@@ -21,6 +21,7 @@ type ClipQuery interface {
 	TopRated() ClipQuery
 	JoinVideo() ClipQuery
 	JoinFavorite() ClipQuery
+	JoinClipTaggedIn(tagIDs []*string) ClipQuery
 
 	Create(clip *model.Clip) error
 	Find() (*model.Clip, error)
@@ -73,6 +74,10 @@ func (q *ClipQueryImpl) JoinVideo() ClipQuery {
 
 func (q *ClipQueryImpl) JoinFavorite() ClipQuery {
 	return &ClipQueryImpl{Tx: q.Tx.Preload("Favorites")}
+}
+
+func (q *ClipQueryImpl) JoinClipTaggedIn(tagIDs []*string) ClipQuery {
+	return &ClipQueryImpl{Tx: q.Tx.Preload("ClipTagged", "clipId IN (?)", tagIDs)}
 }
 
 func (q *ClipQueryImpl) Create(clip *model.Clip) error {

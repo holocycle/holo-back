@@ -46,8 +46,18 @@ func (c *ClipController) ListClips(ctx echo.Context) error {
 	log.Debug("success to validate", zap.Any("req", req))
 
 	query := c.RepositoryContainer.ClipRepository.NewQuery(goCtx).
-		Where(&model.Clip{Status: model.ClipStatusPublic}).
-		JoinVideo().
+		Where(&model.Clip{Status: model.ClipStatusPublic})
+
+	createdBy := req.Filter.CreatedBy
+	if createdBy != "" {
+		query = query.Where(&model.Clip{UserID: createdBy})
+	}
+	tags := req.Filter.Tags
+	if len(tags) > 0 {
+		query = query.JoinClipTaggedIn(tags)
+	}
+
+	query = query.JoinVideo().
 		JoinFavorite()
 	if req.Limit > 0 {
 		query = query.Limit(req.Limit)

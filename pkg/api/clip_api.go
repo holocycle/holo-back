@@ -10,9 +10,15 @@ type Clip struct {
 	Video         *Video `json:"video"`
 }
 
+type ClipFilter struct {
+	Tags      []*string `json:"tags"`
+	CreatedBy string    `json:"createdBy"`
+}
+
 type ListClipsRequest struct {
-	Limit   int    `json:"limit"   validate:"min=0,max=100"`
-	OrderBy string `json:"orderBy" validate:"oneof=any latest toprated"`
+	Limit   int        `json:"limit"   validate:"min=0,max=100"`
+	OrderBy string     `json:"orderBy" validate:"oneof=any latest toprated"`
+	Filter  ClipFilter `json:"filter"`
 }
 
 type ListClipsResponse struct {
