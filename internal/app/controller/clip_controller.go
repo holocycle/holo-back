@@ -48,11 +48,11 @@ func (c *ClipController) ListClips(ctx echo.Context) error {
 	query := c.RepositoryContainer.ClipRepository.NewQuery(goCtx).
 		Where(&model.Clip{Status: model.ClipStatusPublic})
 
-	createdBy := req.Filter.CreatedBy
+	createdBy := req.CreatedBy
 	if createdBy != "" {
 		query = query.Where(&model.Clip{UserID: createdBy})
 	}
-	tags := req.Filter.Tags
+	tags := req.Tags
 	if len(tags) > 0 {
 		query = query.JoinClipTaggedIn(tags)
 	}

@@ -23,9 +23,9 @@ type Clip struct {
 	CreatedAt   *time.Time
 	UpdatedAt   *time.Time
 
-	Video       *Video
-	Favorites   []*Favorite
-	ClipTaggeds []*ClipTagged
+	Video      *Video
+	Favorites  []*Favorite
+	ClipTagged []*ClipTagged
 }
 
 func NewClip(

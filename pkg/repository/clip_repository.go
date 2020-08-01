@@ -60,11 +60,13 @@ func (q *ClipQueryImpl) TopRated() ClipQuery {
 	tx := q.Tx.Table("clips").
 		Select(strings.Join([]string{
 			"clips.*",
-			"COUNT(favorites.clip_id) as favorite_count",
+			"COUNT(distinct favorites.user_id) as favorite_count",
 		}, ",")).
 		Joins("LEFT JOIN favorites ON clips.id = favorites.clip_id").
+		//Joins("INNER JOIN clip_tagged ON clips.id = clip_tagged.clip_id").
 		Group("clips.id").
-		Order("favorite_count desc")
+		Order("favorite_count desc").
+		Having("COUNT(distinct clip_tagged.tag_id) = 2")
 	return &ClipQueryImpl{Tx: tx}
 }
 
@@ -77,7 +79,17 @@ func (q *ClipQueryImpl) JoinFavorite() ClipQuery {
 }
 
 func (q *ClipQueryImpl) JoinClipTaggedIn(tagIDs []*string) ClipQuery {
-	return &ClipQueryImpl{Tx: q.Tx.Preload("ClipTagged", "clipId IN (?)", tagIDs)}
+	var ids []string
+	for _, tagID := range tagIDs {
+		ids = append(ids, *tagID)
+	}
+	return &ClipQueryImpl{Tx: q.Tx.
+		Select("clips.*", "COUNT(clip_tagged.clip_id").
+		Joins("INNER JOIN clip_tagged ON clips.id = clip_tagged.clip_id").
+		Where("clip_tagged.tag_id IN (?)", ids).
+		Group("clip_tagged.clip_id")}
+
+	//.Where("amount > ?", db.Table("orders").Select("AVG(amount)").Where("state = ?", "paid").SubQuery())
 }
 
 func (q *ClipQueryImpl) Create(clip *model.Clip) error {
