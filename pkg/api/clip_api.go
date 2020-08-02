@@ -13,7 +13,7 @@ type Clip struct {
 type ListClipsRequest struct {
 	Limit     int       `json:"limit"   validate:"min=0,max=100"`
 	OrderBy   string    `json:"orderBy" validate:"oneof=any latest toprated"`
-	Tags      []*string `json:"Tags"`
+	Tags      []*string `json:"tags"`
 	CreatedBy string    `json:"createdBy"`
 }
 

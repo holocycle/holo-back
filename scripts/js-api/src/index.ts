@@ -193,30 +193,19 @@ export class Clip {
   }
 
 }
-export class ClipFilter {
-  tags: string[];
-  createdBy: string;
-
-  static createFrom(source: any) {
-    if ('string' === typeof source) source = JSON.parse(source);
-    const result = new ClipFilter();
-    result.tags = source["tags"];
-    result.createdBy = source["createdBy"];
-    return result;
-  }
-
-}
 export class ListClipsRequest {
   limit: number;
   orderBy: string;
-  filter: ClipFilter;
+  tags: string[];
+  createdBy: string;
 
   static createFrom(source: any) {
     if ('string' === typeof source) source = JSON.parse(source);
     const result = new ListClipsRequest();
     result.limit = source["limit"];
     result.orderBy = source["orderBy"];
-    result.filter = source["filter"] ? ClipFilter.createFrom(source["filter"]) : null;
+    result.tags = source["tags"];
+    result.createdBy = source["createdBy"];
     return result;
   }
 

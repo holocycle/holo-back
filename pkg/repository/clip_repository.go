@@ -15,6 +15,7 @@ type ClipRepository interface {
 
 type ClipQuery interface {
 	Where(cond *model.Clip) ClipQuery
+	Having(sql string, param int) ClipQuery
 
 	Limit(limit int) ClipQuery
 	Latest() ClipQuery
@@ -48,12 +49,17 @@ func (q *ClipQueryImpl) Where(cond *model.Clip) ClipQuery {
 	return &ClipQueryImpl{Tx: q.Tx.Where(cond)}
 }
 
+func (q *ClipQueryImpl) Having(sql string, param int) ClipQuery {
+	return &ClipQueryImpl{Tx: q.Tx.Having(sql, param)}
+}
+
 func (q *ClipQueryImpl) Limit(limit int) ClipQuery {
 	return &ClipQueryImpl{Tx: q.Tx.Limit(limit)}
 }
 
 func (q *ClipQueryImpl) Latest() ClipQuery {
-	return &ClipQueryImpl{Tx: q.Tx.Order("created_at desc")}
+	return &ClipQueryImpl{Tx: q.Tx.Order("created_at desc").
+		Group("clips.id")}
 }
 
 func (q *ClipQueryImpl) TopRated() ClipQuery {
@@ -63,10 +69,8 @@ func (q *ClipQueryImpl) TopRated() ClipQuery {
 			"COUNT(distinct favorites.user_id) as favorite_count",
 		}, ",")).
 		Joins("LEFT JOIN favorites ON clips.id = favorites.clip_id").
-		//Joins("INNER JOIN clip_tagged ON clips.id = clip_tagged.clip_id").
 		Group("clips.id").
-		Order("favorite_count desc").
-		Having("COUNT(distinct clip_tagged.tag_id) = 2")
+		Order("favorite_count desc")
 	return &ClipQueryImpl{Tx: tx}
 }
 
@@ -78,18 +82,16 @@ func (q *ClipQueryImpl) JoinFavorite() ClipQuery {
 	return &ClipQueryImpl{Tx: q.Tx.Preload("Favorites")}
 }
 
-func (q *ClipQueryImpl) JoinClipTaggedIn(tagIDs []*string) ClipQuery {
+func (q *ClipQueryImpl) JoinClipTaggedIn(tagNames []*string) ClipQuery {
 	var ids []string
-	for _, tagID := range tagIDs {
+	for _, tagID := range tagNames {
 		ids = append(ids, *tagID)
 	}
 	return &ClipQueryImpl{Tx: q.Tx.
-		Select("clips.*", "COUNT(clip_tagged.clip_id").
 		Joins("INNER JOIN clip_tagged ON clips.id = clip_tagged.clip_id").
-		Where("clip_tagged.tag_id IN (?)", ids).
+		Joins("INNER JOIN tags ON clip_tagged.tag_id = tags.id").
+		Where("tags.name IN (?)", ids).
 		Group("clip_tagged.clip_id")}
-
-	//.Where("amount > ?", db.Table("orders").Select("AVG(amount)").Where("state = ?", "paid").SubQuery())
 }
 
 func (q *ClipQueryImpl) Create(clip *model.Clip) error {

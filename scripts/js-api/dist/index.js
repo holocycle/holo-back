@@ -179,20 +179,6 @@ var Clip = /** @class */ (function () {
     return Clip;
 }());
 exports.Clip = Clip;
-var ClipFilter = /** @class */ (function () {
-    function ClipFilter() {
-    }
-    ClipFilter.createFrom = function (source) {
-        if ('string' === typeof source)
-            source = JSON.parse(source);
-        var result = new ClipFilter();
-        result.tags = source["tags"];
-        result.createdBy = source["createdBy"];
-        return result;
-    };
-    return ClipFilter;
-}());
-exports.ClipFilter = ClipFilter;
 var ListClipsRequest = /** @class */ (function () {
     function ListClipsRequest() {
     }
@@ -202,7 +188,8 @@ var ListClipsRequest = /** @class */ (function () {
         var result = new ListClipsRequest();
         result.limit = source["limit"];
         result.orderBy = source["orderBy"];
-        result.filter = source["filter"] ? ClipFilter.createFrom(source["filter"]) : null;
+        result.tags = source["tags"];
+        result.createdBy = source["createdBy"];
         return result;
     };
     return ListClipsRequest;
