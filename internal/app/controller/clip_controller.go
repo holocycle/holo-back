@@ -57,7 +57,7 @@ func (c *ClipController) ListClips(ctx echo.Context) error {
 	// tag情報から絞り込みに利用する情報を取得する
 	tags := req.Tags
 	if len(tags) > 0 {
-		query = query.JoinClipTaggedIn(tags)
+		query = query.WhereContainsTags(tags)
 	}
 
 	query = query.JoinVideo().
@@ -70,11 +70,6 @@ func (c *ClipController) ListClips(ctx echo.Context) error {
 		query = query.Latest()
 	} else if req.OrderBy == "toprated" {
 		query = query.TopRated()
-	}
-
-	// 絞り込み用のtagが指定されていた場合、すべてのtagが付与されているものを対象とする。
-	if len(tags) > 0 {
-		query.Having("COUNT(distinct clip_tagged.tag_id) = (?)", len(tags))
 	}
 
 	clips, err := query.FindAll()

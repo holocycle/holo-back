@@ -15,14 +15,13 @@ type ClipRepository interface {
 
 type ClipQuery interface {
 	Where(cond *model.Clip) ClipQuery
-	Having(sql string, param int) ClipQuery
 
 	Limit(limit int) ClipQuery
 	Latest() ClipQuery
 	TopRated() ClipQuery
 	JoinVideo() ClipQuery
 	JoinFavorite() ClipQuery
-	JoinClipTaggedIn(tagIDs []*string) ClipQuery
+	WhereContainsTags(tagIDs []string) ClipQuery
 
 	Create(clip *model.Clip) error
 	Find() (*model.Clip, error)
@@ -47,10 +46,6 @@ type ClipQueryImpl struct {
 
 func (q *ClipQueryImpl) Where(cond *model.Clip) ClipQuery {
 	return &ClipQueryImpl{Tx: q.Tx.Where(cond)}
-}
-
-func (q *ClipQueryImpl) Having(sql string, param int) ClipQuery {
-	return &ClipQueryImpl{Tx: q.Tx.Having(sql, param)}
 }
 
 func (q *ClipQueryImpl) Limit(limit int) ClipQuery {
@@ -82,16 +77,17 @@ func (q *ClipQueryImpl) JoinFavorite() ClipQuery {
 	return &ClipQueryImpl{Tx: q.Tx.Preload("Favorites")}
 }
 
-func (q *ClipQueryImpl) JoinClipTaggedIn(tagNames []*string) ClipQuery {
-	var ids []string
-	for _, tagID := range tagNames {
-		ids = append(ids, *tagID)
-	}
+func (q *ClipQueryImpl) WhereContainsTags(tagNames []string) ClipQuery {
 	return &ClipQueryImpl{Tx: q.Tx.
-		Joins("INNER JOIN clip_tagged ON clips.id = clip_tagged.clip_id").
-		Joins("INNER JOIN tags ON clip_tagged.tag_id = tags.id").
-		Where("tags.name IN (?)", ids).
-		Group("clip_tagged.clip_id")}
+		Where("clips.id IN (?)",
+			q.Tx.Table("clip_tagged").
+				Select("clip_tagged.clip_id").
+				Joins("INNER JOIN tags ON clip_tagged.tag_id = tags.id").
+				Where("tags.name IN (?)", tagNames).
+				Group("clip_tagged.clip_id").
+				Having("COUNT(distinct clip_tagged.tag_id) = (?)", len(tagNames)).
+				SubQuery(),
+		)}
 }
 
 func (q *ClipQueryImpl) Create(clip *model.Clip) error {
