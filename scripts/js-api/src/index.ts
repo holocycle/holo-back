@@ -196,12 +196,16 @@ export class Clip {
 export class ListClipsRequest {
   limit: number;
   orderBy: string;
+  tags: string[];
+  createdBy: string;
 
   static createFrom(source: any) {
     if ('string' === typeof source) source = JSON.parse(source);
     const result = new ListClipsRequest();
     result.limit = source["limit"];
     result.orderBy = source["orderBy"];
+    result.tags = source["tags"];
+    result.createdBy = source["createdBy"];
     return result;
   }
 
@@ -453,10 +457,12 @@ export class Tag {
 
 }
 export class ListTagsRequest {
+  key: string;
 
   static createFrom(source: any) {
     if ('string' === typeof source) source = JSON.parse(source);
     const result = new ListTagsRequest();
+    result.key = source["key"];
     return result;
   }
 

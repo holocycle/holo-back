@@ -46,8 +46,21 @@ func (c *ClipController) ListClips(ctx echo.Context) error {
 	log.Debug("success to validate", zap.Any("req", req))
 
 	query := c.RepositoryContainer.ClipRepository.NewQuery(goCtx).
-		Where(&model.Clip{Status: model.ClipStatusPublic}).
-		JoinVideo().
+		Where(&model.Clip{Status: model.ClipStatusPublic})
+
+	// clip作成者を絞り込む
+	createdBy := req.CreatedBy
+	if createdBy != "" {
+		query = query.Where(&model.Clip{UserID: createdBy})
+	}
+
+	// tag情報から絞り込みに利用する情報を取得する
+	tags := req.Tags
+	if len(tags) > 0 {
+		query = query.WhereContainsTags(tags)
+	}
+
+	query = query.JoinVideo().
 		JoinFavorite()
 	if req.Limit > 0 {
 		query = query.Limit(req.Limit)
@@ -58,6 +71,7 @@ func (c *ClipController) ListClips(ctx echo.Context) error {
 	} else if req.OrderBy == "toprated" {
 		query = query.TopRated()
 	}
+
 	clips, err := query.FindAll()
 	if err != nil {
 		return err

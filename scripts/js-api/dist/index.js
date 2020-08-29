@@ -188,6 +188,8 @@ var ListClipsRequest = /** @class */ (function () {
         var result = new ListClipsRequest();
         result.limit = source["limit"];
         result.orderBy = source["orderBy"];
+        result.tags = source["tags"];
+        result.createdBy = source["createdBy"];
         return result;
     };
     return ListClipsRequest;
@@ -473,6 +475,7 @@ var ListTagsRequest = /** @class */ (function () {
         if ('string' === typeof source)
             source = JSON.parse(source);
         var result = new ListTagsRequest();
+        result.key = source["key"];
         return result;
     };
     return ListTagsRequest;

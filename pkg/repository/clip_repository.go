@@ -21,6 +21,7 @@ type ClipQuery interface {
 	TopRated() ClipQuery
 	JoinVideo() ClipQuery
 	JoinFavorite() ClipQuery
+	WhereContainsTags(tagIDs []string) ClipQuery
 
 	Create(clip *model.Clip) error
 	Find() (*model.Clip, error)
@@ -52,14 +53,15 @@ func (q *ClipQueryImpl) Limit(limit int) ClipQuery {
 }
 
 func (q *ClipQueryImpl) Latest() ClipQuery {
-	return &ClipQueryImpl{Tx: q.Tx.Order("created_at desc")}
+	return &ClipQueryImpl{Tx: q.Tx.Order("created_at desc").
+		Group("clips.id")}
 }
 
 func (q *ClipQueryImpl) TopRated() ClipQuery {
 	tx := q.Tx.Table("clips").
 		Select(strings.Join([]string{
 			"clips.*",
-			"COUNT(favorites.clip_id) as favorite_count",
+			"COUNT(distinct favorites.user_id) as favorite_count",
 		}, ",")).
 		Joins("LEFT JOIN favorites ON clips.id = favorites.clip_id").
 		Group("clips.id").
@@ -73,6 +75,19 @@ func (q *ClipQueryImpl) JoinVideo() ClipQuery {
 
 func (q *ClipQueryImpl) JoinFavorite() ClipQuery {
 	return &ClipQueryImpl{Tx: q.Tx.Preload("Favorites")}
+}
+
+func (q *ClipQueryImpl) WhereContainsTags(tagNames []string) ClipQuery {
+	return &ClipQueryImpl{Tx: q.Tx.
+		Where("clips.id IN (?)",
+			q.Tx.Table("clip_tagged").
+				Select("clip_tagged.clip_id").
+				Joins("INNER JOIN tags ON clip_tagged.tag_id = tags.id").
+				Where("tags.name IN (?)", tagNames).
+				Group("clip_tagged.clip_id").
+				Having("COUNT(distinct clip_tagged.tag_id) = (?)", len(tagNames)).
+				SubQuery(),
+		)}
 }
 
 func (q *ClipQueryImpl) Create(clip *model.Clip) error {

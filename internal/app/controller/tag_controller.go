@@ -41,7 +41,11 @@ func (c *TagController) ListTags(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	tags, err := c.RepositoryContainer.TagRepository.NewQuery(goCtx).FindAll()
+	query := c.RepositoryContainer.TagRepository.NewQuery(goCtx)
+	if req.Key != "" {
+		query = query.Like(req.Key)
+	}
+	tags, err := query.FindAll()
 	if err != nil {
 		return err
 	}

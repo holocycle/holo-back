@@ -15,6 +15,7 @@ type TagRepository interface {
 
 type TagQuery interface {
 	Where(cond *model.Tag) TagQuery
+	Like(name string) TagQuery
 
 	Create(tag *model.Tag) error
 	Find() (*model.Tag, error)
@@ -40,6 +41,12 @@ type TagQueryImpl struct {
 
 func (q *TagQueryImpl) Where(cond *model.Tag) TagQuery {
 	return &TagQueryImpl{Tx: q.Tx.Where(cond)}
+}
+
+func (q *TagQueryImpl) Like(name string) TagQuery {
+	tx := q.Tx.Table("tags").
+		Where("name LIKE ?", "%"+name+"%")
+	return &TagQueryImpl{Tx: tx}
 }
 
 func (q *TagQueryImpl) Create(tag *model.Tag) error {

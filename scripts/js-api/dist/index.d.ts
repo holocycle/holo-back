@@ -80,6 +80,8 @@ export declare class Clip {
 export declare class ListClipsRequest {
     limit: number;
     orderBy: string;
+    tags: string[];
+    createdBy: string;
     static createFrom(source: any): ListClipsRequest;
 }
 export declare class ListClipsResponse {
@@ -176,6 +178,7 @@ export declare class Tag {
     static createFrom(source: any): Tag;
 }
 export declare class ListTagsRequest {
+    key: string;
     static createFrom(source: any): ListTagsRequest;
 }
 export declare class ListTagsResponse {

@@ -7,6 +7,7 @@ type Tag struct {
 }
 
 type ListTagsRequest struct {
+	Key string `json:"key"`
 }
 
 type ListTagsResponse struct {
