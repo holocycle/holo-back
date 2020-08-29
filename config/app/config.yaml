@@ -12,6 +12,7 @@ googleoauth2:
   googleauthurl: "https://accounts.google.com/o/oauth2/auth"
   googletokenurl: "https://accounts.google.com/o/oauth2/token"
   googletokeninfourl: "https://oauth2.googleapis.com/tokeninfo"
+  googleuserinfourl: "https://www.googleapis.com/oauth2/v1/userinfo"
   clientid: "904632099489-0cfq1s2icvrncfeu2ufk4lkivp50i60q.apps.googleusercontent.com"
   clientsecret: "" # env
   clientredirecturl: "" # overlay
