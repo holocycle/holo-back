@@ -100,7 +100,17 @@ func (c *AuthnController) LoginGoogleCallback(ctx echo.Context) error {
 		return err
 	}
 
-	email, ok := tokenInfoJSON["email"].(string)
+	userInfoJSON, err := httpclient.Get(c.Config.GoogleOAuth2.GoogleUserInfoURL, map[string]string{
+		"access_token": tokenJSON["access_token"].(string),
+	})
+	if err != nil {
+		return err
+	}
+	log.Info("success to get userInfo", zap.Any("userInfo", userInfoJSON))
+	name := userInfoJSON["name"].(string)
+	picture := userInfoJSON["picture"].(string)
+
+	email, ok := userInfoJSON["email"].(string)
 	if !ok {
 		log.Error("email not found", zap.Any("response", tokenInfoJSON))
 		return errors.New("email not found")
@@ -115,12 +125,23 @@ func (c *AuthnController) LoginGoogleCallback(ctx echo.Context) error {
 
 	if repository.NotFoundError(err) {
 		log.Info("user not found", zap.String("email", email))
-		//TODO: imageURLの取得処理
-		user = model.NewUser(email, email, "https://yt3.ggpht.com/a/AATXAJwHPp_TkvcWJyblt9XVYDjNSjrj6KdpQSCQNQ=s288-c-k-c0xffffffff-no-rj-mo")
+		user = model.NewUser(name, email, picture)
 		if err := c.RepositoryContainer.UserRepository.NewQuery(goCtx).Create(user); err != nil {
 			return err
 		}
 		log.Info("success to create user", zap.Any("user", user))
+	} else {
+		// ログイン時にすでにユーザが存在していた場合の分岐
+		// TODO 条件分岐が酷いのでservice化のときに実装の見直しをする
+		// ログイン時にユーザ情報がずれていた場合は最新化する
+		if user.IconURL != picture || user.Name != name {
+			user.IconURL = picture
+			user.Name = name
+			err := c.RepositoryContainer.UserRepository.NewQuery(goCtx).Save(user)
+			if err != nil {
+				return err
+			}
+		}
 	}
 	log.Info("success to find user", zap.Any("user", user))
 
